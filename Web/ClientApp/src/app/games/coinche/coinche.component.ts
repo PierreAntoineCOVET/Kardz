@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import Phaser from 'phaser';
+import { CoicheScene } from './scenes/game';
 
 @Component({
     selector: 'app-coinche',
     templateUrl: './coinche.component.html',
     styleUrls: ['./coinche.component.scss']
 })
+/**
+ * Component holding the game canvas.
+ */
 export class CoincheComponent implements OnInit {
 
     game: Phaser.Game;
@@ -27,39 +31,22 @@ export class CoincheComponent implements OnInit {
 
 }
 
+/**
+ * Entry point for the game. Load all scenes acording to context.
+ */
 class MainScene extends Phaser.Scene {
     private image: Phaser.GameObjects.Image;
 
     constructor() {
-        super({ key: 'Game' });
+        super({ key: 'Main' });
     }
 
-    create() {
-        this.image = this.add.image(400, 300, 'logo');
-    }
     preload() {
-        this.load.image('logo', 'assets/img/phaser2.png');
+    }
+    create() {
+        this.scene.add('game', new CoicheScene(), true);
     }
     update() {
-        const key = this.input.keyboard.createCursorKeys();
-
-        if (key.up.isDown) {
-            this.image.y -= 5;
-        }
-        else if (key.down.isDown) {
-            this.image.y += 5;
-        }
-
-        if (key.right.isDown) {
-            this.image.x += 5;
-        }
-        else if (key.left.isDown) {
-            this.image.x -= 5;
-        }
-
-        if (key.space.isDown) {
-            this.image.x = 400;
-            this.image.y = 300;
-        }
+        this.scene.start('game');
     }
 }
