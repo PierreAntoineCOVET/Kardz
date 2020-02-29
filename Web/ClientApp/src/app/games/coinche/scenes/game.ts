@@ -1,9 +1,18 @@
 import { Player } from '../domain/player';
+import { CardsService } from '../../../services/cards/cards.service';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
+import { GamesEnum } from '../../../typewriter/enums/GamesEnum.enum';
+import { Injectable } from '@angular/core';
 
 /**
  * Core Coinche game loading and orchestrator.
  */
-export class CoicheScene extends Phaser.Scene {
+@Injectable({
+    providedIn: 'root'
+})
+export class GameScene extends Phaser.Scene {
     private cards: Phaser.GameObjects.Sprite;
     private player: Player
     private cardsSpriteOption = {
@@ -11,7 +20,7 @@ export class CoicheScene extends Phaser.Scene {
         cardHeight: 440
     };
 
-    constructor() {
+    constructor(private cardService: CardsService) {
         super({ key: 'Game' });
         this.player = new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight);
     }
@@ -28,52 +37,10 @@ export class CoicheScene extends Phaser.Scene {
     update() {
     }
 
-    shuffleForPlayer(): number[] {
-        let possibleSprites = [
-            0,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-
-            13 + 0,
-            13 + 6,
-            13 + 7,
-            13 + 8,
-            13 + 9,
-            13 + 10,
-            13 + 11,
-            13 + 12,
-
-            (13 * 2) + 0,
-            (13 * 2) + 6,
-            (13 * 2) + 7,
-            (13 * 2) + 8,
-            (13 * 2) + 9,
-            (13 * 2) + 10,
-            (13 * 2) + 11,
-            (13 * 2) + 12,
-
-            (13 * 3) + 0,
-            (13 * 3) + 6,
-            (13 * 3) + 7,
-            (13 * 3) + 8,
-            (13 * 3) + 9,
-            (13 * 3) + 10,
-            (13 * 3) + 11,
-            (13 * 3) + 12,
-        ];
-
-        let selectedCards: number[] = [];
-
-        for (let i = 0; i < 7; i++) {
-            const cardNumber = Math.floor(Math.random() * possibleSprites.length);
-            selectedCards.push(possibleSprites.splice(cardNumber, 1)[0]);
-        }
-
-        return selectedCards;
+    shuffleForPlayer(): Observable<CardsEnum[]> {
+        return this.cardService.getShuffledCards(GamesEnum.Coinche)
+            .pipe(
+                map(cards => cards.splice(0, 7))
+            );
     }
 }

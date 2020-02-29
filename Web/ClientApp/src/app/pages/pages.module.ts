@@ -4,8 +4,9 @@ import { HomeComponent } from './home/home.component';
 import { CoincheComponent } from '../games/coinche/coinche.component';
 import { GamesModule } from '../games/games.module';
 
-
-
+/**
+ * Module registering all the pages components.
+ */
 @NgModule({
     declarations: [HomeComponent],
     imports: [

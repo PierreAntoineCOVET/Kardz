@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{66C6A655-6F4D-4AED-B670-128198E969F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{66C6A655-6F4D-4AED-B670-128198E969F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHandlers", "EventHandlers\EventHandlers.csproj", "{521545FA-66F0-4638-80BD-2B6E13EB8F2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{66C6A655-6F4D-4AED-B670-128198E969F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66C6A655-6F4D-4AED-B670-128198E969F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66C6A655-6F4D-4AED-B670-128198E969F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{521545FA-66F0-4638-80BD-2B6E13EB8F2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{521545FA-66F0-4638-80BD-2B6E13EB8F2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{521545FA-66F0-4638-80BD-2B6E13EB8F2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{521545FA-66F0-4638-80BD-2B6E13EB8F2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

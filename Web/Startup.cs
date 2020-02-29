@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,10 +14,22 @@ namespace Web
 {
     public class Startup
     {
+        private const string CORS_AUTHORISED_ORIGINS_LOCALHOST = "LocalHosts";
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
+
+            services.AddMediatR(Assembly.Load("EventHandlers"));
+
+            services.AddCors(option =>
+            {
+                option.AddPolicy(
+                    CORS_AUTHORISED_ORIGINS_LOCALHOST,
+                    builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -26,14 +40,17 @@ namespace Web
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(CORS_AUTHORISED_ORIGINS_LOCALHOST);
+
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapControllers();
+                //endpoints.MapGet("/", async context =>
+                //{
+                //    await context.Response.WriteAsync("Hello World!");
+                //});
             });
         }
     }

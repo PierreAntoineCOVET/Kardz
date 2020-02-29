@@ -1,0 +1,11 @@
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\bin\Debug\netstandard2.0\EventHandlers.deps.json
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\bin\Debug\netstandard2.0\EventHandlers.dll
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\obj\Debug\netstandard2.0\EventHandlers.csprojAssemblyReference.cache
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\obj\Debug\netstandard2.0\EventHandlers.AssemblyInfoInputs.cache
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\obj\Debug\netstandard2.0\EventHandlers.AssemblyInfo.cs
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\bin\Debug\netstandard2.0\EventHandlers.pdb
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\bin\Debug\netstandard2.0\Domain.dll
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\bin\Debug\netstandard2.0\Domain.pdb
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\obj\Debug\netstandard2.0\EventHandlers.csproj.CopyComplete
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\obj\Debug\netstandard2.0\EventHandlers.dll
+C:\Users\Pierre-Antoine\source\repos\Kardz\EventHandlers\obj\Debug\netstandard2.0\EventHandlers.pdb
