@@ -27,7 +27,7 @@ namespace Web.Controllers
         /// </summary>
         /// <param name="gameType">Game type <see cref="GamesEnum"/></param>
         /// <returns></returns>
-        [HttpGet("Api/Card/GetShuffledCards")]
+        [HttpGet]
         public async Task<IActionResult> GetShuffledCards(int gameType)
         {
             var query = new GetShuffledCardsQuery

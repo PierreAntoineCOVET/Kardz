@@ -30,6 +30,11 @@ namespace Web
                     CORS_AUTHORISED_ORIGINS_LOCALHOST,
                     builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader());
             });
+
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "ClientApp/dist";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,11 +52,12 @@ namespace Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                //endpoints.MapGet("/", async context =>
-                //{
-                //    await context.Response.WriteAsync("Hello World!");
-                //});
             });
+
+            if (env.IsProduction())
+            {
+                app.UseSpaStaticFiles();
+            }
         }
     }
 }

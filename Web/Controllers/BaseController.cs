@@ -10,6 +10,8 @@ namespace Web.Controllers
     /// <summary>
     /// Base controller for the application.
     /// </summary>
+    [Route("api/[controller]/[action]/{id?}")]
+    [ApiController]
     public abstract class BaseController : Controller
     {
         /// <summary>
