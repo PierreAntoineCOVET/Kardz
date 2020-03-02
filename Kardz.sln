@@ -5,9 +5,14 @@ VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{66C6A655-6F4D-4AED-B670-128198E969F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHandlers", "EventHandlers\EventHandlers.csproj", "{521545FA-66F0-4638-80BD-2B6E13EB8F2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventHandlers", "EventHandlers\EventHandlers.csproj", "{521545FA-66F0-4638-80BD-2B6E13EB8F2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{747521A0-B107-403D-B231-7617C213F7B5}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

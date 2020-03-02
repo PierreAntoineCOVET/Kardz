@@ -6,6 +6,7 @@
 
 /Web/obj
 /Web/bin
+/Web/Log
 
 /EventHandlers/obj
 /EventHandlers/bin

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using EventHandlers.Behavior;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Web
 {
@@ -22,7 +24,8 @@ namespace Web
         {
             services.AddControllers();
 
-            services.AddMediatR(Assembly.Load("EventHandlers"));
+            services.AddMediatR(Assembly.Load("EventHandlers"))
+                .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
             services.AddCors(option =>
             {
@@ -38,12 +41,14 @@ namespace Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            loggerFactory.AddLog4Net();
 
             app.UseCors(CORS_AUTHORISED_ORIGINS_LOCALHOST);
 
