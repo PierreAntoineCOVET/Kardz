@@ -17,7 +17,6 @@ namespace EventHandlers.Behavior
         public LoggingBehavior(ILoggerFactory plop)
         {
             Logger = plop.CreateLogger("LoggingBehavior");
-
         }
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
