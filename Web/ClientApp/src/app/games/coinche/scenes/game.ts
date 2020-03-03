@@ -1,8 +1,5 @@
 import { Player } from '../domain/player';
 import { CardsService } from '../../../services/cards/cards.service';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { GamesEnum } from '../../../typewriter/enums/GamesEnum.enum';
 import { Injectable } from '@angular/core';
 import { PlayerPosition } from '../domain/PlayerPosition';
@@ -10,9 +7,7 @@ import { PlayerPosition } from '../domain/PlayerPosition';
 /**
  * Core Coinche game loading and orchestrator.
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class GameScene extends Phaser.Scene {
     private cards: Phaser.GameObjects.Sprite;
     private players: Player[] = []
@@ -24,10 +19,10 @@ export class GameScene extends Phaser.Scene {
     constructor(private cardService: CardsService) {
         super({ key: 'Game' });
 
-        this.players.push(new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight, PlayerPosition.bottom, true));
-        this.players.push(new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight, PlayerPosition.leftt, false));
-        this.players.push(new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight, PlayerPosition.top, false));
-        this.players.push(new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight, PlayerPosition.right, false));
+        this.players.push(new Player(this, PlayerPosition.bottom, true));
+        this.players.push(new Player(this, PlayerPosition.left, false));
+        this.players.push(new Player(this, PlayerPosition.top, false));
+        this.players.push(new Player(this, PlayerPosition.right, false));
     }
 
     preload() {

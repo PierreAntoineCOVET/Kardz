@@ -7,20 +7,26 @@
   <ItemGroup>
     <Compile Remove="ClientApp\dist\**" />
     <Compile Remove="ClientApp\out-tsc\**" />
+    <Compile Remove="Log\**" />
     <Content Remove="ClientApp\dist\**" />
     <Content Remove="ClientApp\out-tsc\**" />
+    <Content Remove="Log\**" />
     <EmbeddedResource Remove="ClientApp\dist\**" />
     <EmbeddedResource Remove="ClientApp\out-tsc\**" />
+    <EmbeddedResource Remove="Log\**" />
     <None Remove="ClientApp\dist\**" />
     <None Remove="ClientApp\out-tsc\**" />
+    <None Remove="Log\**" />
     <TypeScriptCompile Remove="ClientApp\dist\**" />
     <TypeScriptCompile Remove="ClientApp\out-tsc\**" />
+    <TypeScriptCompile Remove="Log\**" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="ClientApp\src\app\games\coinche\coinche.scene.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\player.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\PlayerPosition.ts" />
+    <None Remove="ClientApp\src\app\games\coinche\scenes\lobby.ts" />
     <None Remove="ClientApp\src\app\games\coinche\scenes\main.ts" />
   </ItemGroup>
 

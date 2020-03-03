@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
 /**
  * Home page component.
@@ -10,7 +11,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+    constructor(public translate: TranslateService) {
+        //translate.addLangs(['en', 'fr']);
+        //translate.setDefaultLang('en');
+
+        const browserLang = translate.getBrowserLang();
+        translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
+    }
 
   ngOnInit(): void {
   }

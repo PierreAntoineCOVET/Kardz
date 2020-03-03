@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
 import { GameScene } from './game';
+import { LobbyScene } from './lobby';
 
 /**
  * Entry point for the game. Load all scenes acording to context.
  */
-@Injectable({
-    providedIn: 'root'
-})
+@Injectable()
 export class MainScene extends Phaser.Scene {
-    constructor(private coicheScene: GameScene) {
+    constructor(private coicheScene: GameScene, private lobbyScene: LobbyScene) {
         super({ key: 'Main' });
     }
 
@@ -16,8 +15,9 @@ export class MainScene extends Phaser.Scene {
     }
     create() {
         this.scene.add('game', this.coicheScene, true);
+        this.scene.add('lobby', this.lobbyScene, false);
     }
     update() {
-        this.scene.start('game');
+        //this.scene.start('game');
     }
 }

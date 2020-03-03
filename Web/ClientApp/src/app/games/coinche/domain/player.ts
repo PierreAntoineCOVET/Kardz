@@ -7,63 +7,81 @@ import { PlayerPosition } from './PlayerPosition';
  * Player responsible to display it's cards.
  */
 export class Player {
-    private cardDisplayWidth: number;
-    private cardDisplayHeight: number;
-    private scaleFactor: number = 5;
+    private scaleFactor: number = 0.2;
 
-    constructor(private scene: GameScene, spriteBaseWidth: number, spriteBaseHeight: number, private position: PlayerPosition, private active: boolean)
-    {
-        this.cardDisplayWidth = spriteBaseWidth / this.scaleFactor;
-        this.cardDisplayHeight = spriteBaseHeight / this.scaleFactor;
-    }
+    constructor(private scene: GameScene, private position: PlayerPosition, private active: boolean)
+    { }
 
+    /**
+     * Display the players cards, front or back with correct screen position.
+     * @param cards List of cards for the current player.
+     */
     public displayCards(cards: CardsEnum[]): void {
         cards.sort((a, b) => a - b).forEach((spriteNumber, index) => {
-            const spritePosition = this.getSpritePosition(this.position, index);
+            // Phaser.GameObjects.Sprite or Phaser.GameObjects.Image implements mostly the same interfaces
+            // they have no 1 type with all needed methods => any.
+            let sceneElement: any;
 
             if (this.active) {
-                const sprite = this.scene.add.sprite(
-                    spritePosition.x,
-                    spritePosition.y,
+                sceneElement = this.scene.add.sprite(
+                    0,
+                    0,
                     'cards',
                     spriteNumber);
-                sprite.displayWidth = this.cardDisplayWidth;
-                sprite.displayHeight = this.cardDisplayHeight;
             }
             else {
-                const image = this.scene.add.image(spritePosition.x, spritePosition.y, 'cardBack');
-                image.displayWidth = this.cardDisplayWidth;
-                image.displayHeight = this.cardDisplayHeight;
+                sceneElement = this.scene.add.image(0, 0, 'cardBack');
+
+                if (this.position == PlayerPosition.right) {
+                    sceneElement.angle = 90;
+                }
+                else if (this.position == PlayerPosition.left) {
+                    sceneElement.angle = -90;
+                }
             }
+
+            sceneElement.setScale(this.scaleFactor);
+            sceneElement.setOrigin(0, 0);
+            this.setSpritePosition(this.position, index, sceneElement);
 
         });
     }
 
-    private getSpritePosition(position: PlayerPosition, index: number): { x: number, y: number } {
+    /**
+     * Set sceneElement position according to player position and card number.
+     * @param position PLayer position on the screen.
+     * @param index Card to display.
+     * @param sceneElement Element to position.
+     */
+    private setSpritePosition(position: PlayerPosition, index: number, sceneElement: any): void {
+        let spritePosition: { x: number, y: number };
+
         if (position == PlayerPosition.top) {
-            return {
-                x: this.cardDisplayHeight / 2 + 100 + (index * this.cardDisplayWidth),
-                y: this.cardDisplayHeight / 2
+            spritePosition = {
+                x: 100 + (index * sceneElement.displayWidth),
+                y: 0
             };
         }
         else if (position == PlayerPosition.bottom) {
-            return {
-                x: this.cardDisplayHeight / 2 + 100 + (index * this.cardDisplayWidth),
-                y: this.cardDisplayHeight / 2 + 500
+            spritePosition = {
+                x: 100 + (index * sceneElement.displayWidth),
+                y: 500
             };
         }
         else if (position == PlayerPosition.right) {
-            return {
-                x: this.cardDisplayHeight / 2 + 700,
-                y: this.cardDisplayHeight / 2 + (index * this.cardDisplayWidth)
+            spritePosition = {
+                x: 780,
+                y: 50 + (index * sceneElement.displayWidth)
             };
         }
-        else if (position == PlayerPosition.leftt) {
-            return {
-                x: this.cardDisplayHeight / 2,
-                y: this.cardDisplayHeight / 2 + (index * this.cardDisplayWidth)
+        else if (position == PlayerPosition.left) {
+            spritePosition = {
+                x: 0,
+                y: 110 + (index * sceneElement.displayWidth)
             };
         }
+
+        sceneElement.setPosition(spritePosition.x, spritePosition.y);
     }
 }
 
