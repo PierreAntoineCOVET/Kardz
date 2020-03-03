@@ -41,7 +41,7 @@ export class Player {
             }
 
             sceneElement.setScale(this.scaleFactor);
-            sceneElement.setOrigin(0, 0);
+            sceneElement.setOrigin(0);
             this.setSpritePosition(this.position, index, sceneElement);
 
         });
