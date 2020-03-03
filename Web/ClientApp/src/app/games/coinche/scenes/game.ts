@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { GamesEnum } from '../../../typewriter/enums/GamesEnum.enum';
 import { Injectable } from '@angular/core';
+import { PlayerPosition } from '../domain/PlayerPosition';
 
 /**
  * Core Coinche game loading and orchestrator.
@@ -14,7 +15,7 @@ import { Injectable } from '@angular/core';
 })
 export class GameScene extends Phaser.Scene {
     private cards: Phaser.GameObjects.Sprite;
-    private player: Player
+    private players: Player[] = []
     private cardsSpriteOption = {
         cardWidth: 334,
         cardHeight: 440
@@ -22,7 +23,11 @@ export class GameScene extends Phaser.Scene {
 
     constructor(private cardService: CardsService) {
         super({ key: 'Game' });
-        this.player = new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight);
+
+        this.players.push(new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight, PlayerPosition.bottom, true));
+        this.players.push(new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight, PlayerPosition.leftt, false));
+        this.players.push(new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight, PlayerPosition.top, false));
+        this.players.push(new Player(this, this.cardsSpriteOption.cardWidth, this.cardsSpriteOption.cardHeight, PlayerPosition.right, false));
     }
 
     preload() {
@@ -30,17 +35,18 @@ export class GameScene extends Phaser.Scene {
             frameWidth: this.cardsSpriteOption.cardWidth,
             frameHeight: this.cardsSpriteOption.cardHeight
         });
+        this.load.image('cardBack', 'assets/img/back.png');
     }
     create() {
-        this.player.displayCards(this.shuffleForPlayer());
+        this.cardService.getShuffledCards(GamesEnum.Coinche).subscribe({
+            next: (cards) => {
+                this.players.forEach((player, index) => {
+                    const playerCards = cards.splice(0, 8);
+                    player.displayCards(playerCards)
+                });
+            }
+        });
     }
     update() {
-    }
-
-    shuffleForPlayer(): Observable<CardsEnum[]> {
-        return this.cardService.getShuffledCards(GamesEnum.Coinche)
-            .pipe(
-                map(cards => cards.splice(0, 7))
-            );
     }
 }
