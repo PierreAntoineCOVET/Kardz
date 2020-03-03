@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MediatR.Extensions.FluentValidation.AspNetCore;
 
 namespace Web
 {
@@ -24,8 +25,11 @@ namespace Web
         {
             services.AddControllers();
 
-            services.AddMediatR(Assembly.Load("EventHandlers"))
-                .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            var eventHandlerAssembly = Assembly.Load("EventHandlers");
+            services.AddMediatR(eventHandlerAssembly)
+                .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
+                .AddTransient(typeof(IPipelineBehavior<,>), typeof(EventHandlers.Behavior.ValidationBehavior<,>))
+                .AddFluentValidation(new List<Assembly> { eventHandlerAssembly });
 
             services.AddCors(option =>
             {
@@ -37,7 +41,14 @@ namespace Web
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
+
             });
+
+                //        services.AddMvc(options => options.Filters.Add(typeof(CustomExceptionFilterAttribute)))
+                //.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                //// Traduction des dates envoyés par Angular HttpClient en UTC vers local
+                //.AddJsonOptions(options => options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Local);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,6 +73,7 @@ namespace Web
             if (env.IsProduction())
             {
                 app.UseSpaStaticFiles();
+                app.UseSpa(spa => spa.Options.SourcePath = "ClientApp");
             }
         }
     }
