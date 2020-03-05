@@ -12,12 +12,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MediatR.Extensions.FluentValidation.AspNetCore;
+using Web.Hubs;
 
 namespace Web
 {
     public class Startup
     {
-        private const string CORS_AUTHORISED_ORIGINS_LOCALHOST = "LocalHosts";
+        private const string CORS_AUTHORISE_LOCALHOST = "LocalHosts";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -34,8 +35,11 @@ namespace Web
             services.AddCors(option =>
             {
                 option.AddPolicy(
-                    CORS_AUTHORISED_ORIGINS_LOCALHOST,
-                    builder => builder.WithOrigins("http://localhost:4200").AllowAnyHeader());
+                    CORS_AUTHORISE_LOCALHOST,
+                    builder => builder.WithOrigins("http://localhost:4200")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials());
             });
 
             services.AddSpaStaticFiles(configuration =>
@@ -43,6 +47,8 @@ namespace Web
                 configuration.RootPath = "ClientApp/dist";
 
             });
+
+            services.AddSignalR();
 
                 //        services.AddMvc(options => options.Filters.Add(typeof(CustomExceptionFilterAttribute)))
                 //.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
@@ -61,13 +67,16 @@ namespace Web
 
             loggerFactory.AddLog4Net();
 
-            app.UseCors(CORS_AUTHORISED_ORIGINS_LOCALHOST);
+            app.UseCors(CORS_AUTHORISE_LOCALHOST);
 
             app.UseRouting();
+
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<LobbyHub>("/lobby");
             });
 
             if (env.IsProduction())

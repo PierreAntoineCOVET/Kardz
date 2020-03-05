@@ -14,7 +14,7 @@ export class CardsService {
     private apiController: string;
 
     constructor(private httpClient: HttpClient) {
-        this.apiController = environment.apiUrl + 'Card/';
+        this.apiController = environment.apiUrl + '/Card';
     }
 
     /**
@@ -24,6 +24,6 @@ export class CardsService {
     getShuffledCards(gametype: number): Observable<CardsEnum[]> {
         const httpParams = new HttpParams()
             .set('gameType', gametype.toString());
-        return this.httpClient.get<CardsEnum[]>(this.apiController + 'GetShuffledCards', { params: httpParams });
+        return this.httpClient.get<CardsEnum[]>(this.apiController + '/GetShuffledCards', { params: httpParams });
     }
 }

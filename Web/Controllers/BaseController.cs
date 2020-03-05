@@ -12,7 +12,7 @@ namespace Web.Controllers
     /// </summary>
     [Route("api/[controller]/[action]/{id?}")]
     [ApiController]
-    public abstract class BaseController : Controller
+    public abstract class BaseController : ControllerBase
     {
         /// <summary>
         /// MediatR request pipe.
