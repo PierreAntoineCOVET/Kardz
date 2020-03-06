@@ -1,4 +1,3 @@
-import { GameScene } from '../scenes/game';
 import { Observable } from 'rxjs';
 import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { PlayerPosition } from './PlayerPosition';

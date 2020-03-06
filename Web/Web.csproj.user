@@ -13,7 +13,7 @@
     </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Update="ClientApp\src\app\games\coinche\scenes\lobby.ts">
+    <TypeScriptCompile Update="ClientApp\src\app\games\coinche\scenes\lobby.scene.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>
@@ -23,7 +23,7 @@
     </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Update="ClientApp\src\app\games\coinche\scenes\main.ts">
+    <TypeScriptCompile Update="ClientApp\src\app\games\coinche\scenes\main.scene.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>
@@ -33,7 +33,7 @@
     </TypeScriptCompile>
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Update="ClientApp\src\app\games\coinche\scenes\game.ts">
+    <TypeScriptCompile Update="ClientApp\src\app\games\coinche\scenes\game.scene.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
   </ItemGroup>

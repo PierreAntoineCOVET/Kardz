@@ -2,9 +2,10 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CoincheComponent } from './coinche/coinche.component';
 import { HttpClientModule } from '@angular/common/http';
-import { GameScene } from './coinche/scenes/game';
-import { MainScene } from './coinche/scenes/main';
-import { LobbyScene } from './coinche/scenes/lobby';
+import { GameScene } from './coinche/scenes/game.scene';
+import { MainScene } from './coinche/scenes/main.scene';
+import { LobbyScene } from './coinche/scenes/lobby.scene';
+import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Module for all the games logic.
@@ -13,7 +14,8 @@ import { LobbyScene } from './coinche/scenes/lobby';
     declarations: [CoincheComponent],
     imports: [
         CommonModule,
-        HttpClientModule
+        HttpClientModule,
+        TranslateModule
     ],
     exports: [
         CoincheComponent

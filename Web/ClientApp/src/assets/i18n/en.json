@@ -1,7 +1,8 @@
 {
     "game": {
         "lobby": {
-            "title":  "Game lobby"
+            "title": "Game lobby",
+            "numberOfPlayers": "Nomber of players"
         }
     }
 }

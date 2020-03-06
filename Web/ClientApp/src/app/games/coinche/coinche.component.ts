@@ -1,6 +1,6 @@
 import { Component, OnInit, Injectable } from '@angular/core';
 import Phaser from 'phaser';
-import { MainScene } from './scenes/main';
+import { MainScene } from './scenes/main.scene';
 
 /**
  * Component holding the game canvas.

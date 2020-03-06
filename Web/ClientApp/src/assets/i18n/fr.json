@@ -1,7 +1,8 @@
 {
     "game": {
         "lobby": {
-            "title": "Salon"
+            "title": "Salon",
+            "numberOfPlayers" :  "Nombre de joueurs"
         }
     }
 }

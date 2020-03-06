@@ -27,8 +27,8 @@
     <None Remove="ClientApp\src\app\games\coinche\domain\lobby.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\player.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\PlayerPosition.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\scenes\lobby.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\scenes\main.ts" />
+    <None Remove="ClientApp\src\app\games\coinche\scenes\lobby.scene.ts" />
+    <None Remove="ClientApp\src\app\games\coinche\scenes\main.scene.ts" />
   </ItemGroup>
 
   <ItemGroup>

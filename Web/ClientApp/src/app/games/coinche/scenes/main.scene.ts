@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { GameScene } from './game';
-import { LobbyScene } from './lobby';
+import { GameScene } from './game.scene';
+import { LobbyScene } from './lobby.scene';
 import { SignalRService } from '../../../services/signal-r/signal-r.service';
 
 /**

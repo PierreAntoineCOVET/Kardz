@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using EventHandlers.Commands.AddPlayerTolobby;
+using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +10,21 @@ namespace Web.Hubs
 {
     public class LobbyHub : Hub
     {
-        public Task NewPlayer(Guid guid)
+        private IMediator Mediator;
+
+        public LobbyHub(IMediator mediator)
         {
-            return Clients.All.SendAsync("newPlayer", guid);
+            Mediator = mediator;
+        }
+
+        public async Task NewPlayer(Guid guid)
+        {
+            int numberOfPlayers = await Mediator.Send(new AddPlayerToLobbyCommand
+            {
+                Guid = guid
+            });
+
+            await Clients.All.SendAsync("newPlayer", numberOfPlayers);
         }
     }
 }
