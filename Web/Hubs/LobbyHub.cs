@@ -10,7 +10,7 @@ namespace Web.Hubs
     {
         public Task NewPlayer(Guid guid)
         {
-            return Clients.All.SendAsync("lobby", $"Player {guid} arrived");
+            return Clients.All.SendAsync("newPlayer", guid);
         }
     }
 }

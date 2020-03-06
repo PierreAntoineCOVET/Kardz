@@ -13,23 +13,20 @@ export class SignalRService {
 
     /**
      * Start SingalR connection and call connectionInitialized on succes or error.
-     * @param connectionInitialized Observer to call when connection is initialised.
      */
-    public startConnection(connectionInitialized: Observer<void>) {
+    public startConnection(): Promise<void> {
         this.hubConnection = new HubConnectionBuilder()
             .withUrl(environment.singalRBaseUrl + '/lobby')
             .build();
 
-        this.hubConnection.start()
-            .then(() => connectionInitialized.next())
-            .catch((reason) => connectionInitialized.error(reason));
+        return this.hubConnection.start();
     }
 
-    public addLobbyListener(callBack: (...args: any[]) => void) {
-        this.hubConnection.on('lobby', callBack);
+    public addNewPLayerListener(callBack: (...args: any[]) => void) {
+        this.hubConnection.on('newPlayer', callBack);
     }
 
-    public broadcastToLobby(data: any) {
+    public broadcastNewPlayer(data: any) {
         this.hubConnection.invoke('NewPlayer', data);
     }
 }

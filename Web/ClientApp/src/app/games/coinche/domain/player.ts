@@ -2,49 +2,52 @@ import { GameScene } from '../scenes/game';
 import { Observable } from 'rxjs';
 import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { PlayerPosition } from './PlayerPosition';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Player responsible to display it's cards.
  */
 export class Player {
     private scaleFactor: number = 0.2;
+    public position: PlayerPosition;
 
-    constructor(private scene: GameScene, private position: PlayerPosition, private active: boolean)
-    { }
+    constructor(public id: uuidv4)
+    {
+    }
 
     /**
      * Display the players cards, front or back with correct screen position.
      * @param cards List of cards for the current player.
      */
     public displayCards(cards: CardsEnum[]): void {
-        cards.sort((a, b) => a - b).forEach((spriteNumber, index) => {
-            // Phaser.GameObjects.Sprite or Phaser.GameObjects.Image implements mostly the same interfaces
-            // they have no 1 type with all needed methods => any.
-            let sceneElement: any;
+        //cards.sort((a, b) => a - b).forEach((spriteNumber, index) => {
+            //// Phaser.GameObjects.Sprite or Phaser.GameObjects.Image implements mostly the same interfaces
+            //// but they have no 1 type with all needed methods => any.
+            //let sceneElement: any;
 
-            if (this.active) {
-                sceneElement = this.scene.add.sprite(
-                    0,
-                    0,
-                    'cards',
-                    spriteNumber);
-            }
-            else {
-                sceneElement = this.scene.add.image(0, 0, 'cardBack');
+            //if (this.position == PlayerPosition.bottom) {
+            //    sceneElement = this.scene.add.sprite(
+            //        0,
+            //        0,
+            //        'cards',
+            //        spriteNumber);
+            //}
+            //else {
+            //    sceneElement = this.scene.add.image(0, 0, 'cardBack');
 
-                if (this.position == PlayerPosition.right) {
-                    sceneElement.angle = 90;
-                }
-                else if (this.position == PlayerPosition.left) {
-                    sceneElement.angle = -90;
-                }
-            }
+            //    if (this.position == PlayerPosition.right) {
+            //        sceneElement.angle = 90;
+            //    }
+            //    else if (this.position == PlayerPosition.left) {
+            //        sceneElement.angle = -90;
+            //    }
+            //}
 
-            sceneElement.setScale(this.scaleFactor);
-            sceneElement.setOrigin(0);
-            this.setSpritePosition(this.position, index, sceneElement);
+            //sceneElement.setScale(this.scaleFactor);
+            //sceneElement.setOrigin(0);
+            //this.setSpritePosition(this.position, index, sceneElement);
 
-        });
+        //});
     }
 
     /**

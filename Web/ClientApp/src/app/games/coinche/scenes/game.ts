@@ -1,5 +1,4 @@
 import { Player } from '../domain/player';
-import { CardsService } from '../../../services/cards/cards.service';
 import { GamesEnum } from '../../../typewriter/enums/GamesEnum.enum';
 import { Injectable } from '@angular/core';
 import { PlayerPosition } from '../domain/PlayerPosition';
@@ -16,13 +15,13 @@ export class GameScene extends Phaser.Scene {
         cardHeight: 440
     };
 
-    constructor(private cardService: CardsService) {
-        super({ key: 'Game' });
+    constructor() {
+        super({ key: 'game' });
 
-        this.players.push(new Player(this, PlayerPosition.bottom, true));
-        this.players.push(new Player(this, PlayerPosition.left, false));
-        this.players.push(new Player(this, PlayerPosition.top, false));
-        this.players.push(new Player(this, PlayerPosition.right, false));
+        //this.players.push(new Player(this, PlayerPosition.bottom, true));
+        //this.players.push(new Player(this, PlayerPosition.left, false));
+        //this.players.push(new Player(this, PlayerPosition.top, false));
+        //this.players.push(new Player(this, PlayerPosition.right, false));
     }
 
     preload() {
@@ -33,14 +32,14 @@ export class GameScene extends Phaser.Scene {
         this.load.image('cardBack', 'assets/img/back.png');
     }
     create() {
-        this.cardService.getShuffledCards(GamesEnum.Coinche).subscribe({
-            next: (cards) => {
-                this.players.forEach((player, index) => {
-                    const playerCards = cards.splice(0, 8);
-                    player.displayCards(playerCards)
-                });
-            }
-        });
+        //this.cardService.getShuffledCards(GamesEnum.Coinche).subscribe({
+        //    next: (cards) => {
+        //        this.players.forEach((player, index) => {
+        //            const playerCards = cards.splice(0, 8);
+        //            player.displayCards(playerCards)
+        //        });
+        //    }
+        //});
     }
     update() {
     }
