@@ -1,4 +1,5 @@
 ﻿using Domain.Domain.Implementations;
+using Domain.Domain.Implementations.Coinche;
 using Domain.Domain.Interfaces;
 using Domain.Enums;
 using Domain.Exceptions;
@@ -11,7 +12,7 @@ namespace Domain.Domain.Services
     /// <summary>
     /// Cards sevice (factory, ...).
     /// </summary>
-    public static class Cards
+    public static class CardsService
     {
         /// <summary>
         /// Get a cards deck for the given game.
@@ -23,7 +24,7 @@ namespace Domain.Domain.Services
             if (gamesEnum == GamesEnum.Coinche)
                 return new CoincheCardsDeck();
 
-            throw new UnknownGameTypeException($"Game type {gamesEnum} is unknown");
+            throw new UnknownGameTypeException(gamesEnum);
         }
     }
 }

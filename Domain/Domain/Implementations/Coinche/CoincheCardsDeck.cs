@@ -1,11 +1,12 @@
 ﻿using Domain.Domain.Interfaces;
 using Domain.Enums;
+using Domain.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Domain.Domain.Implementations
+namespace Domain.Domain.Implementations.Coinche
 {
     /// <summary>
     /// List of classic 53 cards.
@@ -53,18 +54,7 @@ namespace Domain.Domain.Implementations
 
         public IEnumerable<CardsEnum> Shuffle()
         {
-            var buffer = Cards.ToList();
-            var shuffledCards = new List<CardsEnum>(buffer.Count);
-            var random = new Random();
-
-            for(int i=0; i<Cards.Count(); i++)
-            {
-                var randomCardIndex = random.Next(0, buffer.Count);
-                shuffledCards.Add(buffer.ElementAt(randomCardIndex));
-                buffer.RemoveAt(randomCardIndex);
-            }
-
-            return shuffledCards;
+            return RandomSorter.Randomize(Cards);
         }
     }
 }

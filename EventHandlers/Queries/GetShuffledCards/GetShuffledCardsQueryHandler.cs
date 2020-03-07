@@ -22,7 +22,7 @@ namespace EventHandlers.Queries.GetShuffledCards
         /// <returns>List of cards <see cref="IEnumerable{CardsEnum}"./></returns>
         public Task<IEnumerable<CardsEnum>> Handle(GetShuffledCardsQuery request, CancellationToken cancellationToken)
         {
-            var deck = Cards.GetCardDeck((GamesEnum)request.GameType);
+            var deck = CardsService.GetCardDeck((GamesEnum)request.GameType);
             var suffledCards = deck.Shuffle();
 
             return Task.FromResult(suffledCards);

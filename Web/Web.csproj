@@ -29,6 +29,11 @@
     <None Remove="ClientApp\src\app\games\coinche\domain\PlayerPosition.ts" />
     <None Remove="ClientApp\src\app\games\coinche\scenes\lobby.scene.ts" />
     <None Remove="ClientApp\src\app\games\coinche\scenes\main.scene.ts" />
+    <None Remove="ClientApp\src\app\games\engine\button.component.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\GameDto.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,12 +53,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\src\app\games\engine\" />
     <Folder Include="ClientApp\src\app\services\cards\" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DTOs\DTOs.csproj" />
     <ProjectReference Include="..\EventHandlers\EventHandlers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ClientApp\src\app\typewriter\classes\GameDto.ts">
+      <CustomToolNamespace>..\DTOs\GameDto.cs</CustomToolNamespace>
+    </None>
   </ItemGroup>
 
 </Project>

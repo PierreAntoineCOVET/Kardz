@@ -8,6 +8,8 @@ namespace Domain.Domain.Implementations
     {
         public Guid Id { get; private set; }
 
+        public int Number { get; set; }
+
         public Player(Guid id)
         {
             this.Id = id;

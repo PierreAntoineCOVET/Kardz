@@ -22,11 +22,17 @@ export class SignalRService {
         return this.hubConnection.start();
     }
 
-    public addNewPLayerListener(callBack: (...args: any[]) => void) {
-        this.hubConnection.on('newPlayer', callBack);
+    public get onNewPlayer(): Observable<any> {
+        return new Observable(subscriber => {
+            this.hubConnection.on('newPlayer', (data) => subscriber.next(data));
+        });
     }
 
     public broadcastNewPlayer(data: any) {
         this.hubConnection.invoke('NewPlayer', data);
+    }
+
+    public broadcastSearchGame(data: any) {
+        this.hubConnection.invoke('SearchGame', data);
     }
 }

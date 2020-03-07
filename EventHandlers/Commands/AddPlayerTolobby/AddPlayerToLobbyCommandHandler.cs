@@ -1,20 +1,20 @@
-﻿using Domain.Domain.Implementations;
+﻿using Domain.Domain.Services;
+using Domain.Enums;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace EventHandlers.Commands.AddPlayerTolobby
 {
-    class AddPlayerToLobbyCommandHandler : IRequestHandler<AddPlayerToLobbyCommand, int>
+    public class AddPlayerToLobbyCommandHandler : IRequestHandler<AddPlayerToLobbyCommand, int>
     {
         public Task<int> Handle(AddPlayerToLobbyCommand request, CancellationToken cancellationToken)
         {
-            Lobby.AddPlayer(request.Guid);
+            var lobby = LobbiesService.GetLobby((GamesEnum)request.GamesType);
 
-            return Task.FromResult(Lobby.NumberOfPlayers);
+            lobby.AddPlayer(request.PlayerId);
+
+            return Task.FromResult(lobby.NumberOfPlayers);
         }
     }
 }

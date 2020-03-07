@@ -1,4 +1,5 @@
 ﻿using EventHandlers.Commands.AddPlayerTolobby;
+using EventHandlers.Commands.SearchGame;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using System;
@@ -21,10 +22,21 @@ namespace Web.Hubs
         {
             int numberOfPlayers = await Mediator.Send(new AddPlayerToLobbyCommand
             {
-                Guid = guid
+                PlayerId = guid
             });
 
             await Clients.All.SendAsync("newPlayer", numberOfPlayers);
+        }
+
+        public async Task SearchGame(Guid guid)
+        {
+            var game = await Mediator.Send(new SearchGameCommand
+            {
+                PlayerId = guid
+            });
+
+            if(game != null)
+                await Clients.All.SendAsync("gameStarted", game);
         }
     }
 }

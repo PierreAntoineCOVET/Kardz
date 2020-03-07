@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Domain.Enums;
+﻿using Domain.Enums;
 using EventHandlers.Validator;
 using FluentValidation;
 

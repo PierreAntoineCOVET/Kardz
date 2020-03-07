@@ -6,8 +6,8 @@ namespace Domain.Exceptions
 {
     public class PlayerAlreadyInLobbyException : Exception
     {
-        public PlayerAlreadyInLobbyException(string message)
-            : base(message)
+        public PlayerAlreadyInLobbyException(Guid playerId)
+            : base($"Player {playerId} is already in the lobby")
         { }
     }
 }

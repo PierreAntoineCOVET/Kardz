@@ -6,22 +6,22 @@ import { Observable, of } from 'rxjs';
  * Lobby domain actions.
  */
 export class Lobby {
-    private players: Player[] = [];
-
-    /**
-     * Get the number of register players.
-     */
-    public get getNumberOfPlayers(): string {
-        return this.players.length.toString();
-    }
+    private player: Player;
 
     /**
      * Add the host player (generate it's own ID).
      */
-    public addPlayer() : Observable<any> {
+    public addPlayer(): Observable<uuidv4> {
         const player = new Player(uuidv4());
-        this.players.push(player);
+        this.player = player;
 
         return of(player.id);
+    }
+
+    /**
+     * Get current player's id.
+     */
+    public get playerId(): uuidv4 {
+        return this.player.id;
     }
 }
