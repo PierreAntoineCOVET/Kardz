@@ -25,7 +25,6 @@ export function appInitializerFactory(translate: TranslateService, injector: Inj
                     .subscribe({
                         next: () => {
                             console.info(`Successfully initialized '${langToSet}' language.'`);
-                            console.log(translate.instant('game.lobby.title'));
                         },
                         error: (reason) => {
                             console.error(`Problem with '${langToSet}' language initialization :`);
