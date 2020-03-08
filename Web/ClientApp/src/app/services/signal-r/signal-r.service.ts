@@ -24,12 +24,12 @@ export class SignalRService {
 
     public get onNewPlayer(): Observable<any> {
         return new Observable(subscriber => {
-            this.hubConnection.on('newPlayer', (data) => subscriber.next(data));
+            this.hubConnection.on('playersInLobby', (data) => subscriber.next(data));
         });
     }
 
     public broadcastNewPlayer(data: any) {
-        this.hubConnection.invoke('NewPlayer', data);
+        this.hubConnection.invoke('AddNewPlayer', data);
     }
 
     public broadcastSearchGame(data: any) {

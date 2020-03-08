@@ -18,25 +18,28 @@ namespace Web.Hubs
             Mediator = mediator;
         }
 
-        public async Task NewPlayer(Guid guid)
+        public async Task AddNewPlayer(Guid guid)
         {
             int numberOfPlayers = await Mediator.Send(new AddPlayerToLobbyCommand
             {
                 PlayerId = guid
             });
 
-            await Clients.All.SendAsync("newPlayer", numberOfPlayers);
+            await Clients.All.SendAsync("playersInLobby", numberOfPlayers);
         }
 
         public async Task SearchGame(Guid guid)
         {
-            var game = await Mediator.Send(new SearchGameCommand
+            var response = await Mediator.Send(new SearchGameCommand
             {
                 PlayerId = guid
             });
 
-            if(game != null)
-                await Clients.All.SendAsync("gameStarted", game);
+            if(response.HasValue)
+            {
+                await Clients.All.SendAsync("gameStarted", response.Value.game);
+                await Clients.All.SendAsync("playersInLobby", response.Value.numberOfPlayersInLobby);
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ export class LobbyScene extends Phaser.Scene {
             next: (data) => this.addNewPlayer(data)
         });
 
-        this.searchGameButton = new Button(this, 600, 500, this.translateService.instant('game.lobby.searchGame'));
+        this.searchGameButton = new Button(this, 540, 500, this.translateService.instant('game.lobby.searchGame'));
         this.searchGameButton.click
             .subscribe({
                 next: () => this.searchGame()

@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\custom-translate-loader.ts" />
     <None Remove="ClientApp\src\app\games\coinche\coinche.scene.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\lobby.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\player.ts" />

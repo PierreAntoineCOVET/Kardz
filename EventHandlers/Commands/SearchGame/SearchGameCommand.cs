@@ -6,7 +6,7 @@ using System.Text;
 
 namespace EventHandlers.Commands.SearchGame
 {
-    public class SearchGameCommand : IRequest<GameDto>
+    public class SearchGameCommand : IRequest<(GameDto game, int numberOfPlayersInLobby)?>
     {
         public Guid PlayerId { get; set; }
 
