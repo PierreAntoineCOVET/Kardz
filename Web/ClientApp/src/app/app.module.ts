@@ -11,31 +11,36 @@ import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-transla
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 /**
- * Init translator.
- * @param httpClient http client
+ * Force translation initialisation on app loading.
+ * @param translate translation service.
+ * @param injector injector for LOCATION_INITIALIZED loading.
  */
 export function appInitializerFactory(translate: TranslateService, injector: Injector) {
     return () => new Promise<any>((resolve: any) => {
-        const locationInitialized = injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
-        locationInitialized.then(() => {
-            const browserLang = translate.getBrowserLang();
-            const langToSet = browserLang.match(/en|fr/) ? browserLang : 'en';
-            translate.use(langToSet)
-                .subscribe({
-                    next: () => {
-                        console.info(`Successfully initialized '${langToSet}' language.'`);
-                        console.log(translate.instant('game.lobby.title'));
-                    },
-                    error: (reason) => {
-                        console.error(`Problem with '${langToSet}' language initialization :`);
-                        console.error(reason);
-                    },
-                    complete: resolve(null)
-                });
-        });
+        injector.get(LOCATION_INITIALIZED, Promise.resolve(null))
+            .then(() => {
+                const browserLang = translate.getBrowserLang();
+                const langToSet = browserLang.match(/en|fr/) ? browserLang : 'en';
+                translate.use(langToSet)
+                    .subscribe({
+                        next: () => {
+                            console.info(`Successfully initialized '${langToSet}' language.'`);
+                            console.log(translate.instant('game.lobby.title'));
+                        },
+                        error: (reason) => {
+                            console.error(`Problem with '${langToSet}' language initialization :`);
+                            console.error(reason);
+                        },
+                        complete: resolve(null)
+                    });
+            });
     });
 }
 
+/**
+ * Add translator loader (via http).
+ * @param httpClient http client
+ */
 export function HttpLoaderFactory(httpClient: HttpClient) {
     return new TranslateHttpLoader(httpClient);
 }
