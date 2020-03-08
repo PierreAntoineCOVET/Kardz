@@ -3,7 +3,8 @@
         "lobby": {
             "title": "Salon",
             "numberOfPlayers": "Nombre de joueurs",
-            "searchGame":  "Rechercher une partie"
+            "searchGame": "Rechercher une partie",
+            "searchingGame": "Recherche..."
         }
     }
 }

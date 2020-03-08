@@ -12,7 +12,7 @@ ${
             return mappedType.tsTypeName;
         }
 
-        return "any";
+        return p.Type;
     }
 
     string Import(Class c)

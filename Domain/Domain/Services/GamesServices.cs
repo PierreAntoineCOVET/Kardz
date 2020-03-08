@@ -10,14 +10,13 @@ namespace Domain.Domain.Services
 {
     public static class GamesServices
     {
-        private static readonly List<IGame> Games = new List<IGame>();
+        // TODO: remove and use persistance DB or events
+        private static readonly ConcurrentDictionary<Guid, IGame> Games = new ConcurrentDictionary<Guid, IGame>();
 
         public static void AddGame(IGame game)
         {
-            if (Games.Any(g => g.Id == game.Id))
+            if (!Games.TryAdd(game.Id, game))
                 throw new GameAlreadyExistException(game.Id);
-
-            Games.Add(game);
         }
     }
 }

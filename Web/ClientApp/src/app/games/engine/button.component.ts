@@ -20,7 +20,7 @@ export class Button extends Phaser.GameObjects.Text {
 
     public get click(): Observable<any> {
         return new Observable(observer => {
-            this.on('pointerup', () => observer.next());
+            this.on('pointerup', () => observer.next(this));
         });
     }
 }

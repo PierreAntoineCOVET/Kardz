@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { GameScene } from './game.scene';
 import { LobbyScene } from './lobby.scene';
 import { SignalRService } from '../../../services/signal-r/signal-r.service';
+import { GameDto } from '../../../typewriter/classes/GameDto';
 
 /**
  * Entry point for the game. Load all scenes acording to context.
@@ -21,9 +22,19 @@ export class MainScene extends Phaser.Scene {
     }
     create() {
         this.scene.add('game', this.coicheScene, false);
-        this.scene.add('lobby', this.lobbyScene, false);
+
+        this.lobbyScene = <LobbyScene>this.scene.add('lobby', this.lobbyScene, false);
+        this.lobbyScene.onGameStarted.subscribe({
+            next: data => this.startGame(data)
+        });
     }
     update() {
+    }
+
+    private startGame(data: GameDto) {
+        this.lobbyScene.stopSubscriptions();
+        this.scene.stop('lobby');
+        this.scene.start('game');
     }
 
     private onSocketInitialized() {

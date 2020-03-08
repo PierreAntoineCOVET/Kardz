@@ -1,8 +1,10 @@
 ﻿using Domain.Domain.Interfaces;
+using Domain.Tools;
 using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Domain.Domain.Interfaces
@@ -14,12 +16,9 @@ namespace Domain.Domain.Interfaces
             return new GameDto
             {
                 Id = game.Id,
-                // TODO: Hash player id to avoid cheating :
-                // client need to see if the starting game is his, so he need to compare the players id. 
-                // We will use hashed id so the client never realy know the id of the players with him.
                 Players = game.Teams
                     .SelectMany(t => t.Players)
-                    .Select(p => p.Id.ToString())
+                    .Select(p => Crypto.ComputeSha256Hash(p.Id.ToString()))
                     .ToList()
             };
         }

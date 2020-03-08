@@ -3,7 +3,8 @@
         "lobby": {
             "title": "Game lobby",
             "numberOfPlayers": "Nomber of players",
-            "searchGame":  "Find a game"
+            "searchGame": "Find a game",
+            "searchingGame":  "Searching..."
         }
     }
 }
