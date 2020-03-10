@@ -17,8 +17,8 @@ export class CoincheComponent implements OnInit {
 
     constructor(mainScene: MainScene) {
         this.gameConfig = {
-            height: 600,
-            width: 800,
+            height: 900,
+            width: 1600,
             type: Phaser.AUTO,
             parent: 'gameContainer',
             scene: mainScene

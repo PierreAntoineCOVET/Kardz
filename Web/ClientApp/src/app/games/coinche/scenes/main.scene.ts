@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GameScene } from './game.scene';
 import { LobbyScene } from './lobby.scene';
-import { SignalRService } from '../../../services/signal-r/signal-r.service';
+import { LobbyService } from '../../../services/lobby/lobby.service';
 import { GameDto } from '../../../typewriter/classes/GameDto';
 
 /**
@@ -10,10 +10,10 @@ import { GameDto } from '../../../typewriter/classes/GameDto';
 @Injectable()
 export class MainScene extends Phaser.Scene {
 
-    constructor(private coicheScene: GameScene, private lobbyScene: LobbyScene, private signalRService: SignalRService) {
+    constructor(private coicheScene: GameScene, private lobbyScene: LobbyScene, private lobbyService: LobbyService) {
         super({ key: 'Main' });
 
-        this.signalRService.startConnection()
+        this.lobbyService.startConnection()
             .then(() => this.onSocketInitialized())
             .catch((reason) => this.onSocketInitializationFailed(reason));
     }

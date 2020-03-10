@@ -7,7 +7,7 @@ import { GameDto } from '../../typewriter/classes/GameDto';
 @Injectable({
     providedIn: 'root'
 })
-export class SignalRService {
+export class LobbyService {
     private hubConnection: HubConnection;
 
     constructor() { }
@@ -23,7 +23,7 @@ export class SignalRService {
         return this.hubConnection.start();
     }
 
-    public get onNewPlayer(): Observable<any> {
+    public get onNewPlayer(): Observable<number> {
         return new Observable(subscriber => {
             this.hubConnection.on('playersInLobby', (data) => subscriber.next(data));
         });
