@@ -10,6 +10,6 @@ namespace EventHandlers.Commands.SearchGame
     {
         public Guid PlayerId { get; set; }
 
-        public int GamesType { get; set; }
+        //public int GamesType { get; set; }
     }
 }

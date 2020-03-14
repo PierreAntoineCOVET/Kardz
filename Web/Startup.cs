@@ -77,6 +77,7 @@ namespace Web
             {
                 endpoints.MapControllers();
                 endpoints.MapHub<LobbyHub>("/lobby");
+                endpoints.MapHub<GameHub>("/game");
             });
 
             if (env.IsProduction())

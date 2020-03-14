@@ -1,27 +1,35 @@
-import { Player } from '../domain/player';
 import { GamesEnum } from '../../../typewriter/enums/GamesEnum.enum';
 import { Injectable } from '@angular/core';
-import { PlayerPosition } from '../domain/PlayerPosition';
+import { Game } from '../domain/game';
+import { v4 as uuidv4 } from 'uuid';
+import { GameService } from '../../../services/game/game.service';
+import { AddCardEvent } from '../domain/events/add-card.event';
 
 /**
  * Core Coinche game loading and orchestrator.
  */
 @Injectable()
 export class GameScene extends Phaser.Scene {
-    private cards: Phaser.GameObjects.Sprite;
-    private players: Player[] = []
+    //private cards: Phaser.GameObjects.Sprite;
+    private gameDomain: Game;
     private cardsSpriteOption = {
         cardWidth: 334,
         cardHeight: 440
     };
+    private scaleFactor = 0.3;
 
-    constructor() {
+    constructor(gameService: GameService) {
         super({ key: 'game' });
 
-        //this.players.push(new Player(this, PlayerPosition.bottom, true));
-        //this.players.push(new Player(this, PlayerPosition.left, false));
-        //this.players.push(new Player(this, PlayerPosition.top, false));
-        //this.players.push(new Player(this, PlayerPosition.right, false));
+        this.gameDomain = new Game(gameService);
+
+        //this.gameDomain.onNewSpriteAdded.subscribe({
+        //    next: (data) => this.addSprite(data)
+        //});
+
+        //this.gameDomain.onNewImageAdded.subscribe({
+        //    next: (data) => this.addImage(data)
+        //});
     }
 
     preload() {
@@ -32,15 +40,36 @@ export class GameScene extends Phaser.Scene {
         this.load.image('cardBack', 'assets/img/back.png');
     }
     create() {
-        //this.cardService.getShuffledCards(GamesEnum.Coinche).subscribe({
-        //    next: (cards) => {
-        //        this.players.forEach((player, index) => {
-        //            const playerCards = cards.splice(0, 8);
-        //            player.displayCards(playerCards)
-        //        });
-        //    }
-        //});
+        this.gameDomain.onNewSpriteAdded.subscribe({
+            next: (data) => this.addSprite(data)
+        });
+
+        this.gameDomain.onNewImageAdded.subscribe({
+            next: (data) => this.addImage(data)
+        });
     }
     update() {
+    }
+
+    public setGame(gameId: uuidv4, playerId: uuidv4) {
+        this.gameDomain.setGame(gameId, playerId);
+    }
+
+    private addImage(event: AddCardEvent) {
+        const image = this.add.image(
+            event.x,
+            event.y,
+            event.elementName);
+        image.setScale(this.scaleFactor);
+        image.setAngle(event.angle);
+    }
+
+    private addSprite(event: AddCardEvent) {
+        const sprite = this.add.sprite(
+            event.x,
+            event.y,
+            event.elementName,
+            event.card);
+        sprite.setScale(this.scaleFactor);
     }
 }

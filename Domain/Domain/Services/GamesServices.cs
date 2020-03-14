@@ -1,5 +1,5 @@
 ﻿using Domain.Domain.Interfaces;
-using Domain.Exceptions;
+using Domain.Exceptions.Game;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,7 +16,16 @@ namespace Domain.Domain.Services
         public static void AddGame(IGame game)
         {
             if (!Games.TryAdd(game.Id, game))
-                throw new GameAlreadyExistException(game.Id);
+                throw new GameCreationException($"Game {game.Id} already exist");
+        }
+
+        public static IGame GetGame(Guid gameId)
+        {
+            // check in request validator ??
+            if (!Games.TryGetValue(gameId, out IGame game))
+                throw new GameplayException($"Game {gameId} does not exist");
+
+            return game;
         }
     }
 }

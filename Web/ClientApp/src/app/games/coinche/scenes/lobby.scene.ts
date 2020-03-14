@@ -4,7 +4,7 @@ import { LobbyService } from '../../../services/lobby/lobby.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Button } from '../../engine/button.component';
 import { Observable, Subscription } from 'rxjs';
-import { GameDto } from '../../../typewriter/classes/GameDto';
+import { GameStartedEvent } from '../domain/events/game-started.event';
 
 /**
  * Core Coinche game loading and orchestrator.
@@ -33,8 +33,6 @@ export class LobbyScene extends Phaser.Scene {
             next: (numebrOfPlayers) =>
                 this.numberOfPlayersText.setText(this.numberOfPlayersBaseText + numebrOfPlayers)
         });
-
-        this.lobby.addPlayer();
 
         // create search game button
         this.searchGameButton = new Button(this, 1540, 850, this.translateService.instant('game.lobby.searchGame'))
@@ -70,7 +68,7 @@ export class LobbyScene extends Phaser.Scene {
      * Observable that will emit value if a game is found for the current player.
      * Cannot fire before player clicked on this.searchGameButton.
      */
-    public get onGameStarted(): Observable<GameDto> {
+    public get onGameStarted(): Observable<GameStartedEvent> {
         return new Observable(observer => this.lobby.onNewGameSubscriber = observer);
     }
 }

@@ -1,11 +1,8 @@
 ﻿using Domain.Domain.Interfaces;
-using Domain.Domain.Services;
 using Domain.Enums;
-using Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,7 +38,6 @@ namespace Domain.Domain.Implementations.Coinche
 
             var game = new CoincheGame(Guid.NewGuid());
             game.AddPlayers(selectedPlayers);
-            GamesServices.AddGame(game);
             return game;
         }
 
