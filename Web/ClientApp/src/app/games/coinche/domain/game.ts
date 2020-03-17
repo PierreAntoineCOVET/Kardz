@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { GameService } from '../../../services/game/game.service';
-import { Observable, Subscriber } from 'rxjs';
+import { Observable, Subscriber, Subscription, ReplaySubject } from 'rxjs';
 import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { Player } from './player';
 import { PlayerPosition } from './PlayerPosition';
@@ -10,21 +10,34 @@ import { cachedDataVersionTag } from 'v8';
 export class Game {
     public gameId: uuidv4;
     public playerId: uuidv4;
-    private onNewSpriteSubscriber: Subscriber<AddCardEvent> = new Subscriber<AddCardEvent>();
-    private onNewImageSubscriber: Subscriber<AddCardEvent> = new Subscriber<AddCardEvent>();
+
+    /**
+     * Emit when a new sprite need to be added (current player has a new card).
+     */
+    public onNewSpriteSubscriber: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
+
+    /**
+     * Emit when a new image need to be added (other players received a new card).
+     */
+    public onNewImageSubscriber: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
+
+    private subscriptions: Subscription;
     private cardWidth = 105;
 
     private players: Player[] = []
-    //private currentPlayer: Player;
 
     constructor(private gameService: GameService) {
     }
 
+    /**
+     * Add players and request for shuffled cards.
+     * @param gameId Game ID.
+     * @param playerId Player ID.
+     */
     public setGame(gameId: uuidv4, playerId: uuidv4) {
         this.gameId = gameId;
         this.playerId = playerId;
 
-        //this.currentPlayer = new Player(playerId, PlayerPosition.bottom);
         this.players.push(new Player(playerId, PlayerPosition.bottom));
         this.players.push(new Player(null, PlayerPosition.left));
         this.players.push(new Player(null, PlayerPosition.top));
@@ -35,22 +48,21 @@ export class Game {
             .catch((reason) => this.onSocketInitializationFailed(reason));
     }
 
+    /**
+     * Request game cards for the player.
+     */
     private broadcastGameCardsForPlayer() {
-        this.gameService.onPlayerCardsReceived(this.playerId).subscribe({
+        this.subscriptions = this.gameService.onPlayerCardsReceived(this.playerId).subscribe({
             next: (datas) => this.displayCards(datas)
         });
 
         return this.gameService.broadcastGameCardsForPlayer(this.gameId, this.playerId);
     }
 
-    public get onNewSpriteAdded(): Observable<AddCardEvent> {
-        return new Observable(observer => this.onNewSpriteSubscriber = observer);
-    }
-
-    public get onNewImageAdded(): Observable<AddCardEvent> {
-        return new Observable(observer => this.onNewImageSubscriber = observer);
-    }
-
+    /**
+     * Compute card (sprite or image) location based on player position.
+     * @param cards List of cards for the current player, other players all have 'back' image.
+     */
     private displayCards(cards: CardsEnum[]) {
         for (const player of this.players) {
             if (player.id == this.playerId) {
@@ -82,9 +94,19 @@ export class Game {
         }
     }
 
+    /**
+     * Destroy all subscriptions.
+     */
+    public onDestroy() {
+        this.subscriptions.unsubscribe();
+    }
+
+    /**
+     * Called if connection initialisation failled.
+     * @param error
+     */
     private onSocketInitializationFailed(error: any) {
         console.log("Socket initialisation failed :");
         console.log(error);
-        //Todo display error on scene
     }
 }

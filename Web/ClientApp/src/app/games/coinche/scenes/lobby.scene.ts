@@ -15,7 +15,7 @@ export class LobbyScene extends Phaser.Scene {
     private numberOfPlayersText: Phaser.GameObjects.Text;
     private searchGameButton: Button;
     private isSearchingGame: boolean = false;
-    private onNewPlayerToLobby: Subscription;
+    private subscriptions: Subscription;
     private numberOfPlayersBaseText: string;
 
     constructor(lobbyService: LobbyService, private translateService: TranslateService) {
@@ -27,9 +27,11 @@ export class LobbyScene extends Phaser.Scene {
     preload() {
     }
     create() {
+        this.events.on('shutdown', () => this.onDestroy());
+
         this.numberOfPlayersBaseText = this.translateService.instant('game.lobby.numberOfPlayers') + ' : ';
 
-        this.onNewPlayerToLobby = this.lobby.onNewPlayerToLobby().subscribe({
+        this.subscriptions = this.lobby.onNewPlayerToLobby().subscribe({
             next: (numebrOfPlayers) =>
                 this.numberOfPlayersText.setText(this.numberOfPlayersBaseText + numebrOfPlayers)
         });
@@ -37,7 +39,7 @@ export class LobbyScene extends Phaser.Scene {
         // create search game button
         this.searchGameButton = new Button(this, 1540, 850, this.translateService.instant('game.lobby.searchGame'))
             .setOrigin(1, 1);
-        this.searchGameButton.click
+        this.subscriptions.add(this.searchGameButton.click
             .subscribe({
                 next: (button) => {
                     // disable button after first click
@@ -47,7 +49,7 @@ export class LobbyScene extends Phaser.Scene {
                         this.lobby.searchGame();
                     }
                 }
-            });
+            }));
         this.add.existing(this.searchGameButton);
 
         this.numberOfPlayersText = this.add.text(1540, 50, '')
@@ -60,8 +62,9 @@ export class LobbyScene extends Phaser.Scene {
     /**
      * Remove all signalr listeners.
      */
-    public stopSubscriptions() {
-        this.onNewPlayerToLobby.unsubscribe();
+    private onDestroy() {
+        this.lobby.onDestroy();
+        this.subscriptions.unsubscribe();
     }
 
     /**
@@ -69,6 +72,6 @@ export class LobbyScene extends Phaser.Scene {
      * Cannot fire before player clicked on this.searchGameButton.
      */
     public get onGameStarted(): Observable<GameStartedEvent> {
-        return new Observable(observer => this.lobby.onNewGameSubscriber = observer);
+        return this.lobby.onNewGameSubscriber;
     }
 }

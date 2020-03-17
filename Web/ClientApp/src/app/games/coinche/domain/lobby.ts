@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Observable, of, Subscription, Subscriber } from 'rxjs';
+import { Observable, of, Subscription, Subscriber, Subject } from 'rxjs';
 import { LobbyService } from '../../../services/lobby/lobby.service';
 import { sha256 } from 'js-sha256';
 import { GameStartedEvent } from './events/game-started.event';
@@ -10,8 +10,7 @@ import { GameStartedEvent } from './events/game-started.event';
 export class Lobby {
     //private player: Player;
     private playerId: uuidv4;
-    public onNewGameSubscriber: Subscriber<GameStartedEvent> = new Subscriber<GameStartedEvent>();
-    private onNewGameStart: Subscription;
+    public onNewGameSubscriber: Subject<GameStartedEvent> = new Subject<GameStartedEvent>();
 
     constructor(private lobbyService: LobbyService) {
         this.lobbyService.startConnection()
@@ -19,6 +18,9 @@ export class Lobby {
             .catch((reason) => this.onSocketInitializationFailed(reason));
     }
 
+    /**
+     * Emit when a new player enter the lobby.
+     */
     public onNewPlayerToLobby(): Observable<number> {
         return this.lobbyService.onNewPlayer;
     }
@@ -37,7 +39,7 @@ export class Lobby {
      */
     public searchGame() {
         this.lobbyService.broadcastSearchGame(this.playerId);
-        this.onNewGameStart = this.lobbyService.onGameStarted.subscribe({
+        this.lobbyService.onGameStarted.subscribe({
             next: (data) => {
                 if (data) {
                     const hashedPlayerId = sha256(this.playerId);
@@ -47,6 +49,7 @@ export class Lobby {
                         gameStartedEvent.gameId = data.id;
                         gameStartedEvent.playerId = this.playerId;
                         this.onNewGameSubscriber.next(gameStartedEvent);
+                        this.onNewGameSubscriber.complete();
                     }
                 }
             }
@@ -54,15 +57,18 @@ export class Lobby {
     }
 
     /**
-     * Remove all signalr listeners.
+     * Remove all subscriptions.
      */
-    public stopSubscriptions() {
-        this.onNewGameStart.unsubscribe();
+    public onDestroy() {
+        //this.onNewGameStart.unsubscribe();
     }
 
+    /**
+     * Called if connection initialisation failled.
+     * @param error
+     */
     private onSocketInitializationFailed(error: any) {
         console.log("Socket initialisation failed :");
         console.log(error);
-        //Todo display error on scene
     }
 }

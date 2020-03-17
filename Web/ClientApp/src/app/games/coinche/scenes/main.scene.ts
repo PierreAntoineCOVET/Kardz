@@ -27,8 +27,6 @@ export class MainScene extends Phaser.Scene {
     }
 
     private startGame(data: GameStartedEvent) {
-        this.lobbyScene.stopSubscriptions();
-
         this.gameScene.setGame(data.gameId, data.playerId);
 
         this.scene.stop('lobby');
