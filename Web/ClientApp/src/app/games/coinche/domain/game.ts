@@ -43,7 +43,7 @@ export class Game {
         this.players.push(new Player(null, PlayerPosition.top));
         this.players.push(new Player(null, PlayerPosition.right));
 
-        this.gameService.startConnection()
+        this.gameService.startConnection(this.playerId)
             .then(() => this.broadcastGameCardsForPlayer())
             .catch((reason) => this.onSocketInitializationFailed(reason));
     }
@@ -52,7 +52,7 @@ export class Game {
      * Request game cards for the player.
      */
     private broadcastGameCardsForPlayer() {
-        this.subscriptions = this.gameService.onPlayerCardsReceived(this.playerId).subscribe({
+        this.subscriptions = this.gameService.onPlayerCardsReceived.subscribe({
             next: (datas) => this.displayCards(datas)
         });
 

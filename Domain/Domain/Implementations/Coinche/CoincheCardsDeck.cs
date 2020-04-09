@@ -11,7 +11,7 @@ namespace Domain.Domain.Implementations.Coinche
     /// <summary>
     /// List of classic 53 cards.
     /// </summary>
-    public class CoincheCardsDeck : ICardsDeck
+    internal class CoincheCardsDeck : ICardsDeck
     {
         private IEnumerable<CardsEnum> Cards = new List<CardsEnum>
         {

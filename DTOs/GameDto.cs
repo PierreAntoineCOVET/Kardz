@@ -7,6 +7,6 @@ namespace DTOs
     {
         public Guid Id { get; set; }
 
-        public List<string> Players { get; set; }
+        public List<Guid> PlayersId { get; set; }
     }
 }

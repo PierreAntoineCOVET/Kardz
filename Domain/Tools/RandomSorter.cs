@@ -5,8 +5,17 @@ using System.Text;
 
 namespace Domain.Tools
 {
+    /// <summary>
+    /// Randomiser tool.
+    /// </summary>
     public static class RandomSorter
     {
+        /// <summary>
+        /// Randomly sort an IEnumerable.
+        /// </summary>
+        /// <typeparam name="T">Type of the enumerable to randomise.</typeparam>
+        /// <param name="list">Enumerable to randomise.</param>
+        /// <returns>Randomised Enumerable.</returns>
         public static IEnumerable<T> Randomize<T>(IEnumerable<T> list)
         {
             var buffer = list.ToList();

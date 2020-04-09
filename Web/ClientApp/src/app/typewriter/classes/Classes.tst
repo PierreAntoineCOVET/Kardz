@@ -2,6 +2,7 @@ ${
     Template(Settings settings)
     {
         settings.IncludeProject("DTOs");
+        settings.OutputExtension = ".d.ts";
     }
 
     string MapType(Property p)
@@ -33,11 +34,11 @@ ${
 }/*************************/
 /* Auto generated script */
 /*************************/
-$Classes(*Dto)[
+$Classes(*Shared*Dto)[
 $Import
 
-export class $Name {
+export interface I$Name {
     $Properties[
-    public $name: $MapType;]
+    $name: $MapType;]
 }
 ]

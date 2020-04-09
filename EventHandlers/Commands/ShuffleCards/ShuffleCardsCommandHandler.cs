@@ -3,19 +3,28 @@ using Domain.Enums;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace EventHandlers.Commands.ShuffleCards
 {
-    class ShuffleCardsCommandHandler : IRequestHandler<ShuffleCardsCommand, IEnumerable<CardsEnum>>
+    class ShuffleCardsCommandHandler : IRequestHandler<ShuffleCardsCommand, IEnumerable<int>>
     {
-        public Task<IEnumerable<CardsEnum>> Handle(ShuffleCardsCommand request, CancellationToken cancellationToken)
-        {
-            var game = GamesServices.GetGame(request.GameId);
+        private GamesServices GamesServices;
 
-            return Task.FromResult(game.GetCardsForPlayer(request.PlayerId));
+        public ShuffleCardsCommandHandler(GamesServices gamesServices)
+        {
+            GamesServices = gamesServices;
+        }
+
+        public async Task<IEnumerable<int>> Handle(ShuffleCardsCommand request, CancellationToken cancellationToken)
+        {
+            var game = await GamesServices.GetGame(request.GameId);
+            var playerCards = await game.GetCardsForPlayer(request.PlayerId);
+
+            return playerCards.Select(card => (int) card);
         }
     }
 }

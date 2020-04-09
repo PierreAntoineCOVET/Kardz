@@ -1,4 +1,6 @@
-﻿using Domain.Domain.Implementations;
+﻿using Domain.Domain.Factories;
+using Domain.Domain.Implementations;
+using Domain.Domain.Implementations.Coinche;
 using Domain.Domain.Interfaces;
 using Domain.Enums;
 using Domain.Exceptions;
@@ -11,22 +13,48 @@ using System.Threading.Tasks;
 
 namespace Domain.Domain.Implementations
 {
-    public abstract class BaseLobby : ILobby
+    /// <summary>
+    /// Base lobby class.
+    /// </summary>
+    internal abstract class BaseLobby : ILobby
     {
-        private protected ConcurrentDictionary<Guid, Player> PlayersInLobby = new ConcurrentDictionary<Guid, Player>();
+        /// <summary>
+        /// Players idling in lobby.
+        /// </summary>
+        private protected ConcurrentDictionary<Guid, IPlayer> PlayersInLobby = new ConcurrentDictionary<Guid, IPlayer>();
 
-        private protected ConcurrentDictionary<Guid, Player> PlayersLookingForGame = new ConcurrentDictionary<Guid, Player>();
+        /// <summary>
+        /// Players looking for a game.
+        /// </summary>
+        private protected ConcurrentDictionary<Guid, IPlayer> PlayersLookingForGame = new ConcurrentDictionary<Guid, IPlayer>();
 
+        /// <summary>
+        /// Game type.
+        /// </summary>
         public abstract GamesEnum Game { get; }
 
+        /// <summary>
+        /// Add a player to the lobby.
+        /// </summary>
+        /// <param name="id">Player's Id to add.</param>
         public void AddPlayer(Guid id)
         {
-            if(!PlayersInLobby.TryAdd(id, new Player(id)))
+            if (PlayersInLobby.Any(p => p.Key == id))
                 throw new PlayerAlreadyInLobbyException(id);
+
+            var player = PlayerFactory.CreatePlayer(Game, id);
+            PlayersInLobby.TryAdd(id, player);
         }
 
+        /// <summary>
+        /// Number of idle players.
+        /// </summary>
         public int NumberOfPlayers => PlayersInLobby.Count;
 
+        /// <summary>
+        /// Change a player from idle to looking for a game.
+        /// </summary>
+        /// <param name="id"></param>
         public void AddPlayerLookingForGame(Guid id)
         {
             if (!PlayersInLobby.Any(p => p.Key == id))
@@ -36,8 +64,16 @@ namespace Domain.Domain.Implementations
                 throw new PlayerAlreadyLookingForAGameException(id);
         }
 
+        /// <summary>
+        /// Define if a game can start.
+        /// </summary>
+        /// <returns></returns>
         public abstract bool CanStartGame();
 
+        /// <summary>
+        /// Create a game.
+        /// </summary>
+        /// <returns></returns>
         public abstract Task<IGame> CreateGame();
     }
 }

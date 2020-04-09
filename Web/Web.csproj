@@ -23,23 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\app\custom-translate-loader.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\coinche.scene.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\domain\events\add-card.event.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\domain\events\game-started.event.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\domain\game.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\domain\lobby.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\domain\PlayerPosition.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\scenes\lobby.scene.ts" />
-    <None Remove="ClientApp\src\app\games\coinche\scenes\main.scene.ts" />
-    <None Remove="ClientApp\src\app\games\engine\button.component.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\GameDto.ts" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="MediatR" Version="8.0.1" />
     <PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" Version="1.0.1" />
@@ -48,6 +31,11 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="3.8.2">
       <PrivateAssets>all</PrivateAssets>
@@ -62,12 +50,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
     <ProjectReference Include="..\EventHandlers\EventHandlers.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="ClientApp\src\app\typewriter\classes\GameDto.ts">
-      <CustomToolNamespace>..\DTOs\GameDto.cs</CustomToolNamespace>
-    </None>
+    <ProjectReference Include="..\Registration\Registration.csproj" />
   </ItemGroup>
 
 </Project>

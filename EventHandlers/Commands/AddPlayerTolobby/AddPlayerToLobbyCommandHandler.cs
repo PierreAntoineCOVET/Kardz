@@ -8,13 +8,18 @@ namespace EventHandlers.Commands.AddPlayerTolobby
 {
     public class AddPlayerToLobbyCommandHandler : IRequestHandler<AddPlayerToLobbyCommand, int>
     {
+        private LobbiesService LobbiesService;
+
+        public AddPlayerToLobbyCommandHandler(LobbiesService lobbiesService)
+        {
+            LobbiesService = lobbiesService;
+        }
+
         public Task<int> Handle(AddPlayerToLobbyCommand request, CancellationToken cancellationToken)
         {
-            var lobby = LobbiesService.GetLobby((GamesEnum)request.GamesType);
+            LobbiesService.Lobby.AddPlayer(request.PlayerId);
 
-            lobby.AddPlayer(request.PlayerId);
-
-            return Task.FromResult(lobby.NumberOfPlayers);
+            return Task.FromResult(LobbiesService.Lobby.NumberOfPlayers);
         }
     }
 }

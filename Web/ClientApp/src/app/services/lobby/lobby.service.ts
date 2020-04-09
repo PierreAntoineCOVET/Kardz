@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { GameDto } from '../../typewriter/classes/GameDto';
+import { v4 as uuidv4 } from 'uuid';
+
 
 @Injectable({
     providedIn: 'root'
@@ -15,9 +16,9 @@ export class LobbyService {
     /**
      * Start SingalR connection and call connectionInitialized on succes or error.
      */
-    public startConnection(): Promise<void> {
+    public startConnection(playerId: uuidv4): Promise<void> {
         this.hubConnection = new HubConnectionBuilder()
-            .withUrl(environment.singalRBaseUrl + '/lobby')
+            .withUrl(environment.singalRBaseUrl + '/lobby', { accessTokenFactory: () => playerId })
             .build();
 
         return this.hubConnection.start();
@@ -35,7 +36,7 @@ export class LobbyService {
     /**
      * Emit when a new game is started.
      */
-    public get onGameStarted(): Observable<GameDto> {
+    public get onGameStarted(): Observable<uuidv4> {
         return new Observable(subscriber => {
             this.hubConnection.on('gameStarted', (data) => subscriber.next(data));
         });

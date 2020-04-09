@@ -1,0 +1,3 @@
+﻿Add-Migration InitialCreate -Context EventStoreDbContext -Project Repositories
+
+Update-Database -Context EventStoreDbContext -Project Repositories

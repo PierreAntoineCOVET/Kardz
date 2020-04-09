@@ -13,12 +13,20 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MediatR.Extensions.FluentValidation.AspNetCore;
 using Web.Hubs;
+using Microsoft.Extensions.Configuration;
 
 namespace Web
 {
     public class Startup
     {
         private const string CORS_AUTHORISE_LOCALHOST = "LocalHosts";
+
+        private IConfiguration Configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
@@ -32,6 +40,7 @@ namespace Web
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(EventHandlers.Behavior.ValidationBehavior<,>))
                 .AddFluentValidation(new List<Assembly> { eventHandlerAssembly });
 
+            // cross site requestion from localhost:4200 to localhost:xxxx.
             services.AddCors(option =>
             {
                 option.AddPolicy(
@@ -42,6 +51,8 @@ namespace Web
                     .AllowCredentials());
             });
 
+            services.AddMemoryCache();
+
             services.AddSpaStaticFiles(configuration =>
             {
                 configuration.RootPath = "ClientApp/dist";
@@ -50,10 +61,18 @@ namespace Web
 
             services.AddSignalR();
 
-                //        services.AddMvc(options => options.Filters.Add(typeof(CustomExceptionFilterAttribute)))
-                //.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                //// Traduction des dates envoyés par Angular HttpClient en UTC vers local
-                //.AddJsonOptions(options => options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Local);
+            //services.AddSignalR(options => options.EnableDetailedErrors = true);
+
+            //        services.AddMvc(options => options.Filters.Add(typeof(CustomExceptionFilterAttribute)))
+            //.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            //// Traduction des dates envoyés par Angular HttpClient en UTC vers local
+            //.AddJsonOptions(options => options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Local);
+
+            services.AddKardzDomain();
+
+            services.AddKardzDbContexts(Configuration);
+
+            services.AddKardzRopositories();
 
         }
 
@@ -71,6 +90,7 @@ namespace Web
 
             app.UseRouting();
 
+            //app.UseAuthentication();
             //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

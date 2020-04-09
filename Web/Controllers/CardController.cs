@@ -1,5 +1,4 @@
-﻿using Domain.Enums;
-using EventHandlers.Queries.GetShuffledCards;
+﻿using EventHandlers.Queries.GetShuffledCards;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System;

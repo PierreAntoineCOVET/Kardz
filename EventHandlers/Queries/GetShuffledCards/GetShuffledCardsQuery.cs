@@ -9,7 +9,7 @@ namespace EventHandlers.Queries.GetShuffledCards
     /// <summary>
     /// Query for getting a shuffled deck of cards for a given game.
     /// </summary>
-    public class GetShuffledCardsQuery : IRequest<IEnumerable<CardsEnum>>
+    public class GetShuffledCardsQuery : IRequest<IEnumerable<int>>
     {
         /// <summary>
         /// Game to play <see cref="GamesEnum"/>

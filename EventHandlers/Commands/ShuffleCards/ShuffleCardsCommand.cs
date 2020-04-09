@@ -6,7 +6,7 @@ using System.Text;
 
 namespace EventHandlers.Commands.ShuffleCards
 {
-    public class ShuffleCardsCommand : IRequest<IEnumerable<CardsEnum>>
+    public class ShuffleCardsCommand : IRequest<IEnumerable<int>>
     {
         public Guid GameId { get; set; }
 

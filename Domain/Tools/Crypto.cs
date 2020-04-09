@@ -5,8 +5,16 @@ using System.Text;
 
 namespace Domain.Tools
 {
+    /// <summary>
+    /// Cryptographic tools.
+    /// </summary>
     public static class Crypto
     {
+        /// <summary>
+        /// Compute a string into SHA256.
+        /// </summary>
+        /// <param name="input">String to compute.</param>
+        /// <returns>SHA256 representation.</returns>
         public static string ComputeSha256Hash(string input)
         {
             using(var hasher = SHA256.Create())

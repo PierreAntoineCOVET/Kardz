@@ -16,9 +16,9 @@ export class GameService {
     /**
      * Start SingalR connection and call connectionInitialized on succes or error.
      */
-    public startConnection(): Promise<void> {
+    public startConnection(playerId: uuidv4): Promise<void> {
         this.hubConnection = new HubConnectionBuilder()
-            .withUrl(environment.singalRBaseUrl + '/game')
+            .withUrl(environment.singalRBaseUrl + '/game', { accessTokenFactory: () => playerId })
             .build();
 
         return this.hubConnection.start();
@@ -28,9 +28,9 @@ export class GameService {
         this.hubConnection.invoke('GetCardsForPlayer', gameId, playerId);
     }
 
-    public onPlayerCardsReceived(playerId: uuidv4): Observable<CardsEnum[]> {
+    public get onPlayerCardsReceived(): Observable<CardsEnum[]> {
         return new Observable(subscriber => {
-            this.hubConnection.on('playerCardsReceived' + playerId, (data) => subscriber.next(data));
+            this.hubConnection.on('playerCardsReceived', (data) => subscriber.next(data));
         });
     }
 }

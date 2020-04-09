@@ -1,6 +1,7 @@
 ﻿using EventHandlers.Commands.ShuffleCards;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,15 +9,33 @@ using System.Threading.Tasks;
 
 namespace Web.Hubs
 {
-    public class GameHub : Hub
+    /// <summary>
+    /// SignalR hub for all game communications.
+    /// </summary>
+    public class GameHub : BaseHub
     {
+        /// <summary>
+        /// MediatR query manager.
+        /// </summary>
         private IMediator Mediator;
 
-        public GameHub(IMediator mediator)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="mediator">MediatR hub.</param>
+        /// <param name="memoryCache">Internal memory cache for players connection mapping.</param>
+        public GameHub(IMediator mediator, IMemoryCache memoryCache)
+            : base(memoryCache)
         {
             Mediator = mediator;
         }
 
+        /// <summary>
+        /// Get radomised card for a player and a game.
+        /// </summary>
+        /// <param name="gameId">Guid of the game played.</param>
+        /// <param name="playerId">Id of the player to serve.</param>
+        /// <returns></returns>
         public async Task GetCardsForPlayer(Guid gameId, Guid playerId)
         {
             var cards = await Mediator.Send(new ShuffleCardsCommand
@@ -25,7 +44,7 @@ namespace Web.Hubs
                 PlayerId = playerId
             });
 
-            await Clients.All.SendAsync($"playerCardsReceived{playerId}", cards);
+            await Clients.Client(Context.ConnectionId).SendAsync($"playerCardsReceived", cards);
         }
     }
 }

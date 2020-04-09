@@ -3,6 +3,7 @@ import { Observable, of, Subscription, Subscriber, Subject } from 'rxjs';
 import { LobbyService } from '../../../services/lobby/lobby.service';
 import { sha256 } from 'js-sha256';
 import { GameStartedEvent } from './events/game-started.event';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Lobby domain actions.
@@ -10,12 +11,34 @@ import { GameStartedEvent } from './events/game-started.event';
 export class Lobby {
     //private player: Player;
     private playerId: uuidv4;
+    private readonly PLAYER_ID_STORAGE_KEY = 'PlayerIdKey';
     public onNewGameSubscriber: Subject<GameStartedEvent> = new Subject<GameStartedEvent>();
 
     constructor(private lobbyService: LobbyService) {
-        this.lobbyService.startConnection()
+        this.playerId = this.getOrCreatePlayerId();
+
+        this.lobbyService.startConnection(this.playerId)
             .then(() => this.addPlayer())
             .catch((reason) => this.onSocketInitializationFailed(reason));
+    }
+
+    /**
+     * Get the player id from local storage or create one if there is none.
+     */
+    private getOrCreatePlayerId(): uuidv4 {
+        if (environment.production) {
+            let currentPlayerId = localStorage.getItem(this.PLAYER_ID_STORAGE_KEY);
+
+            if (!currentPlayerId) {
+                currentPlayerId = uuidv4();
+                localStorage.setItem(this.PLAYER_ID_STORAGE_KEY, currentPlayerId);
+            }
+
+            return currentPlayerId;
+        }
+        else {
+            return uuidv4();
+        }
     }
 
     /**
@@ -29,8 +52,6 @@ export class Lobby {
      * Add the host player (generate it's own ID).
      */
     private addPlayer() {
-        this.playerId = uuidv4();
-
         this.lobbyService.broadcastNewPlayer(this.playerId)
     }
 
@@ -42,15 +63,13 @@ export class Lobby {
         this.lobbyService.onGameStarted.subscribe({
             next: (data) => {
                 if (data) {
-                    const hashedPlayerId = sha256(this.playerId);
+                    const gameStartedEvent = new GameStartedEvent();
+                    gameStartedEvent.gameId = data;
+                    gameStartedEvent.playerId = this.playerId;
+                    this.onNewGameSubscriber.next(gameStartedEvent);
+                    this.onNewGameSubscriber.complete();
 
-                    if (data.players.indexOf(hashedPlayerId) > -1) {
-                        const gameStartedEvent = new GameStartedEvent();
-                        gameStartedEvent.gameId = data.id;
-                        gameStartedEvent.playerId = this.playerId;
-                        this.onNewGameSubscriber.next(gameStartedEvent);
-                        this.onNewGameSubscriber.complete();
-                    }
+                    //const hashedPlayerId = sha256(this.playerId);
                 }
             }
         });

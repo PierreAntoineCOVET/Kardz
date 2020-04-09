@@ -3,6 +3,7 @@ using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Domain.Domain.Interfaces
 {
@@ -12,8 +13,8 @@ namespace Domain.Domain.Interfaces
 
         IEnumerable<ITeam> Teams { get; }
 
-        void AddPlayers(IEnumerable<Player> players);
+        void AddPlayers(IEnumerable<IPlayer> players);
 
-        IEnumerable<CardsEnum> GetCardsForPlayer(Guid playerId);
+        Task<IEnumerable<CardsEnum>> GetCardsForPlayer(Guid playerId);
     }
 }

@@ -7,8 +7,10 @@ namespace Domain.Domain.Interfaces
 {
     public interface ITeam
     {
-        IEnumerable<Player> Players { get; }
+        IEnumerable<IPlayer> Players { get; }
 
         int Number { get; }
+
+        void AddPlayer(IPlayer player);
     }
 }

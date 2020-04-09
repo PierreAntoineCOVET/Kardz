@@ -3,30 +3,76 @@ using Domain.Domain.Services;
 using Domain.Enums;
 using Domain.Exceptions.Game;
 using Domain.Tools;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Domain.Domain.Implementations.Coinche
 {
-    public class CoincheGame : IGame
+    /// <summary>
+    /// Coinche game domain class.
+    /// </summary>
+    internal class CoincheGame : IGame
     {
+        /// <summary>
+        /// Game's Id.
+        /// </summary>
         public Guid Id { get; private set; }
 
         private List<CoincheTeam> _Teams = new List<CoincheTeam>(2);
+        /// <summary>
+        /// List of teams for the game.
+        /// </summary>
         public IEnumerable<ITeam> Teams => _Teams;
 
+        /// <summary>
+        /// Liste of shuffled cards.
+        /// </summary>
         private IEnumerable<CardsEnum> ShuffledCards;
 
+        /// <summary>
+        /// Number of cards to give for each player.
+        /// </summary>
         private const int NUMBER_OF_CARDS_PER_PLAYER = 8;
 
+        /// <summary>
+        /// Enshure that cards are shuffled only once.
+        /// </summary>
+        private SemaphoreSlim ShuffleCardsLock = new SemaphoreSlim(1, 1);
+
+        /// <summary>
+        /// Constructor for JSON. 
+        /// Use concrete <see cref="CoincheTeam"/> insted of <see cref="ITeam"/>.
+        /// </summary>
+        /// <param name="id">Id of the game.</param>
+        /// <param name="teams">Teams for the game.</param>
+        [JsonConstructor]
+        public CoincheGame(Guid id, List<CoincheTeam> teams)
+        {
+            Id = id;
+            _Teams = teams;
+        }
+
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="id">Game's Id.</param>
         public CoincheGame(Guid id)
         {
             Id = id;
         }
 
-        public void AddPlayers(IEnumerable<Player> players)
+        /// <summary>
+        /// Add a list of players to the game.
+        /// Split them into teams and give them number (id within the game).
+        /// </summary>
+        /// <param name="players">Players to add.</param>
+        /// <remarks>Teams must already exists.</remarks>
+        public void AddPlayers(IEnumerable<IPlayer> players)
         {
             if (_Teams.Count > 0)
                 throw new GameCreationException($"Game {Id} is already full");
@@ -35,23 +81,34 @@ namespace Domain.Domain.Implementations.Coinche
             if (playerCount != 4)
                 throw new GameCreationException($"Game {Enums.GamesEnum.Coinche} doesn't allow for {playerCount} player(s)");
 
-            var randomizedPlayers = RandomSorter.Randomize(players);
+            var coinchePlayers = players.Cast<CoinchePlayer>();
+            var randomizedPlayers = RandomSorter.Randomize(coinchePlayers);
             AddTeam(0, randomizedPlayers.Take(2));
             AddTeam(1, randomizedPlayers.Skip(2).Take(2));
         }
 
-        private void AddTeam(int number, IEnumerable<Player> players)
+        /// <summary>
+        /// List of teams for the game.
+        /// </summary>
+        /// <param name="number">Team's number.</param>
+        /// <param name="players">Team's players.</param>
+        private void AddTeam(int number, IEnumerable<CoinchePlayer> players)
         {
             var list = players.ToList();
 
             var team = new CoincheTeam(number);
-            team.AddPlayer(0, list[0]);
-            team.AddPlayer(1, list[1]);
+            team.AddPlayer(list[0]);
+            team.AddPlayer(list[1]);
 
             _Teams.Add(team);
         }
 
-        public IEnumerable<CardsEnum> GetCardsForPlayer(Guid playerId)
+        /// <summary>
+        /// Get cards from radomisez list for a player (based on the player number).
+        /// </summary>
+        /// <param name="playerId">Id of the player.</param>
+        /// <returns>List of cards for the player.</returns>
+        public async Task<IEnumerable<CardsEnum>> GetCardsForPlayer(Guid playerId)
         {
             var player = _Teams.SelectMany(t => t.Players).SingleOrDefault(p => p.Id == playerId);
             if(player == null)
@@ -59,10 +116,19 @@ namespace Domain.Domain.Implementations.Coinche
                 throw new GameplayException($"Player {playerId} is not part of game {Id}");
             }
 
-            if(ShuffledCards?.Any() ?? true)
+            try
             {
-                var deck = CardsService.GetCardDeck(GamesEnum.Coinche);
-                ShuffledCards = deck.Shuffle();
+                await ShuffleCardsLock.WaitAsync();
+
+                if (!ShuffledCards?.Any() ?? true)
+                {
+                    var deck = CardsService.GetCardDeck(GamesEnum.Coinche);
+                    ShuffledCards = deck.Shuffle();
+                }
+            }
+            finally
+            {
+                ShuffleCardsLock.Release();
             }
 
             int skip = NUMBER_OF_CARDS_PER_PLAYER * player.Number;

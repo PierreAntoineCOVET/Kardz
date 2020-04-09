@@ -8,23 +8,20 @@ using System.Threading.Tasks;
 
 namespace EventHandlers.Commands.SearchGame
 {
-    public class SearchGameCommandHandler : IRequestHandler<SearchGameCommand, (GameDto game, int numberOfPlayersInLobby)?>
+    public class SearchGameCommandHandler : IRequestHandler<SearchGameCommand, bool>
     {
-        public async Task<(GameDto game, int numberOfPlayersInLobby)?> Handle(SearchGameCommand request, CancellationToken cancellationToken)
+        private LobbiesService LobbiesService;
+
+        public SearchGameCommandHandler(LobbiesService lobbiesService)
         {
-            //var lobby = LobbiesService.GetLobby((GamesEnum)GamesType);
-            var lobby = LobbiesService.GetLobby(GamesEnum.Coinche);
+            LobbiesService = lobbiesService;
+        }
 
-            lobby.AddPlayerLookingForGame(request.PlayerId);
+        public Task<bool> Handle(SearchGameCommand request, CancellationToken cancellationToken)
+        {
+            LobbiesService.Lobby.AddPlayerLookingForGame(request.PlayerId);
 
-            if(lobby.CanStartGame())
-            {
-                var game = await lobby.CreateGame();
-                GamesServices.AddGame(game);
-                return (game?.ToGameDto(), lobby.NumberOfPlayers);
-            }
-
-            return null;
+            return Task.FromResult(LobbiesService.Lobby.CanStartGame());
         }
     }
 }

@@ -17,6 +17,7 @@ export class LobbyScene extends Phaser.Scene {
     private isSearchingGame: boolean = false;
     private subscriptions: Subscription;
     private numberOfPlayersBaseText: string;
+    private numberOfPLayersFormatedText: string;
 
     constructor(lobbyService: LobbyService, private translateService: TranslateService) {
         super({ key: 'lobby' });
@@ -31,9 +32,13 @@ export class LobbyScene extends Phaser.Scene {
 
         this.numberOfPlayersBaseText = this.translateService.instant('game.lobby.numberOfPlayers') + ' : ';
 
+        this.numberOfPlayersText = this.add.text(1540, 50, '')
+            .setOrigin(1, 0);
+
         this.subscriptions = this.lobby.onNewPlayerToLobby().subscribe({
-            next: (numebrOfPlayers) =>
-                this.numberOfPlayersText.setText(this.numberOfPlayersBaseText + numebrOfPlayers)
+            next: (numebrOfPlayers) => {
+                this.numberOfPLayersFormatedText = this.numberOfPlayersBaseText + numebrOfPlayers;
+            }
         });
 
         // create search game button
@@ -52,11 +57,9 @@ export class LobbyScene extends Phaser.Scene {
             }));
         this.add.existing(this.searchGameButton);
 
-        this.numberOfPlayersText = this.add.text(1540, 50, '')
-            .setOrigin(1, 0);
-
     }
     update() {
+        this.numberOfPlayersText.setText(this.numberOfPLayersFormatedText);
     }
 
     /**

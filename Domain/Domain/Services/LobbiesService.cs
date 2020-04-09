@@ -11,20 +11,23 @@ using System.Threading.Tasks;
 
 namespace Domain.Domain.Services
 {
-    public static class LobbiesService
+    /// <summary>
+    /// Lobby service.
+    /// </summary>
+    public class LobbiesService
     {
-        private static readonly List<ILobby> Lobbies = new List<ILobby>();
-
-        static LobbiesService()
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public LobbiesService()
         {
-            Lobbies.Add(LobbyFactory.GetLobby(GamesEnum.Coinche));
+            Lobby = LobbyFactory.CreateLobby(GamesEnum.Coinche);
         }
 
-        public static ILobby GetLobby(GamesEnum gamesEnum)
-        {
-            var lobby = Lobbies.SingleOrDefault(l => l.Game == gamesEnum);
-
-            return lobby;
-        }
+        /// <summary>
+        /// Current active lobby.
+        /// Lobby are not persisted on purpose.
+        /// </summary>
+        public ILobby Lobby { get; private set; }
     }
 }

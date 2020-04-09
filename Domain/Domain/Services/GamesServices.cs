@@ -1,31 +1,78 @@
 ﻿using Domain.Domain.Interfaces;
 using Domain.Exceptions.Game;
+using Newtonsoft.Json;
+using Repositories.EventStoreEntities;
+using Repositories.EventStoreRepositories;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Domain.Domain.Services
 {
-    public static class GamesServices
+    /// <summary>
+    /// Game service manager.
+    /// </summary>
+    public class GamesServices
     {
-        // TODO: remove and use persistance DB or events
-        private static readonly ConcurrentDictionary<Guid, IGame> Games = new ConcurrentDictionary<Guid, IGame>();
+        /// <summary>
+        /// Event store repository.
+        /// </summary>
+        private readonly IEventStoreRepository EventStoreRepository;
 
-        public static void AddGame(IGame game)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="eventStoreRepository"><see cref="IEventStoreRepository"/></param>
+        public GamesServices(IEventStoreRepository eventStoreRepository)
         {
-            if (!Games.TryAdd(game.Id, game))
-                throw new GameCreationException($"Game {game.Id} already exist");
+            EventStoreRepository = eventStoreRepository;
         }
 
-        public static IGame GetGame(Guid gameId)
+        /// <summary>
+        /// Persist a game in the DB.
+        /// </summary>
+        /// <param name="game">Game to save.</param>
+        /// <returns></returns>
+        public async Task AddGame(IGame game)
         {
-            // check in request validator ??
-            if (!Games.TryGetValue(gameId, out IGame game))
-                throw new GameplayException($"Game {gameId} does not exist");
+            var eventSource = new Aggregate
+            {
+                Id = game.Id,
+                Type = game.GetType().FullName,
+                Version = 0
+            };
 
-            return game;
+            var @event = new Event
+            {
+                Author = null,
+                Datas = JsonConvert.SerializeObject(game),
+                Date = DateTime.Now,
+                Version = 0,
+                AggregateId = eventSource.Id
+            };
+
+            await EventStoreRepository.AddAggregate(eventSource);
+            await EventStoreRepository.AddEvent(@event);
+
+            await EventStoreRepository.SaveChanges();
+        }
+
+        /// <summary>
+        /// Load a game from the db.
+        /// </summary>
+        /// <param name="gameId">Id of the game to load.</param>
+        /// <returns></returns>
+        public async Task<IGame> GetGame(Guid gameId)
+        {
+            var eventSource = await EventStoreRepository.GetAggregate(gameId);
+
+            var gameEvent = eventSource.Events.OrderByDescending(e => e.Version).First();
+            var type = Type.GetType(eventSource.Type);
+
+            return (IGame)JsonConvert.DeserializeObject(gameEvent.Datas, type);
         }
     }
 }
