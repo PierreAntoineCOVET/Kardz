@@ -39,11 +39,15 @@ namespace Domain.Domain.Implementations.Coinche
                 if (!CanStartGame())
                     return null;
 
-                selectedPlayers = PlayersLookingForGame.Take(4).Select(kvp => kvp.Value).ToList();
+                selectedPlayers = PlayersLookingForGame
+                    .Take(4)
+                    .Select(kvp => kvp.Value)
+                    .Cast<CoinchePlayer>()
+                    .ToList();
                 foreach (var player in selectedPlayers)
                 {
-                    PlayersLookingForGame.TryRemove(player.Id, out CoinchePlayer _);
-                    PlayersInLobby.TryRemove(player.Id, out CoinchePlayer _);
+                    PlayersLookingForGame.TryRemove(player.Id, out IPlayer _);
+                    PlayersInLobby.TryRemove(player.Id, out IPlayer _);
                 }
             }
             finally

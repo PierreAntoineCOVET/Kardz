@@ -8,7 +8,7 @@ namespace Repositories.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "EventSources",
+                name: "Aggregates",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
@@ -17,7 +17,7 @@ namespace Repositories.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventSources", x => x.Id);
+                    table.PrimaryKey("PK_Aggregates", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -27,7 +27,7 @@ namespace Repositories.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     Date = table.Column<DateTime>(nullable: false),
                     Version = table.Column<int>(nullable: false),
-                    EventSourceId = table.Column<Guid>(nullable: false),
+                    AggregateId = table.Column<Guid>(nullable: false),
                     Author = table.Column<Guid>(nullable: true),
                     Datas = table.Column<string>(nullable: false)
                 },
@@ -35,17 +35,17 @@ namespace Repositories.Migrations
                 {
                     table.PrimaryKey("PK_Events", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Events_EventSources_EventSourceId",
-                        column: x => x.EventSourceId,
-                        principalTable: "EventSources",
+                        name: "FK_Events_Aggregates_AggregateId",
+                        column: x => x.AggregateId,
+                        principalTable: "Aggregates",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Events_EventSourceId",
+                name: "IX_Events_AggregateId",
                 table: "Events",
-                column: "EventSourceId");
+                column: "AggregateId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -54,7 +54,7 @@ namespace Repositories.Migrations
                 name: "Events");
 
             migrationBuilder.DropTable(
-                name: "EventSources");
+                name: "Aggregates");
         }
     }
 }

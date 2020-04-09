@@ -10,7 +10,7 @@ using Repositories.DbContexts;
 namespace Repositories.Migrations
 {
     [DbContext(typeof(EventStoreDbContext))]
-    [Migration("20200409223903_InitialCreate")]
+    [Migration("20200409233948_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,13 +35,16 @@ namespace Repositories.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EventSources");
+                    b.ToTable("Aggregates");
                 });
 
             modelBuilder.Entity("Repositories.EventStoreEntities.Event", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AggregateId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("Author")
@@ -54,15 +57,12 @@ namespace Repositories.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("EventSourceId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Version")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EventSourceId");
+                    b.HasIndex("AggregateId");
 
                     b.ToTable("Events");
                 });
@@ -71,7 +71,7 @@ namespace Repositories.Migrations
                 {
                     b.HasOne("Repositories.EventStoreEntities.Aggregate", "Aggregate")
                         .WithMany("Events")
-                        .HasForeignKey("EventSourceId")
+                        .HasForeignKey("AggregateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
