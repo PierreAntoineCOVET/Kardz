@@ -6,6 +6,9 @@ using System.Text;
 
 namespace EventHandlers.Commands.CreateGame
 {
+    /// <summary>
+    /// Create game command.
+    /// </summary>
     public class CreateGameCommand : IRequest<GameDto>
     {
     }

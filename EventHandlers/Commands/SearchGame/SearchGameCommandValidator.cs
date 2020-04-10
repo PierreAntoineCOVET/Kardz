@@ -7,8 +7,14 @@ using System.Text;
 
 namespace EventHandlers.Commands.SearchGame
 {
+    /// <summary>
+    /// Validator for <see cref="SearchGameCommand"/>
+    /// </summary>
     public class SearchGameCommandValidator : AbstractValidator<SearchGameCommand>
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public SearchGameCommandValidator()
         {
             RuleFor(query => query.PlayerId).NotNull();

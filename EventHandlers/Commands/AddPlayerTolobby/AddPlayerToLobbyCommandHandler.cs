@@ -6,15 +6,31 @@ using System.Threading.Tasks;
 
 namespace EventHandlers.Commands.AddPlayerTolobby
 {
+    /// <summary>
+    /// AddPlayerToLobbyCommand handler.
+    /// </summary>
     public class AddPlayerToLobbyCommandHandler : IRequestHandler<AddPlayerToLobbyCommand, int>
     {
+        /// <summary>
+        /// Games lobby services.
+        /// </summary>
         private LobbiesService LobbiesService;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="lobbiesService">Games lobby services.</param>
         public AddPlayerToLobbyCommandHandler(LobbiesService lobbiesService)
         {
             LobbiesService = lobbiesService;
         }
 
+        /// <summary>
+        /// Handler.
+        /// </summary>
+        /// <param name="request">Request.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Number of player in lobby.</returns>
         public Task<int> Handle(AddPlayerToLobbyCommand request, CancellationToken cancellationToken)
         {
             LobbiesService.Lobby.AddPlayer(request.PlayerId);
