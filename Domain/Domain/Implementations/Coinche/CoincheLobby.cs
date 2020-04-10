@@ -57,6 +57,7 @@ namespace Domain.Domain.Implementations.Coinche
 
             var game = new CoincheGame(Guid.NewGuid());
             game.AddPlayers(selectedPlayers);
+
             return game;
         }
 

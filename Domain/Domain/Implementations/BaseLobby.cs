@@ -40,7 +40,7 @@ namespace Domain.Domain.Implementations
         public void AddPlayer(Guid id)
         {
             if (PlayersInLobby.Any(p => p.Key == id))
-                throw new PlayerAlreadyInLobbyException(id);
+                throw new LobbyException($"Player {id} is already registered in the lobby");
 
             var player = PlayerFactory.CreatePlayer(Game, id);
             PlayersInLobby.TryAdd(id, player);
@@ -58,10 +58,10 @@ namespace Domain.Domain.Implementations
         public void AddPlayerLookingForGame(Guid id)
         {
             if (!PlayersInLobby.Any(p => p.Key == id))
-                throw new PlayerSearchGameWhileNotInLobbyException(id);
+                throw new LobbyException($"Player {id} is not registered in the lobby.");
 
             if (!PlayersLookingForGame.TryAdd(id, PlayersInLobby[id]))
-                throw new PlayerAlreadyLookingForAGameException(id);
+                throw new LobbyException($"Player {id} is already looking for a game.");
         }
 
         /// <summary>

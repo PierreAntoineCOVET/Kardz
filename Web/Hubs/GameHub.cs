@@ -1,10 +1,6 @@
-﻿using EventHandlers.Commands.ShuffleCards;
-using MediatR;
-using Microsoft.AspNetCore.SignalR;
+﻿using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Web.Hubs
@@ -38,13 +34,13 @@ namespace Web.Hubs
         /// <returns></returns>
         public async Task GetCardsForPlayer(Guid gameId, Guid playerId)
         {
-            var cards = await Mediator.Send(new ShuffleCardsCommand
-            {
-                GameId = gameId,
-                PlayerId = playerId
-            });
+            //var cards = await Mediator.Send(new ShuffleCardsCommand
+            //{
+            //    GameId = gameId,
+            //    PlayerId = playerId
+            //});
 
-            await Clients.Client(Context.ConnectionId).SendAsync($"playerCardsReceived", cards);
+            //await Clients.Client(Context.ConnectionId).SendAsync($"playerCardsReceived", cards);
         }
     }
 }

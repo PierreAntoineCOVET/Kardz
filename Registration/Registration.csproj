@@ -13,6 +13,7 @@
     <ProjectReference Include="..\Domain\Domain.csproj">
       <PrivateAssets>all</PrivateAssets>
     </ProjectReference>
+    <ProjectReference Include="..\EventHandlers\EventHandlers.csproj" />
     <ProjectReference Include="..\Repositories\Repositories.csproj">
       <PrivateAssets>all</PrivateAssets>
     </ProjectReference>

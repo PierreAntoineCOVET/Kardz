@@ -1,9 +1,10 @@
 ﻿using Domain.Domain.Interfaces;
 using Domain.Domain.Services;
 using Domain.Enums;
-using Domain.Exceptions.Game;
+using Domain.Exceptions;
 using Domain.Tools;
 using Newtonsoft.Json;
+using Repositories.EventStoreEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,9 +31,14 @@ namespace Domain.Domain.Implementations.Coinche
         public IEnumerable<ITeam> Teams => _Teams;
 
         /// <summary>
+        /// True if the game is playing (cant shuffle cards).
+        /// </summary>
+        public bool IsPlaying { get; private set; }
+
+        /// <summary>
         /// Liste of shuffled cards.
         /// </summary>
-        private IEnumerable<CardsEnum> ShuffledCards;
+        public IEnumerable<CardsEnum> Cards { get; private set; }
 
         /// <summary>
         /// Number of cards to give for each player.
@@ -75,11 +81,11 @@ namespace Domain.Domain.Implementations.Coinche
         public void AddPlayers(IEnumerable<IPlayer> players)
         {
             if (_Teams.Count > 0)
-                throw new GameCreationException($"Game {Id} is already full");
+                throw new GameException($"Game {Id} is already full");
 
             var playerCount = players.Count();
             if (playerCount != 4)
-                throw new GameCreationException($"Game {Enums.GamesEnum.Coinche} doesn't allow for {playerCount} player(s)");
+                throw new GameException($"Game {Enums.GamesEnum.Coinche} doesn't allow for {playerCount} player(s)");
 
             var coinchePlayers = players.Cast<CoinchePlayer>();
             var randomizedPlayers = RandomSorter.Randomize(coinchePlayers);
@@ -108,32 +114,41 @@ namespace Domain.Domain.Implementations.Coinche
         /// </summary>
         /// <param name="playerId">Id of the player.</param>
         /// <returns>List of cards for the player.</returns>
-        public async Task<IEnumerable<CardsEnum>> GetCardsForPlayer(Guid playerId)
+        public IEnumerable<CardsEnum> GetCardsForPlayer(Guid playerId)
         {
             var player = _Teams.SelectMany(t => t.Players).SingleOrDefault(p => p.Id == playerId);
             if(player == null)
             {
-                throw new GameplayException($"Player {playerId} is not part of game {Id}");
+                throw new GameException($"Player {playerId} is not part of game {Id}");
             }
 
+            int skip = NUMBER_OF_CARDS_PER_PLAYER * player.Number;
+            int take = NUMBER_OF_CARDS_PER_PLAYER;
+            return Cards.Skip(skip).Take(take);
+        }
+
+        /// <summary>
+        /// If game is not playing the shuffle cards else do nothing.
+        /// </summary>
+        /// <returns></returns>
+        public async Task ShuffleCards()
+        {
             try
             {
                 await ShuffleCardsLock.WaitAsync();
 
-                if (!ShuffledCards?.Any() ?? true)
+                if (!IsPlaying)
                 {
                     var deck = CardsService.GetCardDeck(GamesEnum.Coinche);
-                    ShuffledCards = deck.Shuffle();
+                    Cards = deck.Shuffle();
+                    IsPlaying = true;
                 }
+
             }
             finally
             {
                 ShuffleCardsLock.Release();
             }
-
-            int skip = NUMBER_OF_CARDS_PER_PLAYER * player.Number;
-            int take = NUMBER_OF_CARDS_PER_PLAYER;
-            return ShuffledCards.Skip(skip).Take(take);
         }
     }
 }

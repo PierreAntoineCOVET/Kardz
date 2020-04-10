@@ -1,9 +1,9 @@
 ﻿using Domain.Domain.Services;
+using Domain.Events;
 using DTOs;
+using EventHandlers.Notifications.Game;
 using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,20 +19,20 @@ namespace EventHandlers.Commands.CreateGame
         /// </summary>
         private LobbiesService LobbiesService;
 
-        /// <summary>
-        /// Game service.
-        /// </summary>
-        private GamesServices GamesServices;
+        private IMediator Mediator;
+
+        private IServiceProvider ServiceProvider;
 
         /// <summary>
         /// Cosntructor.
         /// </summary>
         /// <param name="lobbiesService">Lobby service.</param>
         /// <param name="gamesServices">Game service.</param>
-        public CreateGameCommandHandler(LobbiesService lobbiesService, GamesServices gamesServices)
+        public CreateGameCommandHandler(IMediator mediator, LobbiesService lobbiesService, IServiceProvider serviceProvider)
         {
+            Mediator = mediator;
             LobbiesService = lobbiesService;
-            GamesServices = gamesServices;
+            ServiceProvider = serviceProvider;
         }
 
         /// <summary>
@@ -48,7 +48,13 @@ namespace EventHandlers.Commands.CreateGame
             if (game == null)
                 return null;
 
-            await GamesServices.AddGame(game);
+            var createGameDomainEvent = new CreateGameEvent(ServiceProvider, game);
+            await Mediator.Publish(new GameEventNotification { DomainEvent = createGameDomainEvent });
+
+            await game.ShuffleCards();
+
+            var shuffleCardsDomainEvent = new ShuffleCardsEvent(ServiceProvider, game);
+            await Mediator.Publish(new GameEventNotification { DomainEvent = shuffleCardsDomainEvent });
 
             return game.ToGameDto();
         }

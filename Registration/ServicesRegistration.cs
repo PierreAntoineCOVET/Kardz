@@ -23,7 +23,7 @@ namespace Web
         {
             services.AddSingleton<LobbiesService>();
 
-            services.AddScoped<GamesServices>();
+            services.AddScoped<GamesService>();
         }
 
         /// <summary>

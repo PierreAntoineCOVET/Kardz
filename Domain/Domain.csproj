@@ -10,7 +10,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
-    <ProjectReference Include="..\Repositories\Repositories.csproj" />
+    <ProjectReference Include="..\Repositories\Repositories.csproj">
+      <PrivateAssets>all</PrivateAssets>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

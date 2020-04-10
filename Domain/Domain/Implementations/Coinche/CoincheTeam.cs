@@ -1,9 +1,8 @@
 ﻿using Domain.Domain.Interfaces;
-using Domain.Exceptions.Game;
+using Domain.Exceptions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Domain.Domain.Implementations.Coinche
 {
@@ -53,7 +52,7 @@ namespace Domain.Domain.Implementations.Coinche
         public void AddPlayer(IPlayer player)
         {
             if (_Players.Count >= 2)
-                throw new GameCreationException($"Game {Enums.GamesEnum.Coinche} teams doesn't allow for {_Players.Count} player(s)");
+                throw new GameException($"Game {Enums.GamesEnum.Coinche} teams doesn't allow for {_Players.Count} player(s)");
 
             if (! (player is CoinchePlayer))
                 throw new InvalidCastException($"{nameof(player)} shoud be of type 'CoinchePlayer'");

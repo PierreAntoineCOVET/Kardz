@@ -25,9 +25,10 @@ namespace Repositories.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Date = table.Column<DateTime>(nullable: false),
-                    Version = table.Column<int>(nullable: false),
                     AggregateId = table.Column<Guid>(nullable: false),
+                    Version = table.Column<int>(nullable: false),
+                    Type = table.Column<string>(nullable: true),
+                    Date = table.Column<DateTime>(nullable: false),
                     Author = table.Column<Guid>(nullable: true),
                     Datas = table.Column<string>(nullable: false)
                 },

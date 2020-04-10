@@ -1,5 +1,6 @@
 ﻿using Domain.Domain.Implementations;
 using Domain.Enums;
+using Repositories.EventStoreEntities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,8 +14,14 @@ namespace Domain.Domain.Interfaces
 
         IEnumerable<ITeam> Teams { get; }
 
+        bool IsPlaying { get; }
+
         void AddPlayers(IEnumerable<IPlayer> players);
 
-        Task<IEnumerable<CardsEnum>> GetCardsForPlayer(Guid playerId);
+        IEnumerable<CardsEnum> GetCardsForPlayer(Guid playerId);
+
+        Task ShuffleCards();
+
+        IEnumerable<CardsEnum> Cards { get; }
     }
 }

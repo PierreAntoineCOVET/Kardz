@@ -15,9 +15,9 @@ namespace Repositories.EventStoreEntities
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Event creation date.
+        /// Aggregate id.
         /// </summary>
-        public DateTime Date { get; set; }
+        public Guid AggregateId { get; set; }
 
         /// <summary>
         /// Event version.
@@ -25,9 +25,14 @@ namespace Repositories.EventStoreEntities
         public int Version { get; set; }
 
         /// <summary>
-        /// Aggregate id.
+        /// Event type.
         /// </summary>
-        public Guid AggregateId { get; set; }
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Event creation date.
+        /// </summary>
+        public DateTime Date { get; set; }
 
         /// <summary>
         /// Event author.

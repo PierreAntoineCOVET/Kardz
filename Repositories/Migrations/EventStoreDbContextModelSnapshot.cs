@@ -55,6 +55,9 @@ namespace Repositories.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Version")
                         .HasColumnType("int");
 
