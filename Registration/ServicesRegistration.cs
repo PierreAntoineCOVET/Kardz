@@ -1,4 +1,6 @@
-﻿using Domain.Domain.Services;
+﻿using Domain.Domain.Factories;
+using Domain.Domain.Services;
+using Domain.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +25,8 @@ namespace Web
         {
             services.AddSingleton<LobbiesService>();
 
-            services.AddScoped<GamesService>();
+            services.AddSingleton<LobbyFactory>();
+            services.AddSingleton<PlayerFactory>();
         }
 
         /// <summary>

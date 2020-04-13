@@ -11,19 +11,26 @@ namespace Domain.Domain.Factories
     /// <summary>
     /// Lobby factory.
     /// </summary>
-    public static class LobbyFactory
+    public class LobbyFactory
     {
+        PlayerFactory PlayerFactory;
+
+        public LobbyFactory(PlayerFactory playerFactory)
+        {
+            PlayerFactory = playerFactory;
+        }
+
         /// <summary>
         /// Create lobby based on game type.
         /// </summary>
         /// <param name="gamesEnum">Game type.</param>
         /// <returns></returns>
-        public static ILobby CreateLobby(GamesEnum gamesEnum)
+        public ILobby CreateLobby(GamesEnum gamesEnum)
         {
             switch (gamesEnum)
             {
                 case GamesEnum.Coinche:
-                    return new CoincheLobby();
+                    return new CoincheLobby(PlayerFactory);
 
                 default:
                     throw new UnknownGameTypeException(gamesEnum);

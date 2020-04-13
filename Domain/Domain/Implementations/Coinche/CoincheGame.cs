@@ -1,10 +1,10 @@
 ﻿using Domain.Domain.Interfaces;
 using Domain.Domain.Services;
 using Domain.Enums;
+using Domain.Events;
 using Domain.Exceptions;
 using Domain.Tools;
 using Newtonsoft.Json;
-using Repositories.EventStoreEntities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace Domain.Domain.Implementations.Coinche
     /// <summary>
     /// Coinche game domain class.
     /// </summary>
-    internal class CoincheGame : IGame
+    internal class CoincheGame : AggregateBase, IGame
     {
         /// <summary>
         /// Game's Id.
@@ -40,36 +40,37 @@ namespace Domain.Domain.Implementations.Coinche
         /// </summary>
         public IEnumerable<CardsEnum> Cards { get; private set; }
 
-        /// <summary>
-        /// Number of cards to give for each player.
-        /// </summary>
-        private const int NUMBER_OF_CARDS_PER_PLAYER = 8;
-
-        /// <summary>
-        /// Enshure that cards are shuffled only once.
-        /// </summary>
-        private SemaphoreSlim ShuffleCardsLock = new SemaphoreSlim(1, 1);
-
-        /// <summary>
-        /// Constructor for JSON. 
-        /// Use concrete <see cref="CoincheTeam"/> insted of <see cref="ITeam"/>.
-        /// </summary>
-        /// <param name="id">Id of the game.</param>
-        /// <param name="teams">Teams for the game.</param>
-        [JsonConstructor]
-        public CoincheGame(Guid id, List<CoincheTeam> teams)
+        public CoincheGame()
         {
-            Id = id;
-            _Teams = teams;
+
         }
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="id">Game's Id.</param>
-        public CoincheGame(Guid id)
+        public CoincheGame(Guid id, IEnumerable<IPlayer> players)
         {
-            Id = id;
+            if (id == default(Guid))
+                throw new GameException($"Invalid game id {id}");
+
+            if(players.Count() != Consts.NUMBER_OF_PLAYERS_FOR_A_GAME)
+                throw new GameException($"Invalid number of players {players.Count()}");
+
+            var createGameEvent = new GameCreatedEvent
+            {
+                Id = Guid.NewGuid(),
+                GameId = id,
+                Players = players
+            };
+
+            RaiseEvent(createGameEvent);
+        }
+
+        internal void Apply(GameCreatedEvent @event)
+        {
+            Id = @event.GameId;
+            AddPlayers(@event.Players);
         }
 
         /// <summary>
@@ -78,7 +79,7 @@ namespace Domain.Domain.Implementations.Coinche
         /// </summary>
         /// <param name="players">Players to add.</param>
         /// <remarks>Teams must already exists.</remarks>
-        public void AddPlayers(IEnumerable<IPlayer> players)
+        private void AddPlayers(IEnumerable<IPlayer> players)
         {
             if (_Teams.Count > 0)
                 throw new GameException($"Game {Id} is already full");
@@ -119,11 +120,11 @@ namespace Domain.Domain.Implementations.Coinche
             var player = _Teams.SelectMany(t => t.Players).SingleOrDefault(p => p.Id == playerId);
             if(player == null)
             {
-                throw new GameException($"Player {playerId} is not part of game {Id}");
+                throw new GameException($"Player {playerId} is not part of game {Id}.");
             }
 
-            int skip = NUMBER_OF_CARDS_PER_PLAYER * player.Number;
-            int take = NUMBER_OF_CARDS_PER_PLAYER;
+            int skip = Consts.NUMBER_OF_CARDS_PER_PLAYER * player.Number;
+            int take = Consts.NUMBER_OF_CARDS_PER_PLAYER;
             return Cards.Skip(skip).Take(take);
         }
 
@@ -131,24 +132,25 @@ namespace Domain.Domain.Implementations.Coinche
         /// If game is not playing the shuffle cards else do nothing.
         /// </summary>
         /// <returns></returns>
-        public async Task ShuffleCards()
+        public void ShuffleCards()
         {
-            try
-            {
-                await ShuffleCardsLock.WaitAsync();
+            if (IsPlaying)
+                throw new GameException($"Shuffle cards of game {Id} while it's playing.");
 
-                if (!IsPlaying)
-                {
-                    var deck = CardsService.GetCardDeck(GamesEnum.Coinche);
-                    Cards = deck.Shuffle();
-                    IsPlaying = true;
-                }
+            var deck = new CoincheCardsDeck();
+            var cards = deck.Shuffle();
 
-            }
-            finally
+            var shuffleCardsEvent = new ShuffledCardsEvent
             {
-                ShuffleCardsLock.Release();
-            }
+                Id = Guid.NewGuid(),
+                ShuffledCards = cards
+            };
+            RaiseEvent(shuffleCardsEvent);
+        }
+
+        internal void Apply(ShuffledCardsEvent @event)
+        {
+            Cards = @event.ShuffledCards;
         }
     }
 }

@@ -16,6 +16,6 @@ namespace EventHandlers.Commands.SearchGame
         /// </summary>
         public Guid PlayerId { get; set; }
 
-        //public int GamesType { get; set; }
+        public int GameType { get; set; }
     }
 }

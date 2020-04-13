@@ -1,5 +1,7 @@
-﻿using Domain.Domain.Interfaces;
+﻿using Domain.Domain.Factories;
+using Domain.Domain.Interfaces;
 using Domain.Enums;
+using Domain.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,17 +13,16 @@ namespace Domain.Domain.Implementations.Coinche
     /// <summary>
     /// Lobby for coinche players.
     /// </summary>
-    internal class CoincheLobby : BaseLobby
+    internal class CoincheLobby : LobbyBase
     {
+        public CoincheLobby(PlayerFactory PlayerFactory)
+            : base(PlayerFactory)
+        { }
+
         /// <summary>
         /// Game type.
         /// </summary>
         public override GamesEnum Game => GamesEnum.Coinche;
-
-        /// <summary>
-        /// Ensure a given game is created only once.
-        /// </summary>
-        private SemaphoreSlim CreateGameLock = new SemaphoreSlim(1, 1);
 
         /// <summary>
         /// Create a game.
@@ -34,40 +35,45 @@ namespace Domain.Domain.Implementations.Coinche
 
             try
             {
-                await CreateGameLock.WaitAsync();
+                if (! await CanStartGame())
+                    throw new GameException($"Not enough player to crate a coinche game ({PlayersLookingForGame.Count}).");
 
-                if (!CanStartGame())
-                    return null;
+                await LobbyPlayersLock.WaitAsync();
 
                 selectedPlayers = PlayersLookingForGame
-                    .Take(4)
-                    .Select(kvp => kvp.Value)
+                    .Take(Consts.NUMBER_OF_PLAYERS_FOR_A_GAME)
                     .Cast<CoinchePlayer>()
                     .ToList();
                 foreach (var player in selectedPlayers)
                 {
-                    PlayersLookingForGame.TryRemove(player.Id, out IPlayer _);
-                    PlayersInLobby.TryRemove(player.Id, out IPlayer _);
+                    PlayersLookingForGame.Remove(player);
+                    PlayersInLobby.Remove(player);
                 }
             }
             finally
             {
-                CreateGameLock.Release();
+                LobbyPlayersLock.Release();
             }
 
-            var game = new CoincheGame(Guid.NewGuid());
-            game.AddPlayers(selectedPlayers);
-
-            return game;
+            return new CoincheGame(Guid.NewGuid(), selectedPlayers);
         }
 
         /// <summary>
         /// Ensure there is enough players to create a game.
         /// </summary>
         /// <returns>True if there is enough players.</returns>
-        public override bool CanStartGame()
+        public async override Task<bool> CanStartGame()
         {
-            return PlayersLookingForGame.Count >= 4;
+            try
+            {
+                await LobbyPlayersLock.WaitAsync();
+
+                return PlayersLookingForGame.Count >= Consts.NUMBER_OF_PLAYERS_FOR_A_GAME;
+            }
+            finally
+            {
+                LobbyPlayersLock.Release();
+            }
         }
     }
 }

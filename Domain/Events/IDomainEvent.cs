@@ -7,8 +7,8 @@ namespace Domain.Events
 {
     public interface IDomainEvent
     {
-        Task SaveToEventStore();
+        Guid Id { get; set; }
 
-        void Replay();
+        int Version { get; set; }
     }
 }

@@ -5,3 +5,4 @@ C:\Users\Pierre-Antoine\source\repos\Kardz\DTOs\obj\Debug\netstandard2.0\DTOs.As
 C:\Users\Pierre-Antoine\source\repos\Kardz\DTOs\obj\Debug\netstandard2.0\DTOs.AssemblyInfo.cs
 C:\Users\Pierre-Antoine\source\repos\Kardz\DTOs\obj\Debug\netstandard2.0\DTOs.dll
 C:\Users\Pierre-Antoine\source\repos\Kardz\DTOs\obj\Debug\netstandard2.0\DTOs.pdb
+C:\Users\Pierre-Antoine\source\repos\Kardz\DTOs\obj\Debug\netstandard2.0\DTOs.csprojAssemblyReference.cache

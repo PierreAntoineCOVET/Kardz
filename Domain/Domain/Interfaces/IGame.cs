@@ -1,6 +1,5 @@
 ﻿using Domain.Domain.Implementations;
 using Domain.Enums;
-using Repositories.EventStoreEntities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,20 +7,16 @@ using System.Threading.Tasks;
 
 namespace Domain.Domain.Interfaces
 {
-    public interface IGame
+    public interface IGame : IAggregate
     {
-        Guid Id { get; }
-
-        IEnumerable<ITeam> Teams { get; }
+        new Guid Id { get; }
 
         bool IsPlaying { get; }
 
-        void AddPlayers(IEnumerable<IPlayer> players);
+        IEnumerable<ITeam> Teams { get; }
 
         IEnumerable<CardsEnum> GetCardsForPlayer(Guid playerId);
 
-        Task ShuffleCards();
-
-        IEnumerable<CardsEnum> Cards { get; }
+        void ShuffleCards();
     }
 }

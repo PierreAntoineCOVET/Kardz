@@ -35,9 +35,11 @@ namespace EventHandlers.Commands.SearchGame
         /// <returns>True if there is enough non idle player to start a game.</returns>
         public Task<bool> Handle(SearchGameCommand request, CancellationToken cancellationToken)
         {
-            LobbiesService.Lobby.AddPlayerLookingForGame(request.PlayerId);
+            var lobby = LobbiesService.GetLobby((GamesEnum)request.GameType);
 
-            return Task.FromResult(LobbiesService.Lobby.CanStartGame());
+            lobby.AddPlayerLookingForGame(request.PlayerId);
+
+            return lobby.CanStartGame();
         }
     }
 }

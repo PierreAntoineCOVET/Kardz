@@ -20,25 +20,20 @@ namespace Domain.Domain.Interfaces
         /// Add a new player in the lobby.
         /// </summary>
         /// <param name="id"></param>
-        void AddPlayer(Guid id);
-
-        /// <summary>
-        /// Get the number of players in the lobby.
-        /// </summary>
-        int NumberOfPlayers { get; }
+        Task AddPlayer(Guid id);
 
         /// <summary>
         /// Add a player to the list of those looking for a game.
         /// </summary>
         /// <param name="id"></param>
-        void AddPlayerLookingForGame(Guid id);
+        Task AddPlayerLookingForGame(Guid id);
 
         /// <summary>
         /// Indicate wether we can start a new game or not.
         /// </summary>
         /// <returns>true if we can start a new game</returns>
         /// <remarks>Check is not thread safe !</remarks>
-        bool CanStartGame();
+        Task<bool> CanStartGame();
 
         /// <summary>
         /// Create a new game.
@@ -46,5 +41,10 @@ namespace Domain.Domain.Interfaces
         /// <returns><see cref="IGame"/></returns>
         /// <remarks>PLayers in game are removed from the lobby.</remarks>
         Task<IGame> CreateGame();
+
+        /// <summary>
+        /// Get the number of players in the lobby.
+        /// </summary>
+        int NumberOfPlayers { get; }
     }
 }

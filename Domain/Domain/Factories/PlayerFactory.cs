@@ -11,7 +11,7 @@ namespace Domain.Domain.Factories
     /// <summary>
     /// Create players.
     /// </summary>
-    public static class PlayerFactory
+    public class PlayerFactory
     {
         /// <summary>
         /// Create a player based on game type.
@@ -19,7 +19,7 @@ namespace Domain.Domain.Factories
         /// <param name="gamesEnum">Game type.</param>
         /// <param name="playerId">Player's id.</param>
         /// <returns></returns>
-        public static IPlayer CreatePlayer(GamesEnum gamesEnum, Guid playerId)
+        public IPlayer CreatePlayer(GamesEnum gamesEnum, Guid playerId)
         {
             switch (gamesEnum)
             {

@@ -33,9 +33,11 @@ namespace EventHandlers.Commands.AddPlayerTolobby
         /// <returns>Number of player in lobby.</returns>
         public Task<int> Handle(AddPlayerToLobbyCommand request, CancellationToken cancellationToken)
         {
-            LobbiesService.Lobby.AddPlayer(request.PlayerId);
+            var lobby = LobbiesService.GetLobby((GamesEnum)request.GameType);
 
-            return Task.FromResult(LobbiesService.Lobby.NumberOfPlayers);
+            lobby.AddPlayer(request.PlayerId);
+
+            return Task.FromResult(lobby.NumberOfPlayers);
         }
     }
 }

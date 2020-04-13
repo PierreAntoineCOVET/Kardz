@@ -28,23 +28,23 @@ namespace Repositories.EventStoreRepositories
         }
 
         /// <summary>
-        /// Add a new event.
+        /// Save the aggregate and all its events into the store.
         /// </summary>
-        /// <param name="event">Event to add.</param>
+        /// <param name="aggregate">Aggregate to save.</param>
         /// <returns></returns>
-        public async Task AddEvent(Event @event)
+        public async Task Save(Aggregate aggregate)
         {
-            await EventStoreDbContext.Events.AddAsync(@event);
-        }
+            if(!await EventStoreDbContext.Aggregates.AnyAsync(a => a.Id == aggregate.Id))
+            {
+                EventStoreDbContext.Aggregates.Add(aggregate);
+            }
 
-        /// <summary>
-        /// Add an aggregate.
-        /// </summary>
-        /// <param name="eventSource"></param>
-        /// <returns></returns>
-        public async Task AddAggregate(Aggregate eventSource)
-        {
-            await EventStoreDbContext.Aggregates.AddAsync(eventSource);
+            foreach (var @event in aggregate.Events)
+            {
+                EventStoreDbContext.Events.Add(@event);
+            }
+
+            await EventStoreDbContext.SaveChangesAsync();
         }
 
         /// <summary>
@@ -53,20 +53,11 @@ namespace Repositories.EventStoreRepositories
         /// <param name="id">Aggregate id.</param>
         /// <returns></returns>
         /// <remarks>Load all its events.</remarks>
-        public Task<Aggregate> GetAggregate(Guid id)
+        public Task<Aggregate> Get(Guid id)
         {
             return EventStoreDbContext.Aggregates
                 .Include(es => es.Events)
                 .SingleAsync(es => es.Id == id);
-        }
-
-        /// <summary>
-        /// Savechange (unit of work).
-        /// </summary>
-        /// <returns></returns>
-        public async Task SaveChanges()
-        {
-            await EventStoreDbContext.SaveChangesAsync();
         }
     }
 }

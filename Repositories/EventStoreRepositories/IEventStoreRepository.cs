@@ -8,12 +8,8 @@ namespace Repositories.EventStoreRepositories
 {
     public interface IEventStoreRepository
     {
-        Task AddEvent(Event @event);
+        Task Save(Aggregate aggregate);
 
-        Task AddAggregate(Aggregate eventSource);
-
-        Task<Aggregate> GetAggregate(Guid id);
-
-        Task SaveChanges();
+        Task<Aggregate> Get(Guid id);
     }
 }

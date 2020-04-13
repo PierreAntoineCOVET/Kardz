@@ -19,7 +19,7 @@ namespace EventHandlers.Commands.SearchGame
         {
             RuleFor(query => query.PlayerId).NotNull();
 
-            //RuleFor(query => query.GamesType).Custom(EnumValidator.Validate<GamesEnum>);
+            RuleFor(query => query.GameType).Custom(EnumValidator.Validate<GamesEnum>);
         }
     }
 }

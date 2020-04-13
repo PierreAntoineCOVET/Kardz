@@ -10,5 +10,9 @@ namespace EventHandlers.Queries.GetNomberOfPlayersInLobby
     /// </summary>
     public class GetNumberOfPlayersInLobbyQuery: IRequest<int>
     {
+        /// <summary>
+        /// Game's type of the Lobby.
+        /// </summary>
+        public int GameType { get; set; }
     }
 }

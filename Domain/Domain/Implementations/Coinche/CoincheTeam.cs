@@ -23,19 +23,6 @@ namespace Domain.Domain.Implementations.Coinche
         public int Number { get; private set; }
 
         /// <summary>
-        /// Constructor for deserialisation.
-        /// Use <see cref="CoinchePlayer"/> insted of <see cref="IPlayer"/>.
-        /// </summary>
-        /// <param name="number">Team number.</param>
-        /// <param name="players">List of players.</param>
-        [JsonConstructor]
-        public CoincheTeam(int number, List<CoinchePlayer> players)
-        {
-            Number = number;
-            _Players = players;
-        }
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="number">Team's number.</param>

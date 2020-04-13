@@ -1,9 +1,9 @@
-﻿using Domain.Domain.Services;
-using Domain.Events;
+﻿using Domain.Domain.Interfaces;
+using Domain.Domain.Services;
+using Domain.Enums;
 using DTOs;
-using EventHandlers.Notifications.Game;
 using MediatR;
-using System;
+using Repositories.EventStoreRepositories;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,20 +19,17 @@ namespace EventHandlers.Commands.CreateGame
         /// </summary>
         private LobbiesService LobbiesService;
 
-        private IMediator Mediator;
-
-        private IServiceProvider ServiceProvider;
+        private IEventStoreRepository EventStoreRepository;
 
         /// <summary>
         /// Cosntructor.
         /// </summary>
         /// <param name="lobbiesService">Lobby service.</param>
-        /// <param name="gamesServices">Game service.</param>
-        public CreateGameCommandHandler(IMediator mediator, LobbiesService lobbiesService, IServiceProvider serviceProvider)
+        /// <param name="gameFactory">Game factory.</param>
+        public CreateGameCommandHandler(LobbiesService lobbiesService, IEventStoreRepository eventStoreRepository)
         {
-            Mediator = mediator;
             LobbiesService = lobbiesService;
-            ServiceProvider = serviceProvider;
+            EventStoreRepository = eventStoreRepository;
         }
 
         /// <summary>
@@ -43,18 +40,13 @@ namespace EventHandlers.Commands.CreateGame
         /// <returns><see cref="GameDto"/></returns>
         public async Task<GameDto> Handle(CreateGameCommand request, CancellationToken cancellationToken)
         {
-            var game = await LobbiesService.Lobby.CreateGame();
+            var lobby = LobbiesService.GetLobby((GamesEnum)request.GameType);
 
-            if (game == null)
-                return null;
+            var game = await lobby.CreateGame();
 
-            var createGameDomainEvent = new CreateGameEvent(ServiceProvider, game);
-            await Mediator.Publish(new GameEventNotification { DomainEvent = createGameDomainEvent });
+            game.ShuffleCards();
 
-            await game.ShuffleCards();
-
-            var shuffleCardsDomainEvent = new ShuffleCardsEvent(ServiceProvider, game);
-            await Mediator.Publish(new GameEventNotification { DomainEvent = shuffleCardsDomainEvent });
+            await EventStoreRepository.Save(game.ToAggregate());
 
             return game.ToGameDto();
         }

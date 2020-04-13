@@ -42,7 +42,8 @@ namespace Web.Hubs
         {
             int numberOfPlayers = await Mediator.Send(new AddPlayerToLobbyCommand
             {
-                PlayerId = guid
+                PlayerId = guid,
+                GameType = 0
             });
 
             await Clients.All.SendAsync("playersInLobby", numberOfPlayers);
@@ -62,17 +63,14 @@ namespace Web.Hubs
 
             if(canCreateGame)
             {
-                var game = await Mediator.Send(new CreateGameCommand());
+                var game = await Mediator.Send(new CreateGameCommand { GameType = 0 });
 
-                if (game != null)
-                {
-                    var playersId = game.PlayersId.Select(pid => pid).ToList();
-                    var playersConnectionsId = GetPlayerConnectionId(playersId).ToList();
-                    await Clients.Clients(playersConnectionsId).SendAsync("gameStarted", game.Id);
+                var playersId = game.PlayersId.Select(pid => pid).ToList();
+                var playersConnectionsId = GetPlayerConnectionId(playersId).ToList();
+                await Clients.Clients(playersConnectionsId).SendAsync("gameStarted", game.Id);
 
-                    var numberOfPlayersLeft = await Mediator.Send(new GetNumberOfPlayersInLobbyQuery());
-                    await Clients.All.SendAsync("playersInLobby", numberOfPlayersLeft);
-                }
+                var numberOfPlayersLeft = await Mediator.Send(new GetNumberOfPlayersInLobbyQuery());
+                await Clients.All.SendAsync("playersInLobby", numberOfPlayersLeft);
             }
         }
     }

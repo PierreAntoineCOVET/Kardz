@@ -1,4 +1,5 @@
-﻿using DTOs;
+﻿using Domain.Enums;
+using DTOs;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,6 @@ namespace EventHandlers.Commands.CreateGame
     /// </summary>
     public class CreateGameCommand : IRequest<GameDto>
     {
+        public int GameType { get; set; }
     }
 }

@@ -12,5 +12,10 @@ namespace EventHandlers.Commands.AddPlayerTolobby
         /// Player id.
         /// </summary>
         public Guid PlayerId { get; set; }
+
+        /// <summary>
+        /// Game's type of the Lobby.
+        /// </summary>
+        public int GameType { get; set; }
     }
 }
