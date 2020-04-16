@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ReadEntities\" />
+    <Folder Include="Migrations\ReadDb\" />
   </ItemGroup>
 
 </Project>

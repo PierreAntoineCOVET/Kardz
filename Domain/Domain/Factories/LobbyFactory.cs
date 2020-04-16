@@ -13,8 +13,15 @@ namespace Domain.Domain.Factories
     /// </summary>
     public class LobbyFactory
     {
+        /// <summary>
+        /// Factory to create a player depending on the game type.
+        /// </summary>
         PlayerFactory PlayerFactory;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="playerFactory"></param>
         public LobbyFactory(PlayerFactory playerFactory)
         {
             PlayerFactory = playerFactory;

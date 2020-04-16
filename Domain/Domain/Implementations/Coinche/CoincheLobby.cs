@@ -15,6 +15,10 @@ namespace Domain.Domain.Implementations.Coinche
     /// </summary>
     internal class CoincheLobby : LobbyBase
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="PlayerFactory">Player creationf factory.</param>
         public CoincheLobby(PlayerFactory PlayerFactory)
             : base(PlayerFactory)
         { }

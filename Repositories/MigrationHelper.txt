@@ -1,3 +1,18 @@
-﻿Add-Migration InitialCreate -Context EventStoreDbContext -Project Repositories
+﻿###############
+# EVENT STORE #
+###############
+
+Add-Migration EvtStoreInitialCreate -Context EventStoreDbContext -Project Repositories
 
 Update-Database -Context EventStoreDbContext -Project Repositories
+
+
+
+
+##############
+# READ MODEL #
+##############
+
+Add-Migration ReadModelInitialCreate -Context ReadDbContext -Project Repositories
+
+Update-Database -Context ReadDbContext -Project Repositories

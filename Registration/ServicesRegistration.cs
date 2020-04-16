@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Repositories.DbContexts;
 using Repositories.EventStoreRepositories;
+using Repositories.ReadRepositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -36,6 +37,7 @@ namespace Web
         public static void AddKardzRopositories(this IServiceCollection services)
         {
             services.AddScoped(typeof(IEventStoreRepository), typeof(EventStoreRepository));
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         }
 
         /// <summary>
@@ -48,6 +50,11 @@ namespace Web
             services.AddDbContext<EventStoreDbContext>(options =>
             {
                 options.UseSqlServer(configuration.GetConnectionString("EventStoreDb"));
+            });
+
+            services.AddDbContext<ReadDbContext>(options =>
+            {
+                options.UseSqlServer(configuration.GetConnectionString("ReadDb"));
             });
         }
     }

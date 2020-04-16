@@ -41,7 +41,14 @@ namespace Repositories.DbContexts
                 .HasKey(e => e.Id);
             modelBuilder.Entity<Event>()
                 .Property(e => e.Datas)
-                .IsRequired();
+                .IsRequired()
+                .IsUnicode(false)
+                .HasMaxLength(1500);
+            modelBuilder.Entity<Event>()
+                .Property(e => e.Type)
+                .IsUnicode(false)
+                .IsRequired()
+                .HasMaxLength(200);
             modelBuilder.Entity<Event>()
                 .HasOne(e => e.Aggregate)
                 .WithMany(a => a.Events)
@@ -50,6 +57,11 @@ namespace Repositories.DbContexts
 
             modelBuilder.Entity<Aggregate>()
                 .HasKey(es => es.Id);
+            modelBuilder.Entity<Aggregate>()
+                .Property(a => a.Type)
+                .IsUnicode(false)
+                .IsRequired()
+                .HasMaxLength(200);
         }
     }
 }

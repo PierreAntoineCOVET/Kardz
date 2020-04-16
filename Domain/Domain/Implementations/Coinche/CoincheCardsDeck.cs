@@ -13,6 +13,9 @@ namespace Domain.Domain.Implementations.Coinche
     /// </summary>
     internal class CoincheCardsDeck : ICardsDeck
     {
+        /// <summary>
+        /// List of cards that compose the deck.
+        /// </summary>
         private IEnumerable<CardsEnum> Cards = new List<CardsEnum>
         {
             CardsEnum.AsSpade,
@@ -52,6 +55,10 @@ namespace Domain.Domain.Implementations.Coinche
             CardsEnum.KingHeart,
         };
 
+        /// <summary>
+        /// Randomly shuffle the cards.
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<CardsEnum> Shuffle()
         {
             return RandomSorter.Randomize(Cards);

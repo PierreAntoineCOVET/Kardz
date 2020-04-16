@@ -1,6 +1,7 @@
 ﻿using Domain.Enums;
 using EventHandlers.Validator;
 using FluentValidation;
+using System;
 
 namespace EventHandlers.Commands.AddPlayerTolobby
 {
@@ -14,7 +15,7 @@ namespace EventHandlers.Commands.AddPlayerTolobby
         /// </summary>
         public AddPlayerToLobbyCommandValidator()
         {
-            RuleFor(query => query.PlayerId).NotNull();
+            RuleFor(query => query.PlayerId).NotNull().NotEqual(default(Guid));
 
             RuleFor(query => query.GameType).Custom(EnumValidator.Validate<GamesEnum>);
         }

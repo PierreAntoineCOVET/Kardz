@@ -4,6 +4,7 @@ using Domain.Enums;
 using Domain.Events;
 using Domain.Exceptions;
 using Domain.Tools;
+using MediatR;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,6 @@ namespace Domain.Domain.Implementations.Coinche
     /// </summary>
     internal class CoincheGame : AggregateBase, IGame
     {
-        /// <summary>
-        /// Game's Id.
-        /// </summary>
-        public Guid Id { get; private set; }
-
         private List<CoincheTeam> _Teams = new List<CoincheTeam>(2);
         /// <summary>
         /// List of teams for the game.
@@ -40,18 +36,13 @@ namespace Domain.Domain.Implementations.Coinche
         /// </summary>
         public IEnumerable<CardsEnum> Cards { get; private set; }
 
-        public CoincheGame()
-        {
-
-        }
-
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="id">Game's Id.</param>
         public CoincheGame(Guid id, IEnumerable<IPlayer> players)
         {
-            if (id == default(Guid))
+            if (id == default)
                 throw new GameException($"Invalid game id {id}");
 
             if(players.Count() != Consts.NUMBER_OF_PLAYERS_FOR_A_GAME)
@@ -61,45 +52,45 @@ namespace Domain.Domain.Implementations.Coinche
             {
                 Id = Guid.NewGuid(),
                 GameId = id,
-                Players = players
+                Teams = CreateTeams(players)
             };
 
             RaiseEvent(createGameEvent);
         }
 
+        /// <summary>
+        /// Apply <see cref="GameCreatedEvent"/>.
+        /// </summary>
+        /// <param name="event"></param>
         internal void Apply(GameCreatedEvent @event)
         {
             Id = @event.GameId;
-            AddPlayers(@event.Players);
+            _Teams = @event.Teams.Cast<CoincheTeam>().ToList();
         }
 
         /// <summary>
-        /// Add a list of players to the game.
-        /// Split them into teams and give them number (id within the game).
+        /// Add a list of players to teams.
         /// </summary>
         /// <param name="players">Players to add.</param>
-        /// <remarks>Teams must already exists.</remarks>
-        private void AddPlayers(IEnumerable<IPlayer> players)
+        private IEnumerable<CoincheTeam> CreateTeams(IEnumerable<IPlayer> players)
         {
-            if (_Teams.Count > 0)
-                throw new GameException($"Game {Id} is already full");
-
-            var playerCount = players.Count();
-            if (playerCount != 4)
-                throw new GameException($"Game {Enums.GamesEnum.Coinche} doesn't allow for {playerCount} player(s)");
+            var teams = new List<CoincheTeam>(2);
 
             var coinchePlayers = players.Cast<CoinchePlayer>();
             var randomizedPlayers = RandomSorter.Randomize(coinchePlayers);
-            AddTeam(0, randomizedPlayers.Take(2));
-            AddTeam(1, randomizedPlayers.Skip(2).Take(2));
+
+            teams.Add(CreateTeam(0, randomizedPlayers.Take(2)));
+            teams.Add(CreateTeam(1, randomizedPlayers.Skip(2).Take(2)));
+
+            return teams;
         }
 
         /// <summary>
-        /// List of teams for the game.
+        /// Create a team and add its players.
         /// </summary>
         /// <param name="number">Team's number.</param>
         /// <param name="players">Team's players.</param>
-        private void AddTeam(int number, IEnumerable<CoinchePlayer> players)
+        private CoincheTeam CreateTeam(int number, IEnumerable<CoinchePlayer> players)
         {
             var list = players.ToList();
 
@@ -107,7 +98,7 @@ namespace Domain.Domain.Implementations.Coinche
             team.AddPlayer(list[0]);
             team.AddPlayer(list[1]);
 
-            _Teams.Add(team);
+            return team;
         }
 
         /// <summary>
@@ -148,6 +139,10 @@ namespace Domain.Domain.Implementations.Coinche
             RaiseEvent(shuffleCardsEvent);
         }
 
+        /// <summary>
+        /// Apply <see cref="ShuffledCardsEvent"/>.
+        /// </summary>
+        /// <param name="event"></param>
         internal void Apply(ShuffledCardsEvent @event)
         {
             Cards = @event.ShuffledCards;

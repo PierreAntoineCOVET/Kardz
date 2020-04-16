@@ -11,6 +11,6 @@ namespace Domain.Domain.Interfaces
 
         int Version { get; }
 
-        IEnumerable<IDomainEvent> GetUncommittedEvents();
+        ICollection<IDomainEvent> UncommittedEvents { get; }
     }
 }

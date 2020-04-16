@@ -2,6 +2,7 @@
 using Domain.Domain.Services;
 using Domain.Enums;
 using DTOs;
+using EventHandlers.Notifications.Aggregate;
 using MediatR;
 using Repositories.EventStoreRepositories;
 using System.Threading;
@@ -19,17 +20,17 @@ namespace EventHandlers.Commands.CreateGame
         /// </summary>
         private LobbiesService LobbiesService;
 
-        private IEventStoreRepository EventStoreRepository;
+        private IMediator Mediator;
 
         /// <summary>
         /// Cosntructor.
         /// </summary>
         /// <param name="lobbiesService">Lobby service.</param>
         /// <param name="gameFactory">Game factory.</param>
-        public CreateGameCommandHandler(LobbiesService lobbiesService, IEventStoreRepository eventStoreRepository)
+        public CreateGameCommandHandler(LobbiesService lobbiesService, IMediator mediator)
         {
             LobbiesService = lobbiesService;
-            EventStoreRepository = eventStoreRepository;
+            Mediator = mediator;
         }
 
         /// <summary>
@@ -46,7 +47,10 @@ namespace EventHandlers.Commands.CreateGame
 
             game.ShuffleCards();
 
-            await EventStoreRepository.Save(game.ToAggregate());
+            await Mediator.Publish(new AggregateSaveNotification
+            {
+                Aggregate = game
+            });
 
             return game.ToGameDto();
         }

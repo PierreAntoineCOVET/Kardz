@@ -19,8 +19,15 @@ namespace Domain.Domain.Implementations
     /// </summary>
     internal abstract class LobbyBase : ILobby
     {
+        /// <summary>
+        /// Create player based on game type.
+        /// </summary>
         PlayerFactory PlayerFactory;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="playerFactory"></param>
         public LobbyBase(PlayerFactory playerFactory)
         {
             PlayerFactory = playerFactory;
@@ -103,6 +110,10 @@ namespace Domain.Domain.Implementations
         /// <returns></returns>
         public abstract Task<bool> CanStartGame();
 
+        /// <summary>
+        /// Create a game based on gameType.
+        /// </summary>
+        /// <returns></returns>
         public abstract Task<IGame> CreateGame();
     }
 }

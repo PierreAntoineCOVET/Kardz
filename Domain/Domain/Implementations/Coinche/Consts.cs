@@ -4,6 +4,9 @@ using System.Text;
 
 namespace Domain.Domain.Implementations.Coinche
 {
+    /// <summary>
+    /// Constants.
+    /// </summary>
     public static class Consts
     {
         /// <summary>

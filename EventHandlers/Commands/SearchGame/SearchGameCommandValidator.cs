@@ -17,7 +17,7 @@ namespace EventHandlers.Commands.SearchGame
         /// </summary>
         public SearchGameCommandValidator()
         {
-            RuleFor(query => query.PlayerId).NotNull();
+            RuleFor(query => query.PlayerId).NotNull().NotEqual(default(Guid));
 
             RuleFor(query => query.GameType).Custom(EnumValidator.Validate<GamesEnum>);
         }

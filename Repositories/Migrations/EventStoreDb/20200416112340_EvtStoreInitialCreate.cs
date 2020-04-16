@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Repositories.Migrations
+namespace Repositories.Migrations.EventStoreDb
 {
-    public partial class InitialCreate : Migration
+    public partial class EvtStoreInitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,7 +12,7 @@ namespace Repositories.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Type = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(unicode: false, maxLength: 200, nullable: false),
                     Version = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -27,10 +27,10 @@ namespace Repositories.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     AggregateId = table.Column<Guid>(nullable: false),
                     Version = table.Column<int>(nullable: false),
-                    Type = table.Column<string>(nullable: true),
+                    Type = table.Column<string>(unicode: false, maxLength: 200, nullable: false),
                     Date = table.Column<DateTime>(nullable: false),
                     Author = table.Column<Guid>(nullable: true),
-                    Datas = table.Column<string>(nullable: false)
+                    Datas = table.Column<string>(unicode: false, maxLength: 1500, nullable: false)
                 },
                 constraints: table =>
                 {
