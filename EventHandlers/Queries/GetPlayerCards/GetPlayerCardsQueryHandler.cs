@@ -12,15 +12,31 @@ using System.Threading.Tasks;
 
 namespace EventHandlers.Queries.GetPlayerCards
 {
+    /// <summary>
+    /// Handler for <see cref="GetPlayerCardsQuery"/>.
+    /// </summary>
     public class GetPlayerCardsQueryHandler : IRequestHandler<GetPlayerCardsQuery, IEnumerable<int>>
     {
+        /// <summary>
+        /// Read model generic repository.
+        /// </summary>
         private readonly IGenericRepository GenericRepository;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="gameRepository"></param>
         public GetPlayerCardsQueryHandler(IGenericRepository gameRepository)
         {
             GenericRepository = gameRepository;
         }
 
+        /// <summary>
+        /// Get the cards for the given player and game.
+        /// </summary>
+        /// <param name="request">Request.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>List of cards.</returns>
         public async Task<IEnumerable<int>> Handle(GetPlayerCardsQuery request, CancellationToken cancellationToken)
         {
             var game = await GenericRepository.Query<CoincheGame>()

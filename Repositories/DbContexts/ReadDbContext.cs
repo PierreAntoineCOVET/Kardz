@@ -18,12 +18,25 @@ namespace Repositories.DbContexts
             ChangeTracker.LazyLoadingEnabled = false;
         }
 
+        /// <summary>
+        /// List of currently playing games.
+        /// </summary>
         public DbSet<CoincheGame> CoincheGames { get; set; }
 
+        /// <summary>
+        /// Game's teams.
+        /// </summary>
         public DbSet<CoincheTeam> CoincheTeams { get; set; }
 
+        /// <summary>
+        /// Teams (/game) 's players).
+        /// </summary>
         public DbSet<CoinchePlayer> CoinchePlayers { get; set; }
 
+        /// <summary>
+        /// Fluent API configuration.
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CoinchePlayer>()

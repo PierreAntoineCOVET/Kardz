@@ -9,15 +9,31 @@ using System.Threading.Tasks;
 
 namespace Repositories.ReadRepositories
 {
+    /// <summary>
+    /// Generic read modele repository.
+    /// </summary>
     public class GenericRepository : IGenericRepository
     {
+        /// <summary>
+        /// Ef core Db Context.
+        /// </summary>
         private ReadDbContext ReadDbContext;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="readDbContext">Db context.</param>
         public GenericRepository(ReadDbContext readDbContext)
         {
             ReadDbContext = readDbContext;
         }
 
+        /// <summary>
+        /// Delete an entity.
+        /// </summary>
+        /// <typeparam name="T">Entity's type.</typeparam>
+        /// <param name="entity">Entity.</param>
+        /// <returns></returns>
         public Task Delete<T>(T entity)
              where T : class
         {
@@ -26,18 +42,35 @@ namespace Repositories.ReadRepositories
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Query entities.
+        /// </summary>
+        /// <typeparam name="T">Entity's type.</typeparam>
+        /// <returns><see cref="IQueryable{T}"/>.</returns>
         public IQueryable<T> Query<T>()
              where T : class
         {
             return ReadDbContext.Set<T>().AsQueryable();
         }
 
+        /// <summary>
+        /// Add an entity.
+        /// </summary>
+        /// <typeparam name="T">Entity's type.</typeparam>
+        /// <param name="entity">Entity.</param>
+        /// <returns></returns>
         public Task Add<T>(T entity)
              where T : class
         {
             return ReadDbContext.Set<T>().AddAsync(entity).AsTask();
         }
 
+        /// <summary>
+        /// Update an entity.
+        /// </summary>
+        /// <typeparam name="T">Entity's type.</typeparam>
+        /// <param name="entity">Entity.</param>
+        /// <returns></returns>
         public Task Update<T>(T entity)
              where T : class
         {
@@ -46,6 +79,10 @@ namespace Repositories.ReadRepositories
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Persist changes into the database.
+        /// </summary>
+        /// <returns></returns>
         public Task<int> SaveChanges()
         {
             return ReadDbContext.SaveChangesAsync();
