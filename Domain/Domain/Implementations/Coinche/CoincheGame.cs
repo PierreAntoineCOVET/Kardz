@@ -27,11 +27,6 @@ namespace Domain.Domain.Implementations.Coinche
         public IEnumerable<ITeam> Teams => _Teams;
 
         /// <summary>
-        /// True if the game is playing (cant shuffle cards).
-        /// </summary>
-        public bool IsPlaying { get; private set; }
-
-        /// <summary>
         /// Liste of shuffled cards.
         /// </summary>
         public IEnumerable<CardsEnum> Cards { get; private set; }
@@ -48,11 +43,15 @@ namespace Domain.Domain.Implementations.Coinche
             if(players.Count() != Consts.NUMBER_OF_PLAYERS_FOR_A_GAME)
                 throw new GameException($"Invalid number of players {players.Count()}");
 
+            var teams = CreateTeams(players);
+
+            DealCards(teams.SelectMany(t => t.Players));
+
             var createGameEvent = new GameCreatedEvent
             {
                 Id = Guid.NewGuid(),
                 GameId = id,
-                Teams = CreateTeams(players)
+                Teams = teams
             };
 
             RaiseEvent(createGameEvent);
@@ -102,50 +101,21 @@ namespace Domain.Domain.Implementations.Coinche
         }
 
         /// <summary>
-        /// Get cards from radomisez list for a player (based on the player number).
+        /// Deal random cards to the given players.
         /// </summary>
-        /// <param name="playerId">Id of the player.</param>
-        /// <returns>List of cards for the player.</returns>
-        public IEnumerable<CardsEnum> GetCardsForPlayer(Guid playerId)
+        /// <param name="gamePlayers">List of players to deal.</param>
+        private void DealCards(IEnumerable<IPlayer> gamePlayers)
         {
-            var player = _Teams.SelectMany(t => t.Players).SingleOrDefault(p => p.Id == playerId);
-            if(player == null)
-            {
-                throw new GameException($"Player {playerId} is not part of game {Id}.");
-            }
-
-            int skip = Consts.NUMBER_OF_CARDS_PER_PLAYER * player.Number;
-            int take = Consts.NUMBER_OF_CARDS_PER_PLAYER;
-            return Cards.Skip(skip).Take(take);
-        }
-
-        /// <summary>
-        /// If game is not playing the shuffle cards else do nothing.
-        /// </summary>
-        /// <returns></returns>
-        public void ShuffleCards()
-        {
-            if (IsPlaying)
-                throw new GameException($"Shuffle cards of game {Id} while it's playing.");
-
             var deck = new CoincheCardsDeck();
             var cards = deck.Shuffle();
 
-            var shuffleCardsEvent = new ShuffledCardsEvent
+            //for (int i=0; i<gamePlayers.Count(); i++)
+            foreach (var gamePlayer in gamePlayers)
             {
-                Id = Guid.NewGuid(),
-                ShuffledCards = cards
-            };
-            RaiseEvent(shuffleCardsEvent);
-        }
-
-        /// <summary>
-        /// Apply <see cref="ShuffledCardsEvent"/>.
-        /// </summary>
-        /// <param name="event"></param>
-        internal void Apply(ShuffledCardsEvent @event)
-        {
-            Cards = @event.ShuffledCards;
+                int skip = Consts.COINCHE_NUMBER_OF_CARDS_PER_PLAYER * gamePlayer.Number;
+                int take = Consts.COINCHE_NUMBER_OF_CARDS_PER_PLAYER;
+                gamePlayer.Cards = cards.Skip(skip).Take(take);
+            }
         }
     }
 }

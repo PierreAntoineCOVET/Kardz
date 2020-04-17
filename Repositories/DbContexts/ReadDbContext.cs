@@ -35,11 +35,10 @@ namespace Repositories.DbContexts
             modelBuilder.Entity<CoinchePlayer>()
                 .HasOne(p => p.Team)
                 .WithMany(t => t.Players)
-                .HasForeignKey(p => p.TeamId);
-
+                .HasForeignKey(p => new { p.GameId, p.TeamNumber });
 
             modelBuilder.Entity<CoincheTeam>()
-                .HasKey(t => t.Id);
+                .HasKey(t => new { t.GameId, t.Number });
             modelBuilder.Entity<CoincheTeam>()
                 .HasOne(t => t.Game)
                 .WithMany(g => g.Teams)
@@ -51,10 +50,6 @@ namespace Repositories.DbContexts
                 .Property(p => p.CurrentCards)
                 .IsUnicode(false)
                 .HasMaxLength(8);
-            modelBuilder.Entity<CoincheGame>()
-                .Property(p => p.LastShuffle)
-                .IsUnicode(false)
-                .HasMaxLength(100);
         }
     }
 }

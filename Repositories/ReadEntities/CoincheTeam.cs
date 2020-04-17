@@ -6,8 +6,6 @@ namespace Repositories.ReadEntities
 {
     public class CoincheTeam
     {
-        public Guid Id { get; set; }
-
         public int Number { get; set; }
 
         public int Score { get; set; }

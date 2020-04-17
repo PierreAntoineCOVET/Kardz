@@ -11,12 +11,6 @@ namespace Domain.Domain.Interfaces
     {
         new Guid Id { get; }
 
-        bool IsPlaying { get; }
-
         IEnumerable<ITeam> Teams { get; }
-
-        IEnumerable<CardsEnum> GetCardsForPlayer(Guid playerId);
-
-        void ShuffleCards();
     }
 }

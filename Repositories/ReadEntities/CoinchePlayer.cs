@@ -12,7 +12,9 @@ namespace Repositories.ReadEntities
 
         public int Number { get; set; }
 
-        public Guid TeamId { get; set; }
+        public Guid GameId { get; set; }
+
+        public int TeamNumber { get; set; }
 
         public CoincheTeam Team { get; set; }
     }

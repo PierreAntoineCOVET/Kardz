@@ -1,4 +1,5 @@
 ﻿using Domain.Domain.Interfaces;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,6 +22,11 @@ namespace Domain.Domain.Implementations.Coinche
         /// </summary>
         /// <remarks>Can be replaced with id ?</remarks>
         public int Number { get; set; }
+
+        /// <summary>
+        /// List of cards.
+        /// </summary>
+        public IEnumerable<CardsEnum> Cards { get; set; }
 
         /// <summary>
         /// Constructor.

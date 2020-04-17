@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Repositories.ReadRepositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository : IGenericRepository
     {
         private ReadDbContext ReadDbContext;
 
@@ -18,39 +18,28 @@ namespace Repositories.ReadRepositories
             ReadDbContext = readDbContext;
         }
 
-        public Task<bool> Any(Expression<Func<T, bool>> predicate)
-        {
-            return ReadDbContext.Set<T>().AnyAsync(predicate);
-        }
-
-        public Task Delete(T entity)
+        public Task Delete<T>(T entity)
+             where T : class
         {
             ReadDbContext.Set<T>().Remove(entity);
 
             return Task.CompletedTask;
         }
 
-        public Task<T> Get(object[] keys)
-        {
-            return ReadDbContext.Set<T>().FindAsync(keys).AsTask();
-        }
-
-        public Task<T> Get(Expression<Func<T, bool>> predicate)
-        {
-            return ReadDbContext.Set<T>().SingleOrDefaultAsync(predicate);
-        }
-
-        public IQueryable<T> GetAll()
+        public IQueryable<T> Query<T>()
+             where T : class
         {
             return ReadDbContext.Set<T>().AsQueryable();
         }
 
-        public Task Add(T entity)
+        public Task Add<T>(T entity)
+             where T : class
         {
             return ReadDbContext.Set<T>().AddAsync(entity).AsTask();
         }
 
-        public Task Update(T entity)
+        public Task Update<T>(T entity)
+             where T : class
         {
             ReadDbContext.Set<T>().Update(entity);
 

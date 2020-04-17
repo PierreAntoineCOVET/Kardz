@@ -17,6 +17,6 @@ namespace Domain.Domain.Implementations.Coinche
         /// <summary>
         /// Number of cards to give for each player.
         /// </summary>
-        public const int NUMBER_OF_CARDS_PER_PLAYER = 8;
+        public const int COINCHE_NUMBER_OF_CARDS_PER_PLAYER = 8;
     }
 }

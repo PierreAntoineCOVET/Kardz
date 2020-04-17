@@ -13,17 +13,13 @@ using System.Threading.Tasks;
 namespace EventHandlers.Notifications.Game
 {
     public class GameEventsHandler :
-        INotificationHandler<GameCreatedEvent>,
-        INotificationHandler<ShuffledCardsEvent>
+        INotificationHandler<GameCreatedEvent>
     {
-        private readonly IGenericRepository<CoincheGame> GameRepository;
-        //private readonly IGenericRepository<CoincheTeam> TeamRepository;
-        //private readonly IGenericRepository<CoinchePlayer> PlayerRepository;
+        private readonly IGenericRepository GenericRepository;
 
-        public GameEventsHandler(IGenericRepository<CoincheGame> gameRepository) 
-            //IGenericRepository<CoincheTeam> teamRepository, IGenericRepository<CoinchePlayer> playerRepository)
+        public GameEventsHandler(IGenericRepository gameRepository) 
         {
-            GameRepository = gameRepository;
+            GenericRepository = gameRepository;
         }
 
         public async Task Handle(GameCreatedEvent notification, CancellationToken cancellationToken)
@@ -31,32 +27,27 @@ namespace EventHandlers.Notifications.Game
             var coincheGame = new CoincheGame
             {
                 Id = notification.GameId,
-                IsFinished = false,
                 Teams = notification.Teams.Select(t => new CoincheTeam
                 {
+                    GameId = notification.GameId,
                     Number = t.Number,
                     Score = 0,
                     Players = t.Players.Select(p => new CoinchePlayer
                     {
                         Id = p.Id,
-                        
+                        Cards = String.Join(";", p.Cards.Cast<int>()),
+                        Number = p.Number,
+                        GameId = notification.GameId,
+                        TeamNumber = t.Number
+
                     }).ToList()
                 }).ToList()
             };
 
-            await GameRepository.Add(coincheGame);
+            await GenericRepository.Add(coincheGame);
 
-            await GameRepository.SaveChanges();
+            await GenericRepository.SaveChanges();
 
-        }
-
-        public async Task Handle(ShuffledCardsEvent notification, CancellationToken cancellationToken)
-        {
-            var game = await GameRepository.Get(notification.Id);
-
-            game.LastShuffle = String.Join(";", notification.ShuffledCards.Select(c => (int)c));
-
-            await GameRepository.SaveChanges();
         }
     }
 }

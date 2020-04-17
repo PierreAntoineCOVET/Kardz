@@ -45,8 +45,6 @@ namespace EventHandlers.Commands.CreateGame
 
             var game = await lobby.CreateGame();
 
-            game.ShuffleCards();
-
             await Mediator.Publish(new AggregateSaveNotification
             {
                 Aggregate = game

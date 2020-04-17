@@ -10,10 +10,6 @@ namespace Repositories.ReadEntities
 
         public string CurrentCards { get; set; }
 
-        public string LastShuffle { get; set; }
-
-        public bool IsFinished { get; set; }
-
         public ICollection<CoincheTeam> Teams { get; set; }
     }
 }

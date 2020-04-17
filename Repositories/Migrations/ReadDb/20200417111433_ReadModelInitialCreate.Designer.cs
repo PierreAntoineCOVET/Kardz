@@ -10,7 +10,7 @@ using Repositories.DbContexts;
 namespace Repositories.Migrations
 {
     [DbContext(typeof(ReadDbContext))]
-    [Migration("20200416225329_ReadModelInitialCreate")]
+    [Migration("20200417111433_ReadModelInitialCreate")]
     partial class ReadModelInitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,14 +32,6 @@ namespace Repositories.Migrations
                         .HasMaxLength(8)
                         .IsUnicode(false);
 
-                    b.Property<bool>("IsFinished")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastShuffle")
-                        .HasColumnType("varchar(100)")
-                        .HasMaxLength(100)
-                        .IsUnicode(false);
-
                     b.HasKey("Id");
 
                     b.ToTable("CoincheGames");
@@ -56,25 +48,24 @@ namespace Repositories.Migrations
                         .HasMaxLength(23)
                         .IsUnicode(false);
 
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Number")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("TeamId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("TeamNumber")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TeamId");
+                    b.HasIndex("GameId", "TeamNumber");
 
                     b.ToTable("CoinchePlayers");
                 });
 
             modelBuilder.Entity("Repositories.ReadEntities.CoincheTeam", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("GameId")
                         .HasColumnType("uniqueidentifier");
 
@@ -84,9 +75,7 @@ namespace Repositories.Migrations
                     b.Property<int>("Score")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameId");
+                    b.HasKey("GameId", "Number");
 
                     b.ToTable("CoincheTeams");
                 });
@@ -95,7 +84,7 @@ namespace Repositories.Migrations
                 {
                     b.HasOne("Repositories.ReadEntities.CoincheTeam", "Team")
                         .WithMany("Players")
-                        .HasForeignKey("TeamId")
+                        .HasForeignKey("GameId", "TeamNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

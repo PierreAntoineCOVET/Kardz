@@ -37,7 +37,7 @@ namespace Web
         public static void AddKardzRopositories(this IServiceCollection services)
         {
             services.AddScoped(typeof(IEventStoreRepository), typeof(EventStoreRepository));
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped(typeof(IGenericRepository), typeof(GenericRepository));
         }
 
         /// <summary>

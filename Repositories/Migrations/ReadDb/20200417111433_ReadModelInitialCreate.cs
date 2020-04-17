@@ -12,9 +12,7 @@ namespace Repositories.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CurrentCards = table.Column<string>(unicode: false, maxLength: 8, nullable: true),
-                    LastShuffle = table.Column<string>(unicode: false, maxLength: 100, nullable: true),
-                    IsFinished = table.Column<bool>(nullable: false)
+                    CurrentCards = table.Column<string>(unicode: false, maxLength: 8, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -25,14 +23,13 @@ namespace Repositories.Migrations
                 name: "CoincheTeams",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
                     Number = table.Column<int>(nullable: false),
-                    Score = table.Column<int>(nullable: false),
-                    GameId = table.Column<Guid>(nullable: false)
+                    GameId = table.Column<Guid>(nullable: false),
+                    Score = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CoincheTeams", x => x.Id);
+                    table.PrimaryKey("PK_CoincheTeams", x => new { x.GameId, x.Number });
                     table.ForeignKey(
                         name: "FK_CoincheTeams_CoincheGames_GameId",
                         column: x => x.GameId,
@@ -48,28 +45,24 @@ namespace Repositories.Migrations
                     Id = table.Column<Guid>(nullable: false),
                     Cards = table.Column<string>(unicode: false, maxLength: 23, nullable: true),
                     Number = table.Column<int>(nullable: false),
-                    TeamId = table.Column<Guid>(nullable: false)
+                    GameId = table.Column<Guid>(nullable: false),
+                    TeamNumber = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CoinchePlayers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CoinchePlayers_CoincheTeams_TeamId",
-                        column: x => x.TeamId,
+                        name: "FK_CoinchePlayers_CoincheTeams_GameId_TeamNumber",
+                        columns: x => new { x.GameId, x.TeamNumber },
                         principalTable: "CoincheTeams",
-                        principalColumn: "Id",
+                        principalColumns: new[] { "GameId", "Number" },
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_CoinchePlayers_TeamId",
+                name: "IX_CoinchePlayers_GameId_TeamNumber",
                 table: "CoinchePlayers",
-                column: "TeamId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CoincheTeams_GameId",
-                table: "CoincheTeams",
-                column: "GameId");
+                columns: new[] { "GameId", "TeamNumber" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

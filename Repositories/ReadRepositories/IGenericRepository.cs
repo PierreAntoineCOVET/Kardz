@@ -7,21 +7,15 @@ using System.Threading.Tasks;
 
 namespace Repositories.ReadRepositories
 {
-    public interface IGenericRepository<T> where T : class
+    public interface IGenericRepository
     {
-        Task Add(T entity);
+        Task Add<T>(T entity) where T : class;
 
-        Task Update(T entity);
+        Task Update<T>(T entity) where T : class;
 
-        Task<T> Get(Expression<Func<T, bool>> predicate);
-        
-        Task<T> Get(params object[] keys);
+        IQueryable<T> Query<T>() where T : class;
 
-        IQueryable<T> GetAll();
-
-        Task Delete(T entity);
-
-        Task<bool> Any(Expression<Func<T, bool>> predicate);
+        Task Delete<T>(T entity) where T : class;
 
         Task<int> SaveChanges();
     }
