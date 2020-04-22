@@ -8,7 +8,5 @@ namespace Domain.Events
     public interface IDomainEvent
     {
         Guid Id { get; set; }
-
-        int Version { get; set; }
     }
 }

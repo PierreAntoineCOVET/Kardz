@@ -43,6 +43,8 @@ namespace EventHandlers.Notifications.Game
             var coincheGame = new CoincheGame
             {
                 Id = notification.GameId,
+                CurrentDealer = notification.CurrentDealer,
+                CurrentPayerTurn = notification.CurrentPlayerNumber,
                 Teams = notification.Teams.Select(t => new CoincheTeam
                 {
                     GameId = notification.GameId,

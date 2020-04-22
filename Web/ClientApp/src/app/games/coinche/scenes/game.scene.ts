@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { GameService } from '../../../services/game/game.service';
 import { AddCardEvent } from '../domain/events/add-card.event';
 import { Subscription } from 'rxjs';
+import { ChooseContractEvent } from '../domain/events/choose-contract.event';
+import { DealerSelectedEvent } from '../domain/events/dealer-selected.event';
 
 /**
  * Core Coinche game loading and orchestrator.
@@ -17,7 +19,10 @@ export class GameScene extends Phaser.Scene {
         cardWidth: 334,
         cardHeight: 440
     };
-    private scaleFactor = 0.3;
+    private cardsScaleFactor = 0.3;
+    private dealerChipScaleFactor = 0.3;
+    private contractFormElement: Phaser.GameObjects.DOMElement;
+    private dealerChip: Phaser.GameObjects.Image;
 
     constructor(gameService: GameService) {
         super({ key: 'game' });
@@ -30,7 +35,12 @@ export class GameScene extends Phaser.Scene {
             frameWidth: this.cardsSpriteOption.cardWidth,
             frameHeight: this.cardsSpriteOption.cardHeight
         });
+
         this.load.image('cardBack', 'assets/img/back.png');
+
+        this.load.image('dealerChip', 'assets/img/dealer.jpg');
+
+        this.load.html('contractForm', 'assets/game-forms/coinche/contract.form.html');
     }
     create() {
         this.events.on('shutdown', () => this.onDestroy());
@@ -41,6 +51,14 @@ export class GameScene extends Phaser.Scene {
 
         this.subscriptions.add(this.gameDomain.onNewImageSubscriber.subscribe({
             next: (data) => this.addImage(data)
+        }));
+
+        this.subscriptions.add(this.gameDomain.onPlayerChooseContractSubscriber.subscribe({
+            next: (data) => this.displayContractForm(data)
+        }));
+
+        this.subscriptions.add(this.gameDomain.onDealerSetSubscriber.subscribe({
+            next: (data) => this.displayDealerChip(data)
         }));
     }
     update() {
@@ -56,6 +74,33 @@ export class GameScene extends Phaser.Scene {
     }
 
     /**
+     * Display the dealer chip at the event location.
+     * @param event
+     */
+    private displayDealerChip(event: DealerSelectedEvent) {
+        if (event) {
+            if (!this.dealerChip) {
+                this.dealerChip = this.add.image(event.x, event.y, 'dealerChip');
+                this.dealerChip.setScale(this.dealerChipScaleFactor);
+            }
+            else {
+                this.dealerChip.setPosition(event.x, event.y);
+            }
+        }
+    }
+
+    /**
+     * Display the html form to choose the contract.
+     * @param event Last player choice.
+     */
+    private displayContractForm(event: ChooseContractEvent) {
+        if (event) {
+            this.contractFormElement = this.add.dom(800, 400).createFromCache('contractForm');
+            this.contractFormElement.setPerspective(800);
+        }
+    }
+
+    /**
      * Add an image to the given location.
      * @param event Image informations.
      */
@@ -64,7 +109,7 @@ export class GameScene extends Phaser.Scene {
             event.x,
             event.y,
             event.elementName);
-        image.setScale(this.scaleFactor);
+        image.setScale(this.cardsScaleFactor);
         image.setAngle(event.angle);
     }
 
@@ -78,7 +123,7 @@ export class GameScene extends Phaser.Scene {
             event.y,
             event.elementName,
             event.card);
-        sprite.setScale(this.scaleFactor);
+        sprite.setScale(this.cardsScaleFactor);
     }
 
     /**

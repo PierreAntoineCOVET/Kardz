@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { CardsEnum } from '../../typewriter/enums/CardsEnum.enum';
 import { HubConnectionBuilder, HubConnection } from '@aspnet/signalr';
 import { environment } from '../../../environments/environment';
+import { IGameInitDto } from '../../typewriter/classes/GameInitDto';
 
 @Injectable({
   providedIn: 'root'
@@ -24,13 +25,13 @@ export class GameService {
         return this.hubConnection.start();
     }
 
-    public broadcastGameCardsForPlayer(gameId: uuidv4, playerId: uuidv4) {
-        this.hubConnection.invoke('GetCardsForPlayer', gameId, playerId);
+    public broadcastGetGameInformations(gameId: uuidv4, playerId: uuidv4) {
+        this.hubConnection.invoke('GetGameInformations', gameId, playerId);
     }
 
-    public get onPlayerCardsReceived(): Observable<CardsEnum[]> {
+    public get onGameInformationsReceived(): Observable<IGameInitDto> {
         return new Observable(subscriber => {
-            this.hubConnection.on('playerCardsReceived', (data) => subscriber.next(data));
+            this.hubConnection.on('gameInformationsReceived', (data) => subscriber.next(data));
         });
     }
 }

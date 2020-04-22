@@ -38,12 +38,11 @@ namespace Domain.Domain.Implementations
         {
             if (!_UncommittedEvents.Any(e => e.Id == @event.Id))
             {
-                @event.Version = Version + 1;
                 ((dynamic)this).Apply((dynamic)@event);
 
-                _UncommittedEvents.Add(@event);
+                Version++;
 
-                Version = @event.Version;
+                _UncommittedEvents.Add(@event);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Domain.Exceptions;
+using DTOs.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Repositories.ReadEntities;
@@ -13,9 +14,9 @@ using System.Threading.Tasks;
 namespace EventHandlers.Queries.GetPlayerCards
 {
     /// <summary>
-    /// Handler for <see cref="GetPlayerCardsQuery"/>.
+    /// Handler for <see cref="GetGameInformationsQuery"/>.
     /// </summary>
-    public class GetPlayerCardsQueryHandler : IRequestHandler<GetPlayerCardsQuery, IEnumerable<int>>
+    public class GetGameInformationsQueryHandler : IRequestHandler<GetGameInformationsQuery, GameInitDto>
     {
         /// <summary>
         /// Read model generic repository.
@@ -26,7 +27,7 @@ namespace EventHandlers.Queries.GetPlayerCards
         /// Constructor.
         /// </summary>
         /// <param name="gameRepository"></param>
-        public GetPlayerCardsQueryHandler(IGenericRepository gameRepository)
+        public GetGameInformationsQueryHandler(IGenericRepository gameRepository)
         {
             GenericRepository = gameRepository;
         }
@@ -37,7 +38,7 @@ namespace EventHandlers.Queries.GetPlayerCards
         /// <param name="request">Request.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>List of cards.</returns>
-        public async Task<IEnumerable<int>> Handle(GetPlayerCardsQuery request, CancellationToken cancellationToken)
+        public async Task<GameInitDto> Handle(GetGameInformationsQuery request, CancellationToken cancellationToken)
         {
             var game = await GenericRepository.Query<CoincheGame>()
                 .Include(g => g.Teams)
@@ -56,7 +57,15 @@ namespace EventHandlers.Queries.GetPlayerCards
                 throw new GameException($"Player id {request.PlayerId} doesn't exist in game {request.GameId}.");
             }
 
-            return player.Cards.Split(';').Select(c => int.Parse(c));
+            var cards = player.Cards.Split(';').Select(c => int.Parse(c));
+
+            return new GameInitDto
+            {
+                PlayerCards = cards,
+                Dealer = game.CurrentDealer,
+                PlayerPlaying = game.CurrentPayerTurn,
+                PlayerNumber = player.Number
+            };
         }
     }
 }

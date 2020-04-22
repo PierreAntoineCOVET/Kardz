@@ -20,6 +20,16 @@ namespace Repositories.ReadEntities
         public string CurrentCards { get; set; }
 
         /// <summary>
+        /// Number of the current card's dealer.
+        /// </summary>
+        public int CurrentDealer { get; set; }
+
+        /// <summary>
+        /// Number of the player whose turn it is.
+        /// </summary>
+        public int CurrentPayerTurn { get; set; }
+
+        /// <summary>
         /// Teams of the game.
         /// </summary>
         public ICollection<CoincheTeam> Teams { get; set; }

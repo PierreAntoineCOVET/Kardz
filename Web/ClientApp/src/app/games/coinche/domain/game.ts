@@ -1,11 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import { GameService } from '../../../services/game/game.service';
-import { Observable, Subscriber, Subscription, ReplaySubject } from 'rxjs';
+import { Observable, Subscriber, Subscription, ReplaySubject, Subject, BehaviorSubject } from 'rxjs';
 import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { Player } from './player';
 import { PlayerPosition } from './PlayerPosition';
 import { AddCardEvent } from './events/add-card.event';
 import { cachedDataVersionTag } from 'v8';
+import { IGameInitDto } from '../../../typewriter/classes/GameInitDto';
+import { ChooseContractEvent } from './events/choose-contract.event';
+import { DealerSelectedEvent } from './events/dealer-selected.event';
 
 export class Game {
     public gameId: uuidv4;
@@ -20,6 +23,16 @@ export class Game {
      * Emit when a new image need to be added (other players received a new card).
      */
     public onNewImageSubscriber: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
+
+    /**
+     * Emit when the real player is ready to vote for its contract.
+     */
+    public onPlayerChooseContractSubscriber: BehaviorSubject<ChooseContractEvent> = new BehaviorSubject<ChooseContractEvent>(undefined);
+
+    /**
+     * Emit when the game card's dealer is defined.
+     */
+    public onDealerSetSubscriber: BehaviorSubject<DealerSelectedEvent> = new BehaviorSubject<DealerSelectedEvent>(undefined);
 
     private subscriptions: Subscription;
     private cardWidth = 105;
@@ -52,11 +65,66 @@ export class Game {
      * Request game cards for the player.
      */
     private broadcastGameCardsForPlayer() {
-        this.subscriptions = this.gameService.onPlayerCardsReceived.subscribe({
-            next: (datas) => this.displayCards(datas)
+        this.subscriptions = this.gameService.onGameInformationsReceived.subscribe({
+            next: (datas) => {
+                this.initGame(datas);
+            }
         });
 
-        return this.gameService.broadcastGameCardsForPlayer(this.gameId, this.playerId);
+        return this.gameService.broadcastGetGameInformations(this.gameId, this.playerId);
+    }
+
+    /**
+     * Init all game datas.
+     * @param gameDatas
+     */
+    private initGame(gameDatas: IGameInitDto) {
+        this.displayCards(gameDatas.playerCards);
+        this.setPlayersNumber(gameDatas.playerNumber);
+        this.setDealer(gameDatas.dealer);
+        this.setCurrentPlayerPlaying(gameDatas.playerPlaying);
+
+        let currentPlayer = this.players.find(p => p.id == this.playerId);
+        if (currentPlayer.isPlaying) {
+            var contractEvent = new ChooseContractEvent();
+            this.onPlayerChooseContractSubscriber.next(contractEvent);
+        }
+    }
+
+    /**
+     * Indicate which player has to play for the current turn.
+     * @param currentPlayerPlaying number of the player who has to play.
+     */
+    private setCurrentPlayerPlaying(currentPlayerPlaying: number) {
+        this.players.find(p => p.number == currentPlayerPlaying).isPlaying = true;
+    }
+
+    /**
+     * Set the property isDealer to true for the current dealer.
+     * @param dealerNumber
+     */
+    private setDealer(dealerNumber: number) {
+        const dealer = this.players.find(p => p.number == dealerNumber);
+        const position = dealer.getDealerChipPosition();
+
+        let dealerChipEvent = new DealerSelectedEvent();
+        dealerChipEvent.x = position.x;
+        dealerChipEvent.y = position.y;
+
+        this.onDealerSetSubscriber.next(dealerChipEvent);
+    }
+
+    /**
+     * Set players number.
+     * Current player take the number returned in GameInfo and the others are
+     * set clockwise (ex: bottom=1, left = 2, top = 3, right = 0).
+     * @param playerNumber number of the current real player.
+     */
+    private setPlayersNumber(playerNumber: number) {
+        this.players.find(p => p.position == PlayerPosition.bottom).number = playerNumber;
+        this.players.find(p => p.position == PlayerPosition.left).number = (playerNumber + 1) % 4;
+        this.players.find(p => p.position == PlayerPosition.top).number = (playerNumber + 2) % 4;
+        this.players.find(p => p.position == PlayerPosition.right).number = (playerNumber + 3) % 4;
     }
 
     /**

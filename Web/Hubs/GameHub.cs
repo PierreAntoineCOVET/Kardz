@@ -34,15 +34,15 @@ namespace Web.Hubs
         /// <param name="gameId">Guid of the game played.</param>
         /// <param name="playerId">Id of the player to serve.</param>
         /// <returns></returns>
-        public async Task GetCardsForPlayer(Guid gameId, Guid playerId)
+        public async Task GetGameInformations(Guid gameId, Guid playerId)
         {
-            var cards = await Mediator.Send(new GetPlayerCardsQuery
+            var gameInit = await Mediator.Send(new GetGameInformationsQuery
             {
                 GameId = gameId,
                 PlayerId = playerId
             });
 
-            await Clients.Client(Context.ConnectionId).SendAsync($"playerCardsReceived", cards);
+            await Clients.Client(Context.ConnectionId).SendAsync($"gameInformationsReceived", gameInit);
         }
     }
 }

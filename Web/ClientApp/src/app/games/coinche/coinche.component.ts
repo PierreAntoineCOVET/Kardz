@@ -21,12 +21,15 @@ export class CoincheComponent implements OnInit {
             width: 1600,
             type: Phaser.AUTO,
             parent: 'gameContainer',
+            dom: {
+                createContainer: true
+            },
             scene: mainScene
         };
-        this.game = new Phaser.Game(this.gameConfig);
     }
 
     ngOnInit(): void {
+        this.game = new Phaser.Game(this.gameConfig);
     }
 
 }

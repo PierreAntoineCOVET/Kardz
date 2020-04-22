@@ -32,6 +32,16 @@ namespace Domain.Domain.Implementations.Coinche
         public IEnumerable<CardsEnum> Cards { get; private set; }
 
         /// <summary>
+        /// Current dealer number.
+        /// </summary>
+        public int CurrentDealer { get; set; }
+
+        /// <summary>
+        /// Player whose turn it is.
+        /// </summary>
+        public int CurrentPlayer { get; set; }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="id">Game's Id.</param>
@@ -51,7 +61,9 @@ namespace Domain.Domain.Implementations.Coinche
             {
                 Id = Guid.NewGuid(),
                 GameId = id,
-                Teams = teams
+                Teams = teams,
+                CurrentDealer = 3,
+                CurrentPlayerNumber = 0
             };
 
             RaiseEvent(createGameEvent);
@@ -65,6 +77,8 @@ namespace Domain.Domain.Implementations.Coinche
         {
             Id = @event.GameId;
             _Teams = @event.Teams.Cast<CoincheTeam>().ToList();
+            CurrentDealer = @event.CurrentDealer;
+            CurrentPlayer = @event.CurrentPlayerNumber;
         }
 
         /// <summary>

@@ -7,7 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
  * Player responsible to display it's cards.
  */
 export class Player {
-    //private scaleFactor: number = 0.2;
+    public number: number;
+    public isDealer: boolean;
+    public isPlaying: boolean;
 
     constructor(public id: uuidv4, public position: PlayerPosition)
     {
@@ -38,6 +40,29 @@ export class Player {
             spritePosition.x = 86;
             spritePosition.y = 80 + (index * elementWidth);
             spritePosition.angle = -90;
+        }
+
+        return spritePosition;
+    }
+
+    public getDealerChipPosition(): { x: number, y: number } {
+        const spritePosition = { x: 0, y: 0 };
+
+        if (this.position == PlayerPosition.top) {
+            spritePosition.x = 430;
+            spritePosition.y = 210;
+        }
+        else if (this.position == PlayerPosition.bottom) {
+            spritePosition.x = 1150;
+            spritePosition.y = 685;
+        }
+        else if (this.position == PlayerPosition.right) {
+            spritePosition.x = 1390;
+            spritePosition.y = 150;
+        }
+        else if (this.position == PlayerPosition.left) {
+            spritePosition.x = 210;
+            spritePosition.y = 730;
         }
 
         return spritePosition;

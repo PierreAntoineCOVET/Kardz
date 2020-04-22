@@ -20,11 +20,6 @@ namespace Repositories.EventStoreEntities
         public Guid AggregateId { get; set; }
 
         /// <summary>
-        /// Event version.
-        /// </summary>
-        public int Version { get; set; }
-
-        /// <summary>
         /// Event type.
         /// </summary>
         public string Type { get; set; }

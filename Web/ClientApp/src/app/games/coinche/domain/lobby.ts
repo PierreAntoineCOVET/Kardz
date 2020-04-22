@@ -12,6 +12,7 @@ export class Lobby {
     //private player: Player;
     private playerId: uuidv4;
     private readonly PLAYER_ID_STORAGE_KEY = 'PlayerIdKey';
+    private subscriptions: Subscription;
     public onNewGameSubscriber: Subject<GameStartedEvent> = new Subject<GameStartedEvent>();
 
     constructor(private lobbyService: LobbyService) {
@@ -60,7 +61,7 @@ export class Lobby {
      */
     public searchGame() {
         this.lobbyService.broadcastSearchGame(this.playerId);
-        this.lobbyService.onGameStarted.subscribe({
+        this.subscriptions = this.lobbyService.onGameStarted.subscribe({
             next: (data) => {
                 if (data) {
                     const gameStartedEvent = new GameStartedEvent();
@@ -79,7 +80,7 @@ export class Lobby {
      * Remove all subscriptions.
      */
     public onDestroy() {
-        //this.onNewGameStart.unsubscribe();
+        this.subscriptions.unsubscribe();
     }
 
     /**

@@ -69,7 +69,6 @@ namespace EventHandlers.Notifications.Aggregate
                     Date = DateTime.Now,
                     Type = @event.GetType().FullName,
                     Id = @event.Id,
-                    Version = @event.Version
                 });
             }
 

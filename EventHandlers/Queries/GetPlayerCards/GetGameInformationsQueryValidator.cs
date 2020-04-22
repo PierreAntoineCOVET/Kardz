@@ -6,14 +6,14 @@ using System.Text;
 namespace EventHandlers.Queries.GetPlayerCards
 {
     /// <summary>
-    /// Validator for <see cref="GetPlayerCardsQuery"/>.
+    /// Validator for <see cref="GetGameInformationsQuery"/>.
     /// </summary>
-    public class GetPlayerCardsQueryValidator : AbstractValidator<GetPlayerCardsQuery>
+    public class GetGameInformationsQueryValidator : AbstractValidator<GetGameInformationsQuery>
     {
         /// <summary>
         /// Constructor.
         /// </summary>
-        public GetPlayerCardsQueryValidator()
+        public GetGameInformationsQueryValidator()
         {
             RuleFor(query => query.GameId).NotNull().NotEqual(default(Guid));
 

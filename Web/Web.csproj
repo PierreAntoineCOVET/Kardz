@@ -23,6 +23,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\games\coinche\domain\events\choose-contract.event.ts" />
+    <None Remove="ClientApp\src\app\games\coinche\domain\events\dealer-selected.event.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\CoincheContractDto.d.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\GameInitDto.d.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="MediatR" Version="8.0.1" />
     <PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" Version="1.0.1" />
@@ -51,6 +61,15 @@
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
     <ProjectReference Include="..\EventHandlers\EventHandlers.csproj" />
     <ProjectReference Include="..\Registration\Registration.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ClientApp\src\app\typewriter\classes\CoincheContractDto.d.ts">
+      <CustomToolNamespace>..\DTOs\Shared\CoincheContractDto.cs</CustomToolNamespace>
+    </None>
+    <None Update="ClientApp\src\app\typewriter\classes\GameInitDto.d.ts">
+      <CustomToolNamespace>..\DTOs\Shared\GameInitDto.cs</CustomToolNamespace>
+    </None>
   </ItemGroup>
 
 </Project>

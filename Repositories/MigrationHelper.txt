@@ -16,3 +16,19 @@ Update-Database -Context EventStoreDbContext -Project Repositories
 Add-Migration ReadModelInitialCreate -Context ReadDbContext -Project Repositories
 
 Update-Database -Context ReadDbContext -Project Repositories
+
+
+
+
+#########################
+# Remove last migration #
+#########################
+
+Remove-Migration -Context ReadDbContext -Project Repositories
+
+
+######################
+# Downgrade database #
+######################
+
+Update-Database -Context ReadDbContext -Project Repositories {last good version}
