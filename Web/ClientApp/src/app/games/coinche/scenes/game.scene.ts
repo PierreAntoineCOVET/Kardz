@@ -7,6 +7,8 @@ import { AddCardEvent } from '../domain/events/add-card.event';
 import { Subscription } from 'rxjs';
 import { ChooseContractEvent } from '../domain/events/choose-contract.event';
 import { DealerSelectedEvent } from '../domain/events/dealer-selected.event';
+import { StartTurnTimerEvent, TurnTimerTickedEvent } from '../domain/events/turn-timer.event';
+import { ScreenCoordinate } from '../domain/PlayerPosition';
 
 /**
  * Core Coinche game loading and orchestrator.
@@ -23,6 +25,11 @@ export class GameScene extends Phaser.Scene {
     private dealerChipScaleFactor = 0.3;
     private contractFormElement: Phaser.GameObjects.DOMElement;
     private dealerChip: Phaser.GameObjects.Image;
+
+    private turnTimerBox: Phaser.GameObjects.Graphics;
+    private turnTimerFill: Phaser.GameObjects.Graphics;
+
+    private turnTimerRectangle: { x: number, y: number, width: number, height: number, direction: ScreenCoordinate };
 
     constructor(gameService: GameService) {
         super({ key: 'game' });
@@ -42,7 +49,15 @@ export class GameScene extends Phaser.Scene {
 
         this.load.html('contractForm', 'assets/game-forms/coinche/contract.form.html');
     }
+
     create() {
+        this.dealerChip = this.add.image(0, 0, 'dealerChip');
+        this.dealerChip.setScale(this.dealerChipScaleFactor);
+        this.dealerChip.visible = false;
+
+        this.turnTimerBox = this.add.graphics();
+        this.turnTimerFill = this.add.graphics();
+
         this.events.on('shutdown', () => this.onDestroy());
 
         this.subscriptions = this.gameDomain.onNewSpriteSubscriber.subscribe({
@@ -54,13 +69,25 @@ export class GameScene extends Phaser.Scene {
         }));
 
         this.subscriptions.add(this.gameDomain.onPlayerChooseContractSubscriber.subscribe({
-            next: (data) => this.displayContractForm(data)
+            next: (data) => {
+                this.displayContractForm(data);
+                this.startTurnTimer();
+            }
         }));
 
         this.subscriptions.add(this.gameDomain.onDealerSetSubscriber.subscribe({
             next: (data) => this.displayDealerChip(data)
         }));
+
+        this.subscriptions.add(this.gameDomain.onTurnTimeStartedSubscriber.subscribe({
+            next: (data) => this.displayTurnTimer(data)
+        }));
+
+        this.subscriptions.add(this.gameDomain.onTurnTimerTickedSubscriber.subscribe({
+            next: (data) => this.updateTurnTimer(data)
+        }));
     }
+
     update() {
     }
 
@@ -77,15 +104,76 @@ export class GameScene extends Phaser.Scene {
      * Display the dealer chip at the event location.
      * @param event
      */
+    private displayTurnTimer(event: StartTurnTimerEvent) {
+        if (event) {
+            this.turnTimerRectangle = {
+                x: event.x,
+                y: event.y,
+                width: event.width,
+                height: event.height,
+                direction: event.direction
+            };
+
+            if (event.direction == ScreenCoordinate.left) {
+                this.turnTimerRectangle.width = -this.turnTimerRectangle.width;
+            }
+
+            if (event.direction == ScreenCoordinate.top) {
+                this.turnTimerRectangle.height = -this.turnTimerRectangle.height;
+            }
+
+            this.turnTimerBox.fillStyle(0x00FF00);
+            this.turnTimerBox.fillRect(
+                this.turnTimerRectangle.x,
+                this.turnTimerRectangle.y,
+                this.turnTimerRectangle.width,
+                this.turnTimerRectangle.height);
+        }
+    }
+
+    /**
+     * Display the dealer chip at the event location.
+     * @param event
+     */
+    private updateTurnTimer(event: TurnTimerTickedEvent) {
+        if (event) {
+            this.turnTimerFill.clear();
+            this.turnTimerFill.fillStyle(0xFF0000);
+
+            if (this.turnTimerRectangle.direction == ScreenCoordinate.right
+                || this.turnTimerRectangle.direction == ScreenCoordinate.left) {
+                this.turnTimerFill.fillRect(
+                    this.turnTimerRectangle.x,
+                    this.turnTimerRectangle.y,
+                    this.turnTimerRectangle.width * event.percentage / 100,
+                    this.turnTimerRectangle.height);
+            }
+
+            if (this.turnTimerRectangle.direction == ScreenCoordinate.top
+                || this.turnTimerRectangle.direction == ScreenCoordinate.bottom) {
+                this.turnTimerFill.fillRect(
+                    this.turnTimerRectangle.x,
+                    this.turnTimerRectangle.y,
+                    this.turnTimerRectangle.width,
+                    this.turnTimerRectangle.height * event.percentage / 100);
+            }
+        }
+    }
+
+    /**
+     * Display the dealer chip at the event location.
+     * @param event
+     */
     private displayDealerChip(event: DealerSelectedEvent) {
         if (event) {
-            if (!this.dealerChip) {
-                this.dealerChip = this.add.image(event.x, event.y, 'dealerChip');
-                this.dealerChip.setScale(this.dealerChipScaleFactor);
+            if (!this.dealerChip.visible) {
+                this.dealerChip.visible = true;
             }
-            else {
-                this.dealerChip.setPosition(event.x, event.y);
-            }
+
+            this.dealerChip.setPosition(event.x, event.y);
+        }
+        else {
+            this.dealerChip.visible = false;
         }
     }
 
@@ -95,9 +183,12 @@ export class GameScene extends Phaser.Scene {
      */
     private displayContractForm(event: ChooseContractEvent) {
         if (event) {
-            this.contractFormElement = this.add.dom(800, 400).createFromCache('contractForm');
+            this.contractFormElement = this.add.dom(800, 550).createFromCache('contractForm');
             this.contractFormElement.setPerspective(800);
         }
+    }
+
+    private startTurnTimer() {
     }
 
     /**

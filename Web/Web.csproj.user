@@ -8,6 +8,11 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
+    <TypeScriptCompile Update="ClientApp\src\app\games\coinche\domain\events\turn-timer.event.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+  </ItemGroup>
+  <ItemGroup>
     <TypeScriptCompile Update="ClientApp\src\app\games\coinche\domain\events\dealer-selected.event.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>

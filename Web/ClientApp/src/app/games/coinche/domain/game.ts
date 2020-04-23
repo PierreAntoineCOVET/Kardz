@@ -3,12 +3,13 @@ import { GameService } from '../../../services/game/game.service';
 import { Observable, Subscriber, Subscription, ReplaySubject, Subject, BehaviorSubject } from 'rxjs';
 import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { Player } from './player';
-import { PlayerPosition } from './PlayerPosition';
+import { ScreenCoordinate } from './PlayerPosition';
 import { AddCardEvent } from './events/add-card.event';
 import { cachedDataVersionTag } from 'v8';
 import { IGameInitDto } from '../../../typewriter/classes/GameInitDto';
 import { ChooseContractEvent } from './events/choose-contract.event';
 import { DealerSelectedEvent } from './events/dealer-selected.event';
+import { StartTurnTimerEvent, TurnTimerTickedEvent } from './events/turn-timer.event';
 
 export class Game {
     public gameId: uuidv4;
@@ -34,10 +35,25 @@ export class Game {
      */
     public onDealerSetSubscriber: BehaviorSubject<DealerSelectedEvent> = new BehaviorSubject<DealerSelectedEvent>(undefined);
 
+    /**
+     * Emit when a player's turn start.
+     */
+    public onTurnTimeStartedSubscriber: BehaviorSubject<StartTurnTimerEvent> = new BehaviorSubject<StartTurnTimerEvent>(undefined);
+
+    /**
+     * Emit each seconds of a player's turn.
+     */
+    public onTurnTimerTickedSubscriber: BehaviorSubject<TurnTimerTickedEvent> = new BehaviorSubject<TurnTimerTickedEvent>(undefined);
+
     private subscriptions: Subscription;
     private cardWidth = 105;
 
     private players: Player[] = []
+
+    private readonly turnMaxTimeSecond = 30;
+
+    private turnTimer: NodeJS.Timeout;
+    private currentLoopIteration: number;
 
     constructor(private gameService: GameService) {
     }
@@ -51,10 +67,10 @@ export class Game {
         this.gameId = gameId;
         this.playerId = playerId;
 
-        this.players.push(new Player(playerId, PlayerPosition.bottom));
-        this.players.push(new Player(null, PlayerPosition.left));
-        this.players.push(new Player(null, PlayerPosition.top));
-        this.players.push(new Player(null, PlayerPosition.right));
+        this.players.push(new Player(playerId, ScreenCoordinate.bottom));
+        this.players.push(new Player(null, ScreenCoordinate.left));
+        this.players.push(new Player(null, ScreenCoordinate.top));
+        this.players.push(new Player(null, ScreenCoordinate.right));
 
         this.gameService.startConnection(this.playerId)
             .then(() => this.broadcastGameCardsForPlayer())
@@ -89,6 +105,33 @@ export class Game {
             var contractEvent = new ChooseContractEvent();
             this.onPlayerChooseContractSubscriber.next(contractEvent);
         }
+
+        this.startTurnTimer(gameDatas.playerPlaying);
+    }
+
+    private startTurnTimer(currentPlayerNumber: number) {
+        let currentPlayer = this.players.find(p => p.number == currentPlayerNumber);
+        let startEvent = currentPlayer.getTurnTimerPosition();
+        this.onTurnTimeStartedSubscriber.next(startEvent);
+
+        this.currentLoopIteration = 0;
+
+        this.turnTimer = setInterval(
+            () => {
+                const completion = Math.round(this.currentLoopIteration * 100 / this.turnMaxTimeSecond);
+                this.currentLoopIteration++;
+
+                const event = new TurnTimerTickedEvent();
+                event.percentage = completion;
+
+                this.onTurnTimerTickedSubscriber.next(event);
+
+                if (completion == 100) {
+                    // force a random play
+                    clearInterval(this.turnTimer);
+                }
+            },
+            1000);
     }
 
     /**
@@ -121,10 +164,10 @@ export class Game {
      * @param playerNumber number of the current real player.
      */
     private setPlayersNumber(playerNumber: number) {
-        this.players.find(p => p.position == PlayerPosition.bottom).number = playerNumber;
-        this.players.find(p => p.position == PlayerPosition.left).number = (playerNumber + 1) % 4;
-        this.players.find(p => p.position == PlayerPosition.top).number = (playerNumber + 2) % 4;
-        this.players.find(p => p.position == PlayerPosition.right).number = (playerNumber + 3) % 4;
+        this.players.find(p => p.position == ScreenCoordinate.bottom).number = playerNumber;
+        this.players.find(p => p.position == ScreenCoordinate.left).number = (playerNumber + 1) % 4;
+        this.players.find(p => p.position == ScreenCoordinate.top).number = (playerNumber + 2) % 4;
+        this.players.find(p => p.position == ScreenCoordinate.right).number = (playerNumber + 3) % 4;
     }
 
     /**

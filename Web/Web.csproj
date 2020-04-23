@@ -25,6 +25,7 @@
   <ItemGroup>
     <None Remove="ClientApp\src\app\games\coinche\domain\events\choose-contract.event.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\events\dealer-selected.event.ts" />
+    <None Remove="ClientApp\src\app\games\coinche\domain\events\turn-timer.event.ts" />
   </ItemGroup>
 
   <ItemGroup>
