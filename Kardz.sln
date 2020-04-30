@@ -16,9 +16,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DTOs", "DTOs\DTOs.csproj", "{69C15485-7CCF-4B4F-8705-FACE7F3E5FC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Registration", "Registration\Registration.csproj", "{9A2E288A-0196-45CB-A65E-4869AD457DE8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Registration", "Registration\Registration.csproj", "{9A2E288A-0196-45CB-A65E-4869AD457DE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Repositories\Repositories.csproj", "{23EC1885-DC28-4A31-B226-4A57DA7F410E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repositories", "Repositories\Repositories.csproj", "{23EC1885-DC28-4A31-B226-4A57DA7F410E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{8382CD94-43AB-4529-B02E-E8B56A9DDC31}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{9C18B3EE-E863-4DD9-A95A-FEEEE4B95A8E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{10506747-D2D3-406C-9AEB-B4B6428BE842}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +59,14 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{66C6A655-6F4D-4AED-B670-128198E969F5} = {9C18B3EE-E863-4DD9-A95A-FEEEE4B95A8E}
+		{521545FA-66F0-4638-80BD-2B6E13EB8F2F} = {8382CD94-43AB-4529-B02E-E8B56A9DDC31}
+		{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F} = {8382CD94-43AB-4529-B02E-E8B56A9DDC31}
+		{69C15485-7CCF-4B4F-8705-FACE7F3E5FC4} = {8382CD94-43AB-4529-B02E-E8B56A9DDC31}
+		{9A2E288A-0196-45CB-A65E-4869AD457DE8} = {10506747-D2D3-406C-9AEB-B4B6428BE842}
+		{23EC1885-DC28-4A31-B226-4A57DA7F410E} = {10506747-D2D3-406C-9AEB-B4B6428BE842}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {588407F0-56CA-4CEF-B8BA-059B38E8BEF3}

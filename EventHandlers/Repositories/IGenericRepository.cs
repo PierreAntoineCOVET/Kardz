@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EventHandlers.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,7 +14,7 @@ namespace Repositories.ReadRepositories
 
         Task Update<T>(T entity) where T : class;
 
-        IQueryable<T> Query<T>() where T : class;
+        Task<List<T>> Query<T>(ISpecification<T> spec) where T : class;
 
         Task Delete<T>(T entity) where T : class;
 

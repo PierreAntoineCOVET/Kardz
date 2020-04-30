@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domain.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Repositories.DbContexts;
 using Repositories.EventStoreEntities;
 using System;

@@ -1,13 +1,10 @@
 ﻿using Domain.Exceptions;
 using DTOs.Shared;
+using EventHandlers.Specifications;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Repositories.ReadEntities;
 using Repositories.ReadRepositories;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,12 +37,14 @@ namespace EventHandlers.Queries.GetPlayerCards
         /// <returns>List of cards.</returns>
         public async Task<GameInitDto> Handle(GetGameInformationsQuery request, CancellationToken cancellationToken)
         {
-            var game = await GenericRepository.Query<CoincheGame>()
-                .Include(g => g.Teams)
-                .ThenInclude(t => t.Players)
-                .SingleOrDefaultAsync(g => g.Id == request.GameId);
+            //var game = await GenericRepository.Query<CoincheGame>()
+            //    .Include(g => g.Teams)
+            //    .ThenInclude(t => t.Players)
+            //    .SingleOrDefaultAsync(g => g.Id == request.GameId);
+            var games = await GenericRepository.Query(new CoincheGameDatasSpecification(request.GameId));
+            var game = games.SingleOrDefault();
 
-            if(game == null)
+            if (game == null)
             {
                 throw new GameException($"Game id {request.GameId} not found.");
             }

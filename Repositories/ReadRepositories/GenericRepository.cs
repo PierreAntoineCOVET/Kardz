@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EventHandlers.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Repositories.DbContexts;
 using System;
 using System.Collections.Generic;
@@ -47,10 +48,10 @@ namespace Repositories.ReadRepositories
         /// </summary>
         /// <typeparam name="T">Entity's type.</typeparam>
         /// <returns><see cref="IQueryable{T}"/>.</returns>
-        public IQueryable<T> Query<T>()
+        public Task<List<T>> Query<T>(ISpecification<T> spec)
              where T : class
         {
-            return ReadDbContext.Set<T>().AsQueryable();
+            return ApplySpecification(spec).ToListAsync();
         }
 
         /// <summary>
@@ -86,6 +87,12 @@ namespace Repositories.ReadRepositories
         public Task<int> SaveChanges()
         {
             return ReadDbContext.SaveChangesAsync();
+        }
+
+        private IQueryable<T> ApplySpecification<T>(ISpecification<T> spec)
+             where T : class
+        {
+            return SpecificationEvaluator<T>.GetQuery(ReadDbContext.Set<T>().AsQueryable(), spec);
         }
     }
 }
