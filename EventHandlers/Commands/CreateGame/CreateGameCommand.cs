@@ -1,9 +1,5 @@
-﻿using Domain.Enums;
-using DTOs;
+﻿using DTOs;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EventHandlers.Commands.CreateGame
 {

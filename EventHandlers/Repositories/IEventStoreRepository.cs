@@ -1,8 +1,8 @@
-﻿using Repositories.EventStoreEntities;
+﻿using Domain.Entities.EventStoreEntities;
 using System;
 using System.Threading.Tasks;
 
-namespace Repositories.EventStoreRepositories
+namespace EventHandlers.Repositories
 {
     public interface IEventStoreRepository
     {

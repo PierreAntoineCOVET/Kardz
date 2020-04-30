@@ -1,10 +1,9 @@
-﻿using Domain.Domain.Interfaces;
-using Domain.Exceptions;
-using Newtonsoft.Json;
+﻿using Domain.Exceptions;
+using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 
-namespace Domain.Domain.Implementations.Coinche
+namespace Domain.GamesLogic.Coinche
 {
     /// <summary>
     /// Coinche team.
@@ -41,10 +40,10 @@ namespace Domain.Domain.Implementations.Coinche
             if (_Players.Count >= 2)
                 throw new GameException($"Game {Enums.GamesEnum.Coinche} teams doesn't allow for {_Players.Count} player(s)");
 
-            if (! (player is CoinchePlayer))
+            if (!(player is CoinchePlayer))
                 throw new InvalidCastException($"{nameof(player)} shoud be of type 'CoinchePlayer'");
 
-            player.Number = (Number * 2) + _Players.Count;
+            player.Number = Number * 2 + _Players.Count;
             _Players.Add((CoinchePlayer)player);
         }
     }

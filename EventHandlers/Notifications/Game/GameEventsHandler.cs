@@ -1,7 +1,7 @@
-﻿using Domain.Events;
+﻿using Domain.Entities.ReadEntities;
+using Domain.Events;
+using EventHandlers.Repositories;
 using MediatR;
-using Repositories.ReadEntities;
-using Repositories.ReadRepositories;
 using System;
 using System.Linq;
 using System.Threading;

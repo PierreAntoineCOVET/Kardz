@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Domain.Domain.Implementations.Coinche
+﻿namespace Domain.GamesLogic.Coinche
 {
     /// <summary>
     /// Constants.

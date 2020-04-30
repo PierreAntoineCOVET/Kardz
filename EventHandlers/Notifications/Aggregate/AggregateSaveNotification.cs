@@ -1,8 +1,5 @@
-﻿using Domain.Domain.Interfaces;
+﻿using Domain.Interfaces;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EventHandlers.Notifications.Aggregate
 {

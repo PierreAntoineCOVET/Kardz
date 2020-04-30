@@ -1,12 +1,9 @@
-﻿using Domain.Domain.Implementations.Coinche;
-using Domain.Domain.Interfaces;
-using Domain.Enums;
+﻿using Domain.Enums;
 using Domain.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Domain.GamesLogic.Coinche;
+using Domain.Interfaces;
 
-namespace Domain.Domain.Factories
+namespace Domain.Factories
 {
     /// <summary>
     /// Lobby factory.

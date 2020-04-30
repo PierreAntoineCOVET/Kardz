@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repositories.DbContexts;
 
-namespace Repositories.Migrations
+namespace Repositories.Migrations.ReadDb
 {
     [DbContext(typeof(ReadDbContext))]
     [Migration("20200419161014_AddDealerAndPlayerTurn")]

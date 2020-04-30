@@ -1,8 +1,6 @@
 ﻿using DTOs.Shared;
 using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EventHandlers.Queries.GetPlayerCards
 {

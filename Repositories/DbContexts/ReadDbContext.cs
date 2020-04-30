@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Repositories.ReadEntities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Domain.Entities.ReadEntities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repositories.DbContexts
 {

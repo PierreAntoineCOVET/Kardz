@@ -1,9 +1,6 @@
-﻿using Domain.Domain.Implementations;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
-namespace Domain.Domain.Interfaces
+namespace Domain.Interfaces
 {
     public interface ITeam
     {

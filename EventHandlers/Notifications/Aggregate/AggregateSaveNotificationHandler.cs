@@ -1,16 +1,12 @@
-﻿using Domain.Domain.Implementations;
-using Domain.Domain.Interfaces;
+﻿using Domain.Entities.EventStoreEntities;
+using EventHandlers.Repositories;
 using MediatR;
 using Newtonsoft.Json;
-using Repositories.EventStoreEntities;
-using Repositories.EventStoreRepositories;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DbAggregate = Repositories.EventStoreEntities.Aggregate;
+using DbAggregate = Domain.Entities.EventStoreEntities.Aggregate;
 
 namespace EventHandlers.Notifications.Aggregate
 {

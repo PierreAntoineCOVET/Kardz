@@ -1,9 +1,8 @@
 ﻿using Domain.Exceptions;
 using DTOs.Shared;
+using EventHandlers.Repositories;
 using EventHandlers.Specifications;
 using MediatR;
-using Repositories.ReadEntities;
-using Repositories.ReadRepositories;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;

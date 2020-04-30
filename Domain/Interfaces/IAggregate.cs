@@ -1,9 +1,8 @@
 ﻿using Domain.Events;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Domain.Domain.Interfaces
+namespace Domain.Interfaces
 {
     public interface IAggregate
     {

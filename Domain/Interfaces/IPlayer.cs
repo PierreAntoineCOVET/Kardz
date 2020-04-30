@@ -1,9 +1,8 @@
 ﻿using Domain.Enums;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Domain.Domain.Interfaces
+namespace Domain.Interfaces
 {
     /// <summary>
     /// Player contract.

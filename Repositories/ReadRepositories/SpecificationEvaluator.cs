@@ -1,9 +1,6 @@
 ﻿using EventHandlers.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Repositories.ReadRepositories
 {
@@ -19,9 +16,9 @@ namespace Repositories.ReadRepositories
                 query = query.Where(specification.Criteria);
             }
 
-            // Includes all expression-based includes
-            query = specification.Includes.Aggregate(query,
-                                    (current, include) => current.Include(include));
+            //// Includes all expression-based includes
+            //query = specification.Includes.Aggregate(query,
+            //                        (current, include) => current.Include(include));
 
             // Include any string-based include statements
             query = specification.IncludeStrings.Aggregate(query,

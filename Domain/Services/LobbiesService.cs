@@ -1,15 +1,9 @@
-﻿using Domain.Domain.Factories;
-using Domain.Domain.Interfaces;
-using Domain.Enums;
-using System;
-using System.Collections.Concurrent;
+﻿using Domain.Enums;
+using Domain.Factories;
+using Domain.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Domain.Domain.Services
+namespace Domain.Services
 {
     /// <summary>
     /// Lobby service.

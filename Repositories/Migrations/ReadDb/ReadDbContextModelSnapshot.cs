@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repositories.DbContexts;
 
-namespace Repositories.Migrations
+namespace Repositories.Migrations.ReadDb
 {
     [DbContext(typeof(ReadDbContext))]
     partial class ReadDbContextModelSnapshot : ModelSnapshot

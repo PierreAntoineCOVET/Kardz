@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Repositories.ReadEntities
+namespace Domain.Entities.ReadEntities
 {
     /// <summary>
     /// Coinche player.

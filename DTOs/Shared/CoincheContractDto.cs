@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DTOs.Shared
+﻿namespace DTOs.Shared
 {
     public class CoincheContractDto
     {

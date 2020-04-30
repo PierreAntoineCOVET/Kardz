@@ -1,10 +1,9 @@
-﻿using Domain.Domain.Interfaces;
-using Domain.Enums;
+﻿using Domain.Enums;
+using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Domain.Domain.Implementations.Coinche
+namespace Domain.GamesLogic.Coinche
 {
     /// <summary>
     /// Coinche player.
@@ -34,7 +33,7 @@ namespace Domain.Domain.Implementations.Coinche
         /// <param name="id">Player's Id.</param>
         public CoinchePlayer(Guid id)
         {
-            this.Id = id;
+            Id = id;
         }
     }
 }

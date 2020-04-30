@@ -1,12 +1,10 @@
-﻿using Domain.Domain.Implementations.Coinche;
-using Domain.Domain.Interfaces;
-using Domain.Enums;
+﻿using Domain.Enums;
 using Domain.Exceptions;
+using Domain.GamesLogic.Coinche;
+using Domain.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Domain.Domain.Factories
+namespace Domain.Factories
 {
     /// <summary>
     /// Create players.

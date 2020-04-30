@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Repositories.EventStoreEntities;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Domain.Entities.EventStoreEntities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repositories.DbContexts
 {

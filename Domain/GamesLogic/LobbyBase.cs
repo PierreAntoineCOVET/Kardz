@@ -1,18 +1,14 @@
-﻿using Domain.Domain.Factories;
-using Domain.Domain.Implementations;
-using Domain.Domain.Implementations.Coinche;
-using Domain.Domain.Interfaces;
-using Domain.Enums;
+﻿using Domain.Enums;
 using Domain.Exceptions;
+using Domain.Factories;
+using Domain.Interfaces;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Domain.Domain.Implementations
+namespace Domain.GamesLogic
 {
     /// <summary>
     /// Base lobby class.

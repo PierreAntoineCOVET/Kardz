@@ -1,12 +1,9 @@
-﻿using Domain.Domain.Interfaces;
-using Domain.Events;
-using MediatR;
+﻿using Domain.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace Domain.Domain.Implementations
+namespace Domain.GamesLogic
 {
     /// <summary>
     /// Base class for all aggragates.

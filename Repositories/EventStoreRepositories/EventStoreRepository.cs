@@ -1,10 +1,8 @@
-﻿using Domain.Domain.Interfaces;
+﻿using Domain.Entities.EventStoreEntities;
+using EventHandlers.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Repositories.DbContexts;
-using Repositories.EventStoreEntities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repositories.EventStoreRepositories

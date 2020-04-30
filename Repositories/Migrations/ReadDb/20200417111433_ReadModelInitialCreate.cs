@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Repositories.Migrations
+namespace Repositories.Migrations.ReadDb
 {
     public partial class ReadModelInitialCreate : Migration
     {

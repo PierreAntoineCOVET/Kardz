@@ -1,10 +1,8 @@
-﻿using Domain.Domain.Interfaces;
-using Domain.Domain.Services;
-using Domain.Enums;
+﻿using Domain.Enums;
+using Domain.Services;
 using DTOs;
 using EventHandlers.Notifications.Aggregate;
 using MediatR;
-using Repositories.EventStoreRepositories;
 using System.Threading;
 using System.Threading.Tasks;
 

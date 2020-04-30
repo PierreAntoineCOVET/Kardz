@@ -1,17 +1,14 @@
-﻿using Domain.Domain.Factories;
-using Domain.Domain.Services;
-using Domain.Events;
+﻿using Domain.Factories;
+using Domain.Services;
+using EventHandlers.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Repositories.DbContexts;
 using Repositories.EventStoreRepositories;
 using Repositories.ReadRepositories;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Web
+namespace Registration
 {
     /// <summary>
     /// Extention for Kards projet DI registration.

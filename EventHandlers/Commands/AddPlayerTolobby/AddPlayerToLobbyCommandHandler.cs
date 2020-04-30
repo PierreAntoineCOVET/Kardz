@@ -1,5 +1,5 @@
-﻿using Domain.Domain.Services;
-using Domain.Enums;
+﻿using Domain.Enums;
+using Domain.Services;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;

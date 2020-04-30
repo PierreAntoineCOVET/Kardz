@@ -1,19 +1,13 @@
-﻿using Domain.Domain.Interfaces;
-using Domain.Domain.Services;
-using Domain.Enums;
+﻿using Domain.Enums;
 using Domain.Events;
 using Domain.Exceptions;
+using Domain.Interfaces;
 using Domain.Tools;
-using MediatR;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Domain.Domain.Implementations.Coinche
+namespace Domain.GamesLogic.Coinche
 {
     /// <summary>
     /// Coinche game domain class.
@@ -50,7 +44,7 @@ namespace Domain.Domain.Implementations.Coinche
             if (id == default)
                 throw new GameException($"Invalid game id {id}");
 
-            if(players.Count() != Consts.NUMBER_OF_PLAYERS_FOR_A_GAME)
+            if (players.Count() != Consts.NUMBER_OF_PLAYERS_FOR_A_GAME)
                 throw new GameException($"Invalid number of players {players.Count()}");
 
             var teams = CreateTeams(players);

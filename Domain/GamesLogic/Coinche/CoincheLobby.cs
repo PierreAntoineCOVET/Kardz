@@ -1,14 +1,13 @@
-﻿using Domain.Domain.Factories;
-using Domain.Domain.Interfaces;
-using Domain.Enums;
+﻿using Domain.Enums;
 using Domain.Exceptions;
+using Domain.Factories;
+using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Domain.Domain.Implementations.Coinche
+namespace Domain.GamesLogic.Coinche
 {
     /// <summary>
     /// Lobby for coinche players.
@@ -39,7 +38,7 @@ namespace Domain.Domain.Implementations.Coinche
 
             try
             {
-                if (! await CanStartGame())
+                if (!await CanStartGame())
                     throw new GameException($"Not enough player to crate a coinche game ({PlayersLookingForGame.Count}).");
 
                 await LobbyPlayersLock.WaitAsync();

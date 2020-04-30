@@ -1,12 +1,9 @@
-﻿using Domain.Domain.Interfaces;
-using Domain.Enums;
+﻿using Domain.Enums;
+using Domain.Interfaces;
 using Domain.Tools;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace Domain.Domain.Implementations.Coinche
+namespace Domain.GamesLogic.Coinche
 {
     /// <summary>
     /// List of classic 53 cards.

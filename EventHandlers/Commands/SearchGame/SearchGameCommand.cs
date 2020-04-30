@@ -1,8 +1,5 @@
-﻿using DTOs;
-using MediatR;
+﻿using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EventHandlers.Commands.SearchGame
 {
