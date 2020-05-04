@@ -7,6 +7,9 @@
 export interface ICoincheContractDto {
     
     value: number;
-    trump: number;
+    color: number;
+    lastPlayerNumber: number;
+    hasLastPLayerPassed: boolean;
+    currentPlayerNumber: number;
 }
 

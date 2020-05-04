@@ -1,4 +1,5 @@
-﻿using EventHandlers.Queries.GetPlayerCards;
+﻿using EventHandlers.Commands.SetGameContract;
+using EventHandlers.Queries.GetPlayerCards;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
@@ -42,7 +43,39 @@ namespace Web.Hubs
                 PlayerId = playerId
             });
 
-            await Clients.Client(Context.ConnectionId).SendAsync($"gameInformationsReceived", gameInit);
+            await Clients.Client(Context.ConnectionId).SendAsync("gameInformationsReceived", gameInit);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="value"></param>
+        /// <param name="gameId"></param>
+        /// <param name="playerId"></param>
+        /// <returns></returns>
+        public async Task SetGameContract(int color, int value, Guid gameId, Guid playerId)
+        {
+            var contract = await Mediator.Send(new SetGameContractCommand
+            {
+                GameId = gameId,
+                PlayerId = playerId,
+                Color = color,
+                Value = value
+            });
+
+            // Send only to the game's players.
+            await Clients.All.SendAsync("gameContractChanged", contract);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="gameId"></param>
+        /// <param name="playerId"></param>
+        /// <returns></returns>
+        public async Task PassGameContract(Guid gameId, Guid playerId)
+        {
         }
     }
 }

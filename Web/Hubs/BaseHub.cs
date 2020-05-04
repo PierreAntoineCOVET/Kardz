@@ -18,7 +18,7 @@ namespace Web.Hubs
 
         public IEnumerable<string> GetPlayerConnectionId(IEnumerable<Guid> playerIds)
         {
-            var connectionIds = new List<String>();
+            var connectionIds = new List<string>();
 
             foreach (var playerId in playerIds)
             {

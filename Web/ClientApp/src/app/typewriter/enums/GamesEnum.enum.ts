@@ -6,3 +6,4 @@ export enum GamesEnum {
     
     Coinche = 0
 }
+

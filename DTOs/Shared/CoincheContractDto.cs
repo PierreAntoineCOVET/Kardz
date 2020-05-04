@@ -4,6 +4,12 @@
     {
         public int Value { get; set; }
 
-        public int Trump { get; set; }
+        public int Color { get; set; }
+
+        public int LastPlayerNumber { get; set; }
+
+        public bool HasLastPLayerPassed { get; set; }
+
+        public int CurrentPlayerNumber { get; set; }
     }
 }

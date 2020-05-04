@@ -7,9 +7,11 @@ import { ScreenCoordinate } from './PlayerPosition';
 import { AddCardEvent } from './events/add-card.event';
 import { cachedDataVersionTag } from 'v8';
 import { IGameInitDto } from '../../../typewriter/classes/GameInitDto';
-import { ChooseContractEvent } from './events/choose-contract.event';
 import { DealerSelectedEvent } from './events/dealer-selected.event';
 import { StartTurnTimerEvent, TurnTimerTickedEvent } from './events/turn-timer.event';
+import { ContractEvent } from './events/contract.event';
+import { ColorEnum } from '../../../typewriter/enums/ColorEnum.enum';
+import { ICoincheContractDto } from '../../../typewriter/classes/CoincheContractDto';
 
 export class Game {
     public gameId: uuidv4;
@@ -28,7 +30,7 @@ export class Game {
     /**
      * Emit when the real player is ready to vote for its contract.
      */
-    public onPlayerChooseContractSubscriber: BehaviorSubject<ChooseContractEvent> = new BehaviorSubject<ChooseContractEvent>(undefined);
+    public onPlayerChooseContractSubscriber: BehaviorSubject<ContractEvent> = new BehaviorSubject<ContractEvent>(undefined);
 
     /**
      * Emit when the game card's dealer is defined.
@@ -83,11 +85,37 @@ export class Game {
     private broadcastGameCardsForPlayer() {
         this.subscriptions = this.gameService.onGameInformationsReceived.subscribe({
             next: (datas) => {
-                this.initGame(datas);
+                if (datas) {
+                    this.initGame(datas);
+                }
+            }
+        });
+
+        this.subscriptions = this.gameService.onGameContractChanged.subscribe({
+            next: (datas) => {
+                if (datas) {
+                    this.gameContractChanged(datas);
+                }
             }
         });
 
         return this.gameService.broadcastGetGameInformations(this.gameId, this.playerId);
+    }
+
+    private gameContractChanged(contractInfo: ICoincheContractDto) {
+        this.setCurrentPlayerPlaying(contractInfo.currentPlayerNumber);
+
+        const currentPlayer = this.players.find(p => p.id == this.playerId);
+        if (currentPlayer.isPlaying) {
+            var contractEvent = new ContractEvent();
+            contractEvent.selectedValue = contractInfo.value + 10;
+            contractEvent.selectedColor = contractInfo.color;
+
+            this.onPlayerChooseContractSubscriber.next(contractEvent);
+        }
+        else {
+            this.onPlayerChooseContractSubscriber.next(undefined);
+        }
     }
 
     /**
@@ -100,9 +128,11 @@ export class Game {
         this.setDealer(gameDatas.dealer);
         this.setCurrentPlayerPlaying(gameDatas.playerPlaying);
 
-        let currentPlayer = this.players.find(p => p.id == this.playerId);
+        const currentPlayer = this.players.find(p => p.id == this.playerId);
         if (currentPlayer.isPlaying) {
-            var contractEvent = new ChooseContractEvent();
+            var contractEvent = new ContractEvent();
+            contractEvent.selectedValue = 80;
+
             this.onPlayerChooseContractSubscriber.next(contractEvent);
         }
 
@@ -139,6 +169,7 @@ export class Game {
      * @param currentPlayerPlaying number of the player who has to play.
      */
     private setCurrentPlayerPlaying(currentPlayerPlaying: number) {
+        this.players.forEach(p => p.isPlaying = false);
         this.players.find(p => p.number == currentPlayerPlaying).isPlaying = true;
     }
 
@@ -219,5 +250,18 @@ export class Game {
     private onSocketInitializationFailed(error: any) {
         console.log("Socket initialisation failed :");
         console.log(error);
+    }
+
+    /**
+     * Send the ContractEvent to the server.
+     * @param contract Player's contract.
+     */
+    public sendContract(contract: ContractEvent) {
+        if (contract) {
+            this.gameService.broadcastSetGameContract(this.gameId, this.playerId, contract.selectedColor, contract.selectedValue);
+        }
+        else {
+            this.gameService.broadcastPassGameContract(this.gameId, this.playerId);
+        }
     }
 }

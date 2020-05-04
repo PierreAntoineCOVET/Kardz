@@ -1,16 +1,21 @@
 import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { CardsEnum } from '../../typewriter/enums/CardsEnum.enum';
 import { HubConnectionBuilder, HubConnection } from '@aspnet/signalr';
 import { environment } from '../../../environments/environment';
 import { IGameInitDto } from '../../typewriter/classes/GameInitDto';
+import { ICoincheContractDto } from '../../typewriter/classes/CoincheContractDto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GameService {
     private hubConnection: HubConnection;
+
+    public onGameInformationsReceived: BehaviorSubject<IGameInitDto> = new BehaviorSubject<IGameInitDto>(undefined);
+
+    public onGameContractChanged: BehaviorSubject<ICoincheContractDto> = new BehaviorSubject<ICoincheContractDto>(undefined);
 
     constructor() { }
 
@@ -22,6 +27,9 @@ export class GameService {
             .withUrl(environment.singalRBaseUrl + '/game', { accessTokenFactory: () => playerId })
             .build();
 
+        this.hubConnection.on('gameInformationsReceived', (data) => this.onGameInformationsReceived.next(data));
+        this.hubConnection.on('gameContractChanged', (data) => this.onGameContractChanged.next(data));
+
         return this.hubConnection.start();
     }
 
@@ -29,9 +37,11 @@ export class GameService {
         this.hubConnection.invoke('GetGameInformations', gameId, playerId);
     }
 
-    public get onGameInformationsReceived(): Observable<IGameInitDto> {
-        return new Observable(subscriber => {
-            this.hubConnection.on('gameInformationsReceived', (data) => subscriber.next(data));
-        });
+    public broadcastSetGameContract(gameId: uuidv4, playerId: uuidv4, selectedColor: number, selectedValue: number) {
+        this.hubConnection.invoke('SetGameContract', selectedColor, selectedValue, gameId, playerId);
+    }
+
+    public broadcastPassGameContract(gameId: uuidv4, playerId: uuidv4,) {
+        this.hubConnection.invoke('PassGameContract', gameId, playerId);
     }
 }

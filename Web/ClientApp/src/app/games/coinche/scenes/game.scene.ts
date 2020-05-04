@@ -5,10 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { GameService } from '../../../services/game/game.service';
 import { AddCardEvent } from '../domain/events/add-card.event';
 import { Subscription } from 'rxjs';
-import { ChooseContractEvent } from '../domain/events/choose-contract.event';
 import { DealerSelectedEvent } from '../domain/events/dealer-selected.event';
 import { StartTurnTimerEvent, TurnTimerTickedEvent } from '../domain/events/turn-timer.event';
 import { ScreenCoordinate } from '../domain/PlayerPosition';
+import { ContractEvent } from '../domain/events/contract.event';
+import { ColorEnum } from '../../../typewriter/enums/ColorEnum.enum';
 
 /**
  * Core Coinche game loading and orchestrator.
@@ -31,10 +32,21 @@ export class GameScene extends Phaser.Scene {
 
     private turnTimerRectangle: { x: number, y: number, width: number, height: number, direction: ScreenCoordinate };
 
+    private currentContract: ContractEvent = new ContractEvent();
+
     constructor(gameService: GameService) {
         super({ key: 'game' });
 
         this.gameDomain = new Game(gameService);
+    }
+
+    /**
+     * Start loadings game's data (shuffled cards, ...).
+     * @param gameId Game's ID
+     * @param playerId Current player's ID
+     */
+    init(data: { gameId: uuidv4, playerId: uuidv4 }) {
+        this.gameDomain.setGame(data.gameId, data.playerId);
     }
 
     preload() {
@@ -71,7 +83,6 @@ export class GameScene extends Phaser.Scene {
         this.subscriptions.add(this.gameDomain.onPlayerChooseContractSubscriber.subscribe({
             next: (data) => {
                 this.displayContractForm(data);
-                this.startTurnTimer();
             }
         }));
 
@@ -89,15 +100,6 @@ export class GameScene extends Phaser.Scene {
     }
 
     update() {
-    }
-
-    /**
-     * Start loadings game's data (shuffle cards, ...).
-     * @param gameId Game's ID
-     * @param playerId Current player's ID
-     */
-    public setGame(gameId: uuidv4, playerId: uuidv4) {
-        this.gameDomain.setGame(gameId, playerId);
     }
 
     /**
@@ -181,14 +183,63 @@ export class GameScene extends Phaser.Scene {
      * Display the html form to choose the contract.
      * @param event Last player choice.
      */
-    private displayContractForm(event: ChooseContractEvent) {
+    private displayContractForm(event: ContractEvent) {
         if (event) {
             this.contractFormElement = this.add.dom(800, 550).createFromCache('contractForm');
+
+            const valueDropDown = this.contractFormElement.getChildByID("contractValue");
+            for (let i = 80; i < event.selectedValue; i += 10) {
+                const optionToRemove = valueDropDown.children.item(0);
+                valueDropDown.removeChild(optionToRemove);
+            }
+
+            this.contractFormElement.addListener('click');
+            this.contractFormElement.on(
+                'click',
+                (event) => this.contractFormClickEventHandler(event)
+            );
             this.contractFormElement.setPerspective(800);
+        }
+        else {
+            if (this.contractFormElement) {
+                this.contractFormElement.destroy();
+            }
         }
     }
 
-    private startTurnTimer() {
+    /**
+     * Handle all contract's related actions.
+     * @param event click event data.
+     */
+    private contractFormClickEventHandler(event: any) {
+        if (event.target.name === 'bet') {
+            if (this.currentContract.selectedColor !== undefined) {
+                const valueDropDown = <any>this.contractFormElement.getChildByID('contractValue');
+                const selectedValue: number =
+                    valueDropDown.value === 'capot'
+                        ? 170
+                        : Number(valueDropDown.value);
+                this.currentContract.selectedValue = selectedValue;
+                this.gameDomain.sendContract(this.currentContract);
+                this.currentContract = new ContractEvent();
+            }
+        }
+        else if (event.target.name === 'pass') {
+            this.currentContract = new ContractEvent();
+            this.gameDomain.sendContract(undefined);
+        }
+        else if (event.target.name !== undefined && event.target.name !== 'value') {
+            if (this.currentContract && this.currentContract.selectedColor !== undefined) {
+                const previousColor = this.contractFormElement.getChildByID(ColorEnum[this.currentContract.selectedColor]);
+                previousColor.classList.remove('selected');
+            }
+
+            const selectedColorButton = this.contractFormElement.getChildByID(event.target.value);
+            selectedColorButton.classList.add('selected');
+
+            let color: string = event.target.value;
+            this.currentContract.selectedColor = ColorEnum[color];
+        }
     }
 
     /**
@@ -223,5 +274,52 @@ export class GameScene extends Phaser.Scene {
     private onDestroy() {
         this.gameDomain.onDestroy();
         this.subscriptions.unsubscribe();
+    }
+
+    private createSpeechBubble(x, y, width, height, quote) {
+        var bubbleWidth = width;
+        var bubbleHeight = height;
+        var bubblePadding = 10;
+        var arrowHeight = bubbleHeight / 4;
+
+        var bubble = this.add.graphics({ x: x, y: y });
+
+        //  Bubble shadow
+        bubble.fillStyle(0x222222, 0.5);
+        bubble.fillRoundedRect(6, 6, bubbleWidth, bubbleHeight, 16);
+
+        //  Bubble color
+        bubble.fillStyle(0xffffff, 1);
+
+        //  Bubble outline line style
+        bubble.lineStyle(4, 0x565656, 1);
+
+        //  Bubble shape and outline
+        bubble.strokeRoundedRect(0, 0, bubbleWidth, bubbleHeight, 16);
+        bubble.fillRoundedRect(0, 0, bubbleWidth, bubbleHeight, 16);
+
+        //  Calculate arrow coordinates
+        var point1X = Math.floor(bubbleWidth / 7);
+        var point1Y = bubbleHeight;
+        var point2X = Math.floor((bubbleWidth / 7) * 2);
+        var point2Y = bubbleHeight;
+        var point3X = Math.floor(bubbleWidth / 7);
+        var point3Y = Math.floor(bubbleHeight + arrowHeight);
+
+        //  Bubble arrow shadow
+        bubble.lineStyle(4, 0x222222, 0.5);
+        bubble.lineBetween(point2X - 1, point2Y + 6, point3X + 2, point3Y);
+
+        //  Bubble arrow fill
+        bubble.fillTriangle(point1X, point1Y, point2X, point2Y, point3X, point3Y);
+        bubble.lineStyle(2, 0x565656, 1);
+        bubble.lineBetween(point2X, point2Y, point3X, point3Y);
+        bubble.lineBetween(point1X, point1Y, point3X, point3Y);
+
+        var content = this.add.text(0, 0, quote, { fontFamily: 'Arial', fontSize: 20, color: '#000000', align: 'center', wordWrap: { width: bubbleWidth - (bubblePadding * 2) } });
+
+        var b = content.getBounds();
+
+        content.setPosition(bubble.x + (bubbleWidth / 2) - (b.width / 2), bubble.y + (bubbleHeight / 2) - (b.height / 2));
     }
 }

@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="ClientApp\src\app\games\coinche\domain\events\choose-contract.event.ts" />
+    <None Remove="ClientApp\src\app\games\coinche\domain\events\contract.event.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\events\dealer-selected.event.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\events\turn-timer.event.ts" />
   </ItemGroup>
@@ -31,6 +31,7 @@
   <ItemGroup>
     <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\CoincheContractDto.d.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\GameInitDto.d.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\typewriter\enums\ColorEnum.enum.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -70,6 +71,9 @@
     </None>
     <None Update="ClientApp\src\app\typewriter\classes\GameInitDto.d.ts">
       <CustomToolNamespace>..\DTOs\Shared\GameInitDto.cs</CustomToolNamespace>
+    </None>
+    <None Update="ClientApp\src\app\typewriter\enums\ColorEnum.enum.ts">
+      <CustomToolNamespace>..\Domain\Enums\ColorEnum.cs</CustomToolNamespace>
     </None>
   </ItemGroup>
 

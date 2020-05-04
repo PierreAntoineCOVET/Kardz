@@ -1,4 +1,4 @@
-/*************************/
+﻿/*************************/
 /* Auto generated script */
 /*************************/
 
@@ -57,3 +57,4 @@ export enum CardsEnum {
     QueenHeart = 50,
     KingHeart = 51
 }
+

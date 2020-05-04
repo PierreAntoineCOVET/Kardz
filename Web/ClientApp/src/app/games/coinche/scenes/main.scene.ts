@@ -27,9 +27,7 @@ export class MainScene extends Phaser.Scene {
     }
 
     private startGame(data: GameStartedEvent) {
-        this.gameScene.setGame(data.gameId, data.playerId);
-
         this.scene.stop('lobby');
-        this.scene.start('game');
+        this.scene.start('game', { gameId: data.gameId, playerId: data.playerId});
     }
 }
