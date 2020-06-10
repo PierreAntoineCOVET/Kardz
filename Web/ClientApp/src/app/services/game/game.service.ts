@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { CardsEnum } from '../../typewriter/enums/CardsEnum.enum';
-import { HubConnectionBuilder, HubConnection } from '@aspnet/signalr';
+import { BehaviorSubject } from 'rxjs';
+import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
 import { environment } from '../../../environments/environment';
 import { IGameInitDto } from '../../typewriter/classes/GameInitDto';
 import { ICoincheContractDto } from '../../typewriter/classes/CoincheContractDto';
@@ -25,9 +24,14 @@ export class GameService {
     public startConnection(playerId: uuidv4): Promise<void> {
         this.hubConnection = new HubConnectionBuilder()
             .withUrl(environment.singalRBaseUrl + '/game', { accessTokenFactory: () => playerId })
+            //.withAutomaticReconnect()
             .build();
 
-        this.hubConnection.on('gameInformationsReceived', (data) => this.onGameInformationsReceived.next(data));
+        this.hubConnection.on('gameInformationsReceived', (data) => {
+            console.log('GameService event : ');
+            console.log(data);
+            this.onGameInformationsReceived.next(data);
+        });
         this.hubConnection.on('gameContractChanged', (data) => this.onGameContractChanged.next(data));
 
         return this.hubConnection.start();

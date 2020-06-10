@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HubConnection, HubConnectionBuilder } from '@aspnet/signalr';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,6 +19,7 @@ export class LobbyService {
     public startConnection(playerId: uuidv4): Promise<void> {
         this.hubConnection = new HubConnectionBuilder()
             .withUrl(environment.singalRBaseUrl + '/lobby', { accessTokenFactory: () => playerId })
+            //.withAutomaticReconnect()
             .build();
 
         return this.hubConnection.start();

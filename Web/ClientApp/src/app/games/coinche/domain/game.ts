@@ -74,6 +74,14 @@ export class Game {
         this.players.push(new Player(null, ScreenCoordinate.top));
         this.players.push(new Player(null, ScreenCoordinate.right));
 
+        let worker = new Worker('../../../services/test.worker', { type: 'module' });
+        worker.postMessage("hello");
+        worker.onmessage = (response) => console.log(response);
+        worker.onerror = (error) => {
+            console.log('error');
+            console.log(error);
+        };
+
         this.gameService.startConnection(this.playerId)
             .then(() => this.broadcastGameCardsForPlayer())
             .catch((reason) => this.onSocketInitializationFailed(reason));
@@ -85,6 +93,8 @@ export class Game {
     private broadcastGameCardsForPlayer() {
         this.subscriptions = this.gameService.onGameInformationsReceived.subscribe({
             next: (datas) => {
+                console.log('game event : ');
+                console.log(datas);
                 if (datas) {
                     this.initGame(datas);
                 }
@@ -119,7 +129,11 @@ export class Game {
     }
 
     /**
-     * Init all game datas.
+     * Init game :
+     *   - load cards sprites
+     *   - set players numbers
+     *   - set current dealer
+     *   - display contract form
      * @param gameDatas
      */
     private initGame(gameDatas: IGameInitDto) {

@@ -91,7 +91,11 @@ export class GameScene extends Phaser.Scene {
         }));
 
         this.subscriptions.add(this.gameDomain.onTurnTimeStartedSubscriber.subscribe({
-            next: (data) => this.displayTurnTimer(data)
+            next: (data) => {
+                console.log('game scene event : ');
+                console.log(data);
+                this.displayTurnTimer(data);
+            }
         }));
 
         this.subscriptions.add(this.gameDomain.onTurnTimerTickedSubscriber.subscribe({
@@ -108,6 +112,7 @@ export class GameScene extends Phaser.Scene {
      */
     private displayTurnTimer(event: StartTurnTimerEvent) {
         if (event) {
+            console.log('start displaying timer');
             this.turnTimerRectangle = {
                 x: event.x,
                 y: event.y,
