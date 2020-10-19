@@ -26,6 +26,8 @@
     <None Remove="ClientApp\src\app\games\coinche\domain\events\contract.event.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\events\dealer-selected.event.ts" />
     <None Remove="ClientApp\src\app\games\coinche\domain\events\turn-timer.event.ts" />
+    <None Remove="ClientApp\src\app\services\game\game.service.ts" />
+    <None Remove="ClientApp\src\app\services\lobby\lobby.worker.ts" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,7 +41,6 @@
     <PackageReference Include="MediatR" Version="8.0.1" />
     <PackageReference Include="MediatR.Extensions.FluentValidation.AspNetCore" Version="1.0.1" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.2" />
@@ -53,6 +54,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
   <ItemGroup>

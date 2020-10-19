@@ -19,12 +19,12 @@ export class LobbyScene extends Phaser.Scene {
     private numberOfPlayersBaseText: string;
     private numberOfPLayersFormatedText: string;
 
-    constructor(lobbyService: LobbyService, private translateService: TranslateService) {
+    constructor(private translateService: TranslateService) {
         super({ key: 'lobby' });
 
-        this.lobby = new Lobby(lobbyService);
+        this.lobby = new Lobby();
 
-        this.subscriptions = this.lobby.onNewPlayerToLobby().subscribe({
+        this.subscriptions = this.lobby.onNewPlayerToLobby.subscribe({
             next: (numebrOfPlayers) => {
                 this.numberOfPLayersFormatedText = this.numberOfPlayersBaseText + numebrOfPlayers;
             }
@@ -75,6 +75,6 @@ export class LobbyScene extends Phaser.Scene {
      * Cannot fire before player clicked on this.searchGameButton.
      */
     public get onGameStarted(): Observable<GameStartedEvent> {
-        return this.lobby.onNewGameSubscriber;
+        return this.lobby.onNewGameStarting;
     }
 }

@@ -1,17 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
-import { GameService } from '../../../services/game/game.service';
-import { Observable, Subscriber, Subscription, ReplaySubject, Subject, BehaviorSubject } from 'rxjs';
-import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
-import { Player } from './player';
-import { ScreenCoordinate } from './PlayerPosition';
-import { AddCardEvent } from './events/add-card.event';
-import { cachedDataVersionTag } from 'v8';
-import { IGameInitDto } from '../../../typewriter/classes/GameInitDto';
-import { DealerSelectedEvent } from './events/dealer-selected.event';
-import { StartTurnTimerEvent, TurnTimerTickedEvent } from './events/turn-timer.event';
-import { ContractEvent } from './events/contract.event';
-import { ColorEnum } from '../../../typewriter/enums/ColorEnum.enum';
-import { ICoincheContractDto } from '../../../typewriter/classes/CoincheContractDto';
+import { Subscription, ReplaySubject, Subject } from 'rxjs';
+import { ICoincheContractDto } from 'src/app/typewriter/classes/CoincheContractDto';
+import { CardsEnum } from 'src/app/typewriter/enums/CardsEnum.enum';
+import { IGameInitDto } from 'src/app/typewriter/classes/GameInitDto';
+import { ContractEvent } from 'src/app/games/coinche/domain/events/contract.event';
+import { DealerSelectedEvent } from 'src/app/games/coinche/domain/events/dealer-selected.event';
+import { AddCardEvent } from 'src/app/games/coinche/domain/events/add-card.event';
+import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
+import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche/domain/events/turn-timer.event';
+import { Player } from 'src/app/games/coinche/domain/player';
+//import { GameService } from 'src/app/services/game/game.service';
 
 export class Game {
     public gameId: uuidv4;
@@ -20,32 +18,32 @@ export class Game {
     /**
      * Emit when a new sprite need to be added (current player has a new card).
      */
-    public onNewSpriteSubscriber: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
+    public OnCurrentPlayerCardReceived: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
 
     /**
      * Emit when a new image need to be added (other players received a new card).
      */
-    public onNewImageSubscriber: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
+    public onOtherPlayerCardReceived: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
 
     /**
      * Emit when the real player is ready to vote for its contract.
      */
-    public onPlayerChooseContractSubscriber: BehaviorSubject<ContractEvent> = new BehaviorSubject<ContractEvent>(undefined);
+    public onPlayerReadyToBet: Subject<ContractEvent> = new Subject<ContractEvent>();
 
     /**
      * Emit when the game card's dealer is defined.
      */
-    public onDealerSetSubscriber: BehaviorSubject<DealerSelectedEvent> = new BehaviorSubject<DealerSelectedEvent>(undefined);
+    public onDealerDefined: Subject<DealerSelectedEvent> = new Subject<DealerSelectedEvent>();
 
     /**
      * Emit when a player's turn start.
      */
-    public onTurnTimeStartedSubscriber: BehaviorSubject<StartTurnTimerEvent> = new BehaviorSubject<StartTurnTimerEvent>(undefined);
+    public onTurnTimeStarted: Subject<StartTurnTimerEvent> = new Subject<StartTurnTimerEvent>();
 
     /**
      * Emit each seconds of a player's turn.
      */
-    public onTurnTimerTickedSubscriber: BehaviorSubject<TurnTimerTickedEvent> = new BehaviorSubject<TurnTimerTickedEvent>(undefined);
+    public onTurnTimerTicked: Subject<TurnTimerTickedEvent> = new Subject<TurnTimerTickedEvent>();
 
     private subscriptions: Subscription;
     private cardWidth = 105;
@@ -57,7 +55,10 @@ export class Game {
     private turnTimer: NodeJS.Timeout;
     private currentLoopIteration: number;
 
-    constructor(private gameService: GameService) {
+    private readonly gameWorkerService: Worker;
+
+    constructor() {
+        this.gameWorkerService = new Worker('../../../services/game/game.worker', { name: 'game', type: 'module' });
     }
 
     /**
@@ -74,42 +75,37 @@ export class Game {
         this.players.push(new Player(null, ScreenCoordinate.top));
         this.players.push(new Player(null, ScreenCoordinate.right));
 
-        let worker = new Worker('../../../services/test.worker', { type: 'module' });
-        worker.postMessage("hello");
-        worker.onmessage = (response) => console.log(response);
-        worker.onerror = (error) => {
-            console.log('error');
-            console.log(error);
+        this.gameWorkerService.onerror = (evt) => {
+            console.error('Worker error :');
+            console.error(evt);
         };
 
-        this.gameService.startConnection(this.playerId)
-            .then(() => this.broadcastGameCardsForPlayer())
-            .catch((reason) => this.onSocketInitializationFailed(reason));
+        this.gameWorkerService.onmessage = (message) => {
+            if (!message || !message.data) {
+                return;
+            }
+
+            if (this.isGameInitDto(message.data)) {
+                this.initGame(message.data);
+            }
+            else if (this.isICoincheContractDto(message.data)) {
+                this.gameContractChanged(message.data);
+            }
+        };
+
+        this.gameWorkerService.postMessage({
+            playerId: this.playerId,
+            gameId: this.gameId,
+            fName: 'broadcastGetGameInformations'
+        });
     }
 
-    /**
-     * Request game cards for the player.
-     */
-    private broadcastGameCardsForPlayer() {
-        this.subscriptions = this.gameService.onGameInformationsReceived.subscribe({
-            next: (datas) => {
-                console.log('game event : ');
-                console.log(datas);
-                if (datas) {
-                    this.initGame(datas);
-                }
-            }
-        });
+    private isGameInitDto(obj: any): obj is IGameInitDto {
+        return (obj as IGameInitDto).dealer !== undefined;
+    }
 
-        this.subscriptions = this.gameService.onGameContractChanged.subscribe({
-            next: (datas) => {
-                if (datas) {
-                    this.gameContractChanged(datas);
-                }
-            }
-        });
-
-        return this.gameService.broadcastGetGameInformations(this.gameId, this.playerId);
+    private isICoincheContractDto(obj: any): obj is ICoincheContractDto {
+        return (obj as ICoincheContractDto).hasLastPLayerPassed !== undefined;
     }
 
     private gameContractChanged(contractInfo: ICoincheContractDto) {
@@ -121,10 +117,10 @@ export class Game {
             contractEvent.selectedValue = contractInfo.value + 10;
             contractEvent.selectedColor = contractInfo.color;
 
-            this.onPlayerChooseContractSubscriber.next(contractEvent);
+            this.onPlayerReadyToBet.next(contractEvent);
         }
         else {
-            this.onPlayerChooseContractSubscriber.next(undefined);
+            this.onPlayerReadyToBet.next(undefined);
         }
     }
 
@@ -147,7 +143,7 @@ export class Game {
             var contractEvent = new ContractEvent();
             contractEvent.selectedValue = 80;
 
-            this.onPlayerChooseContractSubscriber.next(contractEvent);
+            this.onPlayerReadyToBet.next(contractEvent);
         }
 
         this.startTurnTimer(gameDatas.playerPlaying);
@@ -156,7 +152,7 @@ export class Game {
     private startTurnTimer(currentPlayerNumber: number) {
         let currentPlayer = this.players.find(p => p.number == currentPlayerNumber);
         let startEvent = currentPlayer.getTurnTimerPosition();
-        this.onTurnTimeStartedSubscriber.next(startEvent);
+        this.onTurnTimeStarted.next(startEvent);
 
         this.currentLoopIteration = 0;
 
@@ -168,7 +164,7 @@ export class Game {
                 const event = new TurnTimerTickedEvent();
                 event.percentage = completion;
 
-                this.onTurnTimerTickedSubscriber.next(event);
+                this.onTurnTimerTicked.next(event);
 
                 if (completion == 100) {
                     // force a random play
@@ -199,7 +195,7 @@ export class Game {
         dealerChipEvent.x = position.x;
         dealerChipEvent.y = position.y;
 
-        this.onDealerSetSubscriber.next(dealerChipEvent);
+        this.onDealerDefined.next(dealerChipEvent);
     }
 
     /**
@@ -231,7 +227,7 @@ export class Game {
                     cardEvent.elementName = 'cards';
                     cardEvent.card = spriteNumber;
 
-                    this.onNewSpriteSubscriber.next(cardEvent);
+                    this.OnCurrentPlayerCardReceived.next(cardEvent);
                 });
             }
             else {
@@ -244,7 +240,7 @@ export class Game {
                     cardEvent.elementName = 'cardBack';
                     cardEvent.angle = spritePosition.angle;
 
-                    this.onNewImageSubscriber.next(cardEvent);
+                    this.onOtherPlayerCardReceived.next(cardEvent);
                 }
             }
         }
@@ -258,24 +254,15 @@ export class Game {
     }
 
     /**
-     * Called if connection initialisation failled.
-     * @param error
-     */
-    private onSocketInitializationFailed(error: any) {
-        console.log("Socket initialisation failed :");
-        console.log(error);
-    }
-
-    /**
      * Send the ContractEvent to the server.
      * @param contract Player's contract.
      */
     public sendContract(contract: ContractEvent) {
-        if (contract) {
-            this.gameService.broadcastSetGameContract(this.gameId, this.playerId, contract.selectedColor, contract.selectedValue);
-        }
-        else {
-            this.gameService.broadcastPassGameContract(this.gameId, this.playerId);
-        }
+        //if (contract) {
+        //    this.gameService.broadcastSetGameContract(this.gameId, this.playerId, contract.selectedColor, contract.selectedValue);
+        //}
+        //else {
+        //    this.gameService.broadcastPassGameContract(this.gameId, this.playerId);
+        //}
     }
 }

@@ -1,22 +1,20 @@
-import { GamesEnum } from '../../../typewriter/enums/GamesEnum.enum';
 import { Injectable } from '@angular/core';
-import { Game } from '../domain/game';
 import { v4 as uuidv4 } from 'uuid';
-import { GameService } from '../../../services/game/game.service';
-import { AddCardEvent } from '../domain/events/add-card.event';
 import { Subscription } from 'rxjs';
-import { DealerSelectedEvent } from '../domain/events/dealer-selected.event';
-import { StartTurnTimerEvent, TurnTimerTickedEvent } from '../domain/events/turn-timer.event';
-import { ScreenCoordinate } from '../domain/PlayerPosition';
-import { ContractEvent } from '../domain/events/contract.event';
-import { ColorEnum } from '../../../typewriter/enums/ColorEnum.enum';
+import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
+import { ContractEvent } from 'src/app/games/coinche/domain/events/contract.event';
+import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
+import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche/domain/events/turn-timer.event';
+import { DealerSelectedEvent } from 'src/app/games/coinche/domain/events/dealer-selected.event';
+import { AddCardEvent } from 'src/app/games/coinche/domain/events/add-card.event';
+import { Game } from 'src/app/games/coinche/domain/game';
 
 /**
  * Core Coinche game loading and orchestrator.
  */
 @Injectable()
 export class GameScene extends Phaser.Scene {
-    private gameDomain: Game;
+    private gameDomain: Game; // phaser already define a game variable.
     private subscriptions: Subscription;
     private cardsSpriteOption = {
         cardWidth: 334,
@@ -34,10 +32,10 @@ export class GameScene extends Phaser.Scene {
 
     private currentContract: ContractEvent = new ContractEvent();
 
-    constructor(gameService: GameService) {
+    constructor() {
         super({ key: 'game' });
 
-        this.gameDomain = new Game(gameService);
+        this.gameDomain = new Game();
     }
 
     /**
@@ -72,33 +70,31 @@ export class GameScene extends Phaser.Scene {
 
         this.events.on('shutdown', () => this.onDestroy());
 
-        this.subscriptions = this.gameDomain.onNewSpriteSubscriber.subscribe({
+        this.subscriptions = this.gameDomain.OnCurrentPlayerCardReceived.subscribe({
             next: (data) => this.addSprite(data)
         });
 
-        this.subscriptions.add(this.gameDomain.onNewImageSubscriber.subscribe({
+        this.subscriptions.add(this.gameDomain.onOtherPlayerCardReceived.subscribe({
             next: (data) => this.addImage(data)
         }));
 
-        this.subscriptions.add(this.gameDomain.onPlayerChooseContractSubscriber.subscribe({
+        this.subscriptions.add(this.gameDomain.onPlayerReadyToBet.subscribe({
             next: (data) => {
                 this.displayContractForm(data);
             }
         }));
 
-        this.subscriptions.add(this.gameDomain.onDealerSetSubscriber.subscribe({
+        this.subscriptions.add(this.gameDomain.onDealerDefined.subscribe({
             next: (data) => this.displayDealerChip(data)
         }));
 
-        this.subscriptions.add(this.gameDomain.onTurnTimeStartedSubscriber.subscribe({
+        this.subscriptions.add(this.gameDomain.onTurnTimeStarted.subscribe({
             next: (data) => {
-                console.log('game scene event : ');
-                console.log(data);
                 this.displayTurnTimer(data);
             }
         }));
 
-        this.subscriptions.add(this.gameDomain.onTurnTimerTickedSubscriber.subscribe({
+        this.subscriptions.add(this.gameDomain.onTurnTimerTicked.subscribe({
             next: (data) => this.updateTurnTimer(data)
         }));
     }
@@ -111,31 +107,28 @@ export class GameScene extends Phaser.Scene {
      * @param event
      */
     private displayTurnTimer(event: StartTurnTimerEvent) {
-        if (event) {
-            console.log('start displaying timer');
-            this.turnTimerRectangle = {
-                x: event.x,
-                y: event.y,
-                width: event.width,
-                height: event.height,
-                direction: event.direction
-            };
+        this.turnTimerRectangle = {
+            x: event.x,
+            y: event.y,
+            width: event.width,
+            height: event.height,
+            direction: event.direction
+        };
 
-            if (event.direction == ScreenCoordinate.left) {
-                this.turnTimerRectangle.width = -this.turnTimerRectangle.width;
-            }
-
-            if (event.direction == ScreenCoordinate.top) {
-                this.turnTimerRectangle.height = -this.turnTimerRectangle.height;
-            }
-
-            this.turnTimerBox.fillStyle(0x00FF00);
-            this.turnTimerBox.fillRect(
-                this.turnTimerRectangle.x,
-                this.turnTimerRectangle.y,
-                this.turnTimerRectangle.width,
-                this.turnTimerRectangle.height);
+        if (event.direction == ScreenCoordinate.left) {
+            this.turnTimerRectangle.width = -this.turnTimerRectangle.width;
         }
+
+        if (event.direction == ScreenCoordinate.top) {
+            this.turnTimerRectangle.height = -this.turnTimerRectangle.height;
+        }
+
+        this.turnTimerBox.fillStyle(0x00FF00);
+        this.turnTimerBox.fillRect(
+            this.turnTimerRectangle.x,
+            this.turnTimerRectangle.y,
+            this.turnTimerRectangle.width,
+            this.turnTimerRectangle.height);
     }
 
     /**
@@ -143,27 +136,25 @@ export class GameScene extends Phaser.Scene {
      * @param event
      */
     private updateTurnTimer(event: TurnTimerTickedEvent) {
-        if (event) {
-            this.turnTimerFill.clear();
-            this.turnTimerFill.fillStyle(0xFF0000);
+        this.turnTimerFill.clear();
+        this.turnTimerFill.fillStyle(0xFF0000);
 
-            if (this.turnTimerRectangle.direction == ScreenCoordinate.right
-                || this.turnTimerRectangle.direction == ScreenCoordinate.left) {
-                this.turnTimerFill.fillRect(
-                    this.turnTimerRectangle.x,
-                    this.turnTimerRectangle.y,
-                    this.turnTimerRectangle.width * event.percentage / 100,
-                    this.turnTimerRectangle.height);
-            }
+        if (this.turnTimerRectangle.direction == ScreenCoordinate.right
+            || this.turnTimerRectangle.direction == ScreenCoordinate.left) {
+            this.turnTimerFill.fillRect(
+                this.turnTimerRectangle.x,
+                this.turnTimerRectangle.y,
+                this.turnTimerRectangle.width * event.percentage / 100,
+                this.turnTimerRectangle.height);
+        }
 
-            if (this.turnTimerRectangle.direction == ScreenCoordinate.top
-                || this.turnTimerRectangle.direction == ScreenCoordinate.bottom) {
-                this.turnTimerFill.fillRect(
-                    this.turnTimerRectangle.x,
-                    this.turnTimerRectangle.y,
-                    this.turnTimerRectangle.width,
-                    this.turnTimerRectangle.height * event.percentage / 100);
-            }
+        if (this.turnTimerRectangle.direction == ScreenCoordinate.top
+            || this.turnTimerRectangle.direction == ScreenCoordinate.bottom) {
+            this.turnTimerFill.fillRect(
+                this.turnTimerRectangle.x,
+                this.turnTimerRectangle.y,
+                this.turnTimerRectangle.width,
+                this.turnTimerRectangle.height * event.percentage / 100);
         }
     }
 

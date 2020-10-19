@@ -1,26 +1,58 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Observable, of, Subscription, Subscriber, Subject } from 'rxjs';
-import { LobbyService } from '../../../services/lobby/lobby.service';
-import { sha256 } from 'js-sha256';
-import { GameStartedEvent } from './events/game-started.event';
-import { environment } from '../../../../environments/environment';
+import { Subject } from 'rxjs';
+import { GameStartedEvent } from 'src/app/games/coinche/domain/events/game-started.event';
+import { environment } from 'src/environments/environment';
 
 /**
  * Lobby domain actions.
  */
 export class Lobby {
-    //private player: Player;
     private playerId: uuidv4;
     private readonly PLAYER_ID_STORAGE_KEY = 'PlayerIdKey';
-    private subscriptions: Subscription;
-    public onNewGameSubscriber: Subject<GameStartedEvent> = new Subject<GameStartedEvent>();
+    private readonly lobbyWorkerService: Worker;
 
-    constructor(private lobbyService: LobbyService) {
+    /** Emmit when the current player's game is starting, return the game's Id. */
+    public onNewGameStarting: Subject<GameStartedEvent> = new Subject<GameStartedEvent>();
+
+    /** Emit when a new player enter the lobby, return the number of players in the lobby. */
+    public onNewPlayerToLobby: Subject<number> = new Subject<number>();
+
+    constructor() {
         this.playerId = this.getOrCreatePlayerId();
 
-        this.lobbyService.startConnection(this.playerId)
-            .then(() => this.addPlayer())
-            .catch((reason) => this.onSocketInitializationFailed(reason));
+        this.lobbyWorkerService = new Worker('../../../services/lobby/lobby.worker', { name: 'lobby', type: 'module' });
+
+        this.lobbyWorkerService.onerror = (evt) => {
+            console.error('Worker error :');
+            console.error(evt);
+        };
+
+        this.lobbyWorkerService.onmessage = (message) => {
+            if (!message || !message.data) {
+                return;
+            }
+
+            if (this.isValidUuidV4(message.data)) {
+                const gameStartedEvent = {
+                    gameId: message.data,
+                    playerId: this.playerId
+                } as GameStartedEvent;
+
+                this.onNewGameStarting.next(gameStartedEvent);
+            }
+            else if (typeof message.data === "number") {
+                this.onNewPlayerToLobby.next(message.data);
+            }
+        };
+
+        this.lobbyWorkerService.postMessage({
+            playerId: this.playerId,
+            fName: 'broadcastNewPlayer'
+        });
+    }
+
+    private isValidUuidV4(obj: any): boolean {
+        return typeof obj === 'string' && obj.length === 36;
     }
 
     /**
@@ -43,36 +75,12 @@ export class Lobby {
     }
 
     /**
-     * Emit when a new player enter the lobby.
-     */
-    public onNewPlayerToLobby(): Observable<number> {
-        return this.lobbyService.onNewPlayer;
-    }
-
-    /**
-     * Add the host player (generate it's own ID).
-     */
-    private addPlayer() {
-        this.lobbyService.broadcastNewPlayer(this.playerId)
-    }
-
-    /**
      * Record the current player as one searching a game.
      */
     public searchGame() {
-        this.lobbyService.broadcastSearchGame(this.playerId);
-        this.subscriptions = this.lobbyService.onGameStarted.subscribe({
-            next: (data) => {
-                if (data) {
-                    const gameStartedEvent = new GameStartedEvent();
-                    gameStartedEvent.gameId = data;
-                    gameStartedEvent.playerId = this.playerId;
-                    this.onNewGameSubscriber.next(gameStartedEvent);
-                    this.onNewGameSubscriber.complete();
-
-                    //const hashedPlayerId = sha256(this.playerId);
-                }
-            }
+        this.lobbyWorkerService.postMessage({
+            playerId: this.playerId,
+            fName: 'broadcastSearchGame'
         });
     }
 
@@ -80,15 +88,11 @@ export class Lobby {
      * Remove all subscriptions.
      */
     public onDestroy() {
-        this.subscriptions.unsubscribe();
-    }
+        this.lobbyWorkerService.postMessage({
+            fName: 'destroy'
+        });
 
-    /**
-     * Called if connection initialisation failled.
-     * @param error
-     */
-    private onSocketInitializationFailed(error: any) {
-        console.log("Socket initialisation failed :");
-        console.log(error);
+        this.onNewGameStarting.complete();
+        this.onNewPlayerToLobby.complete();
     }
 }

@@ -1,51 +1,66 @@
-import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
-import { BehaviorSubject } from 'rxjs';
-import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
+import { HubConnectionBuilder, HubConnection, HubConnectionState } from '@microsoft/signalr';
+import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { IGameInitDto } from '../../typewriter/classes/GameInitDto';
 import { ICoincheContractDto } from '../../typewriter/classes/CoincheContractDto';
 
-@Injectable({
-  providedIn: 'root'
-})
 export class GameService {
     private hubConnection: HubConnection;
 
-    public onGameInformationsReceived: BehaviorSubject<IGameInitDto> = new BehaviorSubject<IGameInitDto>(undefined);
+    /**
+     * Use of a subject because data can be received from the server without being a response to a request (push).
+     */
+    public onGameInformationsReceived: Subject<IGameInitDto> = new Subject<IGameInitDto>();
 
-    public onGameContractChanged: BehaviorSubject<ICoincheContractDto> = new BehaviorSubject<ICoincheContractDto>(undefined);
+    public onGameContractChanged: Subject<ICoincheContractDto> = new Subject<ICoincheContractDto>();
 
-    constructor() { }
+    constructor(playerId: uuidv4) {
+        this.hubConnection = new HubConnectionBuilder()
+            .withUrl(environment.singalRBaseUrl + '/game', { accessTokenFactory: () => playerId })
+            .withAutomaticReconnect()
+            .build();
+
+        this.hubConnection.on('gameInformationsReceived', (data) => {
+            this.onGameInformationsReceived.next(data);
+        });
+
+        this.hubConnection.on('gameContractChanged', (data) => this.onGameContractChanged.next(data));
+    }
 
     /**
      * Start SingalR connection and call connectionInitialized on succes or error.
      */
-    public startConnection(playerId: uuidv4): Promise<void> {
-        this.hubConnection = new HubConnectionBuilder()
-            .withUrl(environment.singalRBaseUrl + '/game', { accessTokenFactory: () => playerId })
-            //.withAutomaticReconnect()
-            .build();
-
-        this.hubConnection.on('gameInformationsReceived', (data) => {
-            console.log('GameService event : ');
-            console.log(data);
-            this.onGameInformationsReceived.next(data);
-        });
-        this.hubConnection.on('gameContractChanged', (data) => this.onGameContractChanged.next(data));
-
-        return this.hubConnection.start();
+    private startConnection(): Promise<void> {
+        if (this.hubConnection.state == HubConnectionState.Disconnected) {
+            return this.hubConnection.start().catch((reason) => {
+                console.error("Socket initialisation failed : ");
+                console.error(reason);
+            });
+        }
+        else if (this.hubConnection.state == HubConnectionState.Connected) {
+            return Promise.resolve();
+        }
+        else {
+            throw new Error(`Error while getting worker signal connection : ${this.hubConnection.state}`);
+        }
     }
 
-    public broadcastGetGameInformations(gameId: uuidv4, playerId: uuidv4) {
-        this.hubConnection.invoke('GetGameInformations', gameId, playerId);
+    public async broadcastGetGameInformations(gameId: uuidv4, playerId: uuidv4) {
+        await this.startConnection();
+
+        this.hubConnection.send('GetGameInformations', gameId, playerId);
     }
 
-    public broadcastSetGameContract(gameId: uuidv4, playerId: uuidv4, selectedColor: number, selectedValue: number) {
-        this.hubConnection.invoke('SetGameContract', selectedColor, selectedValue, gameId, playerId);
+    public async broadcastSetGameContract(gameId: uuidv4, playerId: uuidv4, selectedColor: number, selectedValue: number) {
+        await this.startConnection();
+
+        this.hubConnection.send('SetGameContract', selectedColor, selectedValue, gameId, playerId);
     }
 
-    public broadcastPassGameContract(gameId: uuidv4, playerId: uuidv4,) {
-        this.hubConnection.invoke('PassGameContract', gameId, playerId);
+    public async broadcastPassGameContract(gameId: uuidv4, playerId: uuidv4) {
+        await this.startConnection();
+
+        this.hubConnection.send('PassGameContract', gameId, playerId);
     }
 }
