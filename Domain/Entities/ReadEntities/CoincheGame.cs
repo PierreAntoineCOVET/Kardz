@@ -29,6 +29,11 @@ namespace Domain.Entities.ReadEntities
         public int CurrentPayerTurn { get; set; }
 
         /// <summary>
+        /// Time at wich the turn time for all players will start.
+        /// </summary>
+        public DateTimeOffset TurnTimerBase { get; set; }
+
+        /// <summary>
         /// Teams of the game.
         /// </summary>
         public ICollection<CoincheTeam> Teams { get; set; }

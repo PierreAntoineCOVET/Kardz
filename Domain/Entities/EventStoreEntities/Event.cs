@@ -25,7 +25,7 @@ namespace Domain.Entities.EventStoreEntities
         /// <summary>
         /// Event creation date.
         /// </summary>
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
 
         /// <summary>
         /// Event author.

@@ -30,7 +30,7 @@ export class GameScene extends Phaser.Scene {
 
     private turnTimerRectangle: { x: number, y: number, width: number, height: number, direction: ScreenCoordinate };
 
-    private currentContract: ContractEvent = new ContractEvent();
+    private currentContract: ContractEvent;
 
     constructor() {
         super({ key: 'game' });
@@ -184,6 +184,8 @@ export class GameScene extends Phaser.Scene {
      */
     private displayContractForm(event: ContractEvent) {
         if (event) {
+            this.currentContract = new ContractEvent();
+
             this.contractFormElement = this.add.dom(800, 550).createFromCache('contractForm');
 
             const valueDropDown = this.contractFormElement.getChildByID("contractValue");
@@ -220,11 +222,9 @@ export class GameScene extends Phaser.Scene {
                         : Number(valueDropDown.value);
                 this.currentContract.selectedValue = selectedValue;
                 this.gameDomain.sendContract(this.currentContract);
-                this.currentContract = new ContractEvent();
             }
         }
         else if (event.target.name === 'pass') {
-            this.currentContract = new ContractEvent();
             this.gameDomain.sendContract(undefined);
         }
         else if (event.target.name !== undefined && event.target.name !== 'value') {

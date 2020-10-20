@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DTOs.Shared
 {
@@ -26,5 +27,10 @@ namespace DTOs.Shared
         /// Number of the player whose turn it is to play.
         /// </summary>
         public int PlayerPlaying { get; set; }
+
+        /// <summary>
+        /// Time at wich the current turn ends.
+        /// </summary>
+        public DateTimeOffset TurnEndTime { get; set; }
     }
 }

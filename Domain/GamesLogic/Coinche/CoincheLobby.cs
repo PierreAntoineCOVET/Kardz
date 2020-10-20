@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Configuration;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Factories;
 using Domain.Interfaces;
@@ -47,6 +48,7 @@ namespace Domain.GamesLogic.Coinche
                     .Take(Consts.NUMBER_OF_PLAYERS_FOR_A_GAME)
                     .Cast<CoinchePlayer>()
                     .ToList();
+
                 foreach (var player in selectedPlayers)
                 {
                     PlayersLookingForGame.Remove(player);

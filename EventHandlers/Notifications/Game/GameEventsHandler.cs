@@ -42,6 +42,7 @@ namespace EventHandlers.Notifications.Game
                 Id = notification.GameId,
                 CurrentDealer = notification.CurrentDealer,
                 CurrentPayerTurn = notification.CurrentPlayerNumber,
+                TurnTimerBase = notification.TurnTimerBase,
                 Teams = notification.Teams.Select(t => new CoincheTeam
                 {
                     GameId = notification.GameId,

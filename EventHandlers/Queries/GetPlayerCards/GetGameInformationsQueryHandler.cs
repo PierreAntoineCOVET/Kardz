@@ -1,8 +1,10 @@
-﻿using Domain.Exceptions;
+﻿using Domain.Configuration;
+using Domain.Exceptions;
 using DTOs.Shared;
 using EventHandlers.Repositories;
 using EventHandlers.Specifications;
 using MediatR;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,26 +22,28 @@ namespace EventHandlers.Queries.GetPlayerCards
         private readonly IGenericRepository GenericRepository;
 
         /// <summary>
+        /// Coinche game configuration.
+        /// </summary>
+        private readonly CoincheConfiguration Configuration;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="gameRepository"></param>
-        public GetGameInformationsQueryHandler(IGenericRepository gameRepository)
+        public GetGameInformationsQueryHandler(IGenericRepository gameRepository, CoincheConfiguration configuration)
         {
             GenericRepository = gameRepository;
+            Configuration = configuration;
         }
 
         /// <summary>
-        /// Get the cards for the given player and game.
+        /// Get all the game informations relative to the player.
         /// </summary>
         /// <param name="request">Request.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>List of cards.</returns>
         public async Task<GameInitDto> Handle(GetGameInformationsQuery request, CancellationToken cancellationToken)
         {
-            //var game = await GenericRepository.Query<CoincheGame>()
-            //    .Include(g => g.Teams)
-            //    .ThenInclude(t => t.Players)
-            //    .SingleOrDefaultAsync(g => g.Id == request.GameId);
             var games = await GenericRepository.Query(new CoincheGameDatasSpecification(request.GameId));
             var game = games.SingleOrDefault();
 
@@ -57,12 +61,15 @@ namespace EventHandlers.Queries.GetPlayerCards
 
             var cards = player.Cards.Split(';').Select(c => int.Parse(c));
 
+            var timerEndDate = game.TurnTimerBase.AddSeconds(Configuration.TimerLengthInSecond + Configuration.NetworkOffsetInSecond);
+
             return new GameInitDto
             {
                 PlayerCards = cards,
                 Dealer = game.CurrentDealer,
                 PlayerPlaying = game.CurrentPayerTurn,
-                PlayerNumber = player.Number
+                PlayerNumber = player.Number,
+                TurnEndTime = timerEndDate
             };
         }
     }

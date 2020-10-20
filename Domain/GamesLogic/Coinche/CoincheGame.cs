@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Configuration;
+using Domain.Enums;
 using Domain.Events;
 using Domain.Exceptions;
 using Domain.Interfaces;
@@ -36,6 +37,12 @@ namespace Domain.GamesLogic.Coinche
         public int CurrentPlayer { get; set; }
 
         /// <summary>
+        /// Time at wich the turn time for all players will start.
+        /// Used to synchronis the time for each game player.
+        /// </summary>
+        private DateTimeOffset TurnTimerBase { get; set; }
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="id">Game's Id.</param>
@@ -57,7 +64,8 @@ namespace Domain.GamesLogic.Coinche
                 GameId = id,
                 Teams = teams,
                 CurrentDealer = 3,
-                CurrentPlayerNumber = 0
+                CurrentPlayerNumber = 0,
+                TurnTimerBase = DateTimeOffset.Now
             };
 
             RaiseEvent(createGameEvent);
@@ -73,6 +81,7 @@ namespace Domain.GamesLogic.Coinche
             _Teams = @event.Teams.Cast<CoincheTeam>().ToList();
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayer = @event.CurrentPlayerNumber;
+            TurnTimerBase = @event.TurnTimerBase;
         }
 
         /// <summary>

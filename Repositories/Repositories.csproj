@@ -7,6 +7,8 @@
   <ItemGroup>
     <Compile Remove="Migrations\ReadDb\20200417175911_ReadModelAddDealer.cs" />
     <Compile Remove="Migrations\ReadDb\20200417175911_ReadModelAddDealer.Designer.cs" />
+    <Compile Remove="Migrations\ReadDb\20201020203437_AddTurnTimerBase.cs" />
+    <Compile Remove="Migrations\ReadDb\20201020203437_AddTurnTimerBase.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\EventHandlers\EventHandlers.csproj" />
   </ItemGroup>
 

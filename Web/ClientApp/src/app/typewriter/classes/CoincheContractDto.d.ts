@@ -11,5 +11,6 @@ export interface ICoincheContractDto {
     lastPlayerNumber: number;
     hasLastPLayerPassed: boolean;
     currentPlayerNumber: number;
+    turnEndTime: Date;
 }
 

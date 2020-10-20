@@ -62,7 +62,7 @@ namespace EventHandlers.Notifications.Aggregate
                     AggregateId = aggregate.Id,
                     Author = null,
                     Datas = JsonConvert.SerializeObject(@event),
-                    Date = DateTime.Now,
+                    Date = DateTimeOffset.Now,
                     Type = @event.GetType().FullName,
                     Id = @event.Id,
                 });

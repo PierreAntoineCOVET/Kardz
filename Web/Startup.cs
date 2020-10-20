@@ -37,7 +37,7 @@ namespace Web
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(EventHandlers.Behavior.ValidationBehavior<,>))
                 .AddFluentValidation(new List<Assembly> { eventHandlerAssembly });
 
-            // cross site requestion from localhost:4200 to localhost:xxxx.
+            // cross site request from localhost:4200 to localhost:xxxx.
             services.AddCors(option =>
             {
                 option.AddPolicy(
@@ -64,6 +64,8 @@ namespace Web
             //.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
             //// Traduction des dates envoyés par Angular HttpClient en UTC vers local
             //.AddJsonOptions(options => options.SerializerSettings.DateTimeZoneHandling = Newtonsoft.Json.DateTimeZoneHandling.Local);
+
+            services.AddCoincheConfiguration(Configuration);
 
             services.AddKardzDomain();
 

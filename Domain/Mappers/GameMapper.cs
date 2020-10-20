@@ -20,7 +20,6 @@ namespace DTOs
                 Id = game.Id,
                 PlayersId = game.Teams
                     .SelectMany(t => t.Players.Select(p => p.Id))
-                    //.Select(p => Crypto.ComputeSha256Hash(p.Id.ToString()))
                     .ToList()
             };
         }

@@ -54,7 +54,7 @@ export class Game {
     private readonly turnTimerTimespan = 30;
 
     private turnTimer: NodeJS.Timeout;
-    private currentLoopIteration: number;
+    private currentTurnTimerLoopIteration: number;
 
     private readonly gameWorkerService: Worker;
 
@@ -111,6 +111,7 @@ export class Game {
 
     private gameContractChanged(contractInfo: ICoincheContractDto) {
         this.setCurrentPlayerPlaying(contractInfo.currentPlayerNumber);
+        //this.startTurnTimer(gameDatas.playerPlaying);
 
         const currentPlayer = this.players.find(p => p.id == this.playerId);
         if (currentPlayer.isPlaying) {
@@ -147,24 +148,20 @@ export class Game {
             this.onPlayerReadyToBet.next(contractEvent);
         }
 
-        this.startTurnTimer(gameDatas.playerPlaying);
+        this.startTurnTimer(gameDatas.playerPlaying, gameDatas.turnEndTime);
     }
 
-    private startTurnTimer(currentPlayerNumber: number) {
-        console.log('timer start');
+    private startTurnTimer(currentPlayerNumber: number, timerEndTime: Date) {
         let currentPlayer = this.players.find(p => p.number == currentPlayerNumber);
         let startEvent = currentPlayer.getTurnTimerPosition();
         this.onTurnTimeStarted.next(startEvent);
 
-        this.currentLoopIteration = 0;
+        this.currentTurnTimerLoopIteration = 0;
 
         this.turnTimer = setInterval(
             () => {
-                //if (this.currentLoopIteration === 0) {
-                //    this.onTurnTimeStarted.next(startEvent);
-                //}
-                const completion = Math.round(this.currentLoopIteration * 100 / this.turnTimerTimespan);
-                this.currentLoopIteration++;
+                const completion = Math.round(this.currentTurnTimerLoopIteration * 100 / this.turnTimerTimespan);
+                this.currentTurnTimerLoopIteration++;
 
                 const event = new TurnTimerTickedEvent();
                 event.percentage = completion;

@@ -10,5 +10,6 @@ export interface IGameInitDto {
     playerNumber: number;
     dealer: number;
     playerPlaying: number;
+    turnEndTime: Date;
 }
 
