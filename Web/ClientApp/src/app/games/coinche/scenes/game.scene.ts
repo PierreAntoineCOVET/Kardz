@@ -34,17 +34,9 @@ export class GameScene extends Phaser.Scene {
 
     constructor() {
         super({ key: 'game' });
-
-        this.gameDomain = new Game();
     }
 
-    /**
-     * Start loadings game's data (shuffled cards, ...).
-     * @param gameId Game's ID
-     * @param playerId Current player's ID
-     */
-    init(data: { gameId: uuidv4, playerId: uuidv4 }) {
-        this.gameDomain.setGame(data.gameId, data.playerId);
+    init() {
     }
 
     preload() {
@@ -70,7 +62,7 @@ export class GameScene extends Phaser.Scene {
 
         this.events.on('shutdown', () => this.onDestroy());
 
-        this.subscriptions = this.gameDomain.OnCurrentPlayerCardReceived.subscribe({
+        this.subscriptions = this.gameDomain.onCurrentPlayerCardReceived.subscribe({
             next: (data) => this.addSprite(data)
         });
 
@@ -100,6 +92,17 @@ export class GameScene extends Phaser.Scene {
     }
 
     update() {
+    }
+
+    /**
+     * Start loadings game's data (shuffled cards, ...). and listening to game events.
+     * @param gameId Game's ID
+     * @param playerId Current player's ID
+     */
+    public startListening(gameId: uuidv4, playerId: uuidv4) {
+        this.gameDomain = new Game();
+
+        this.gameDomain.setGame(gameId, playerId);
     }
 
     /**

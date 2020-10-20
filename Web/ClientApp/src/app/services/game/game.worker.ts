@@ -13,6 +13,7 @@ ctx.addEventListener('message', (message: any) => {
     if (message.data.fName == 'destroy') {
         subscription.unsubscribe();
         close();
+        return;
     }
 
     if (!message.data.playerId) {

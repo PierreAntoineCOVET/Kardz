@@ -12,7 +12,7 @@ ctx.addEventListener('message', (message: any) => {
 
     if (message.data.fName == 'destroy') {
         subscription.unsubscribe();
-        //close();
+        close();
         return;
     }
 

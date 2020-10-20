@@ -18,7 +18,7 @@ export class Game {
     /**
      * Emit when a new sprite need to be added (current player has a new card).
      */
-    public OnCurrentPlayerCardReceived: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
+    public onCurrentPlayerCardReceived: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
 
     /**
      * Emit when a new image need to be added (other players received a new card).
@@ -50,7 +50,8 @@ export class Game {
 
     private players: Player[] = []
 
-    private readonly turnMaxTimeSecond = 30;
+    /** Number of seconds for the player's turn. */
+    private readonly turnTimerTimespan = 30;
 
     private turnTimer: NodeJS.Timeout;
     private currentLoopIteration: number;
@@ -59,21 +60,6 @@ export class Game {
 
     constructor() {
         this.gameWorkerService = new Worker('../../../services/game/game.worker', { name: 'game', type: 'module' });
-    }
-
-    /**
-     * Add players and request for shuffled cards.
-     * @param gameId Game ID.
-     * @param playerId Player ID.
-     */
-    public setGame(gameId: uuidv4, playerId: uuidv4) {
-        this.gameId = gameId;
-        this.playerId = playerId;
-
-        this.players.push(new Player(playerId, ScreenCoordinate.bottom));
-        this.players.push(new Player(null, ScreenCoordinate.left));
-        this.players.push(new Player(null, ScreenCoordinate.top));
-        this.players.push(new Player(null, ScreenCoordinate.right));
 
         this.gameWorkerService.onerror = (evt) => {
             console.error('Worker error :');
@@ -92,6 +78,21 @@ export class Game {
                 this.gameContractChanged(message.data);
             }
         };
+    }
+
+    /**
+     * Add players and request for shuffled cards.
+     * @param gameId Game ID.
+     * @param playerId Player ID.
+     */
+    public setGame(gameId: uuidv4, playerId: uuidv4) {
+        this.gameId = gameId;
+        this.playerId = playerId;
+
+        this.players.push(new Player(playerId, ScreenCoordinate.bottom));
+        this.players.push(new Player(null, ScreenCoordinate.left));
+        this.players.push(new Player(null, ScreenCoordinate.top));
+        this.players.push(new Player(null, ScreenCoordinate.right));
 
         this.gameWorkerService.postMessage({
             playerId: this.playerId,
@@ -150,6 +151,7 @@ export class Game {
     }
 
     private startTurnTimer(currentPlayerNumber: number) {
+        console.log('timer start');
         let currentPlayer = this.players.find(p => p.number == currentPlayerNumber);
         let startEvent = currentPlayer.getTurnTimerPosition();
         this.onTurnTimeStarted.next(startEvent);
@@ -158,7 +160,10 @@ export class Game {
 
         this.turnTimer = setInterval(
             () => {
-                const completion = Math.round(this.currentLoopIteration * 100 / this.turnMaxTimeSecond);
+                //if (this.currentLoopIteration === 0) {
+                //    this.onTurnTimeStarted.next(startEvent);
+                //}
+                const completion = Math.round(this.currentLoopIteration * 100 / this.turnTimerTimespan);
                 this.currentLoopIteration++;
 
                 const event = new TurnTimerTickedEvent();
@@ -201,14 +206,14 @@ export class Game {
     /**
      * Set players number.
      * Current player take the number returned in GameInfo and the others are
-     * set clockwise (ex: bottom=1, left = 2, top = 3, right = 0).
+     * set counter-clockwise (ex: bottom=1, right = 2, top = 3, left = 0).
      * @param playerNumber number of the current real player.
      */
     private setPlayersNumber(playerNumber: number) {
         this.players.find(p => p.position == ScreenCoordinate.bottom).number = playerNumber;
-        this.players.find(p => p.position == ScreenCoordinate.left).number = (playerNumber + 1) % 4;
+        this.players.find(p => p.position == ScreenCoordinate.right).number = (playerNumber + 1) % 4;
         this.players.find(p => p.position == ScreenCoordinate.top).number = (playerNumber + 2) % 4;
-        this.players.find(p => p.position == ScreenCoordinate.right).number = (playerNumber + 3) % 4;
+        this.players.find(p => p.position == ScreenCoordinate.left).number = (playerNumber + 3) % 4;
     }
 
     /**
@@ -227,7 +232,7 @@ export class Game {
                     cardEvent.elementName = 'cards';
                     cardEvent.card = spriteNumber;
 
-                    this.OnCurrentPlayerCardReceived.next(cardEvent);
+                    this.onCurrentPlayerCardReceived.next(cardEvent);
                 });
             }
             else {
@@ -251,6 +256,17 @@ export class Game {
      */
     public onDestroy() {
         this.subscriptions.unsubscribe();
+
+        this.gameWorkerService.postMessage({
+            fName: 'destroy'
+        });
+
+        this.onCurrentPlayerCardReceived.complete();
+        this.onOtherPlayerCardReceived.complete();
+        this.onPlayerReadyToBet.complete();
+        this.onDealerDefined.complete();
+        this.onTurnTimeStarted.complete();
+        this.onTurnTimerTicked.complete();
     }
 
     /**
