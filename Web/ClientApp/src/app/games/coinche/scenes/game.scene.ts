@@ -82,7 +82,9 @@ export class GameScene extends Phaser.Scene {
 
         this.subscriptions.add(this.gameDomain.onTurnTimeStarted.subscribe({
             next: (data) => {
-                this.displayTurnTimer(data);
+                if (data) {
+                    this.displayTurnTimer(data);
+                }
             }
         }));
 
@@ -136,9 +138,15 @@ export class GameScene extends Phaser.Scene {
 
     /**
      * Display the dealer chip at the event location.
+     * Function can be called while on inactive tab in which case Phaser
+     * might not have initialised the rectangle.
      * @param event
      */
     private updateTurnTimer(event: TurnTimerTickedEvent) {
+        if (!this.turnTimerRectangle) {
+            return;
+        }
+
         this.turnTimerFill.clear();
         this.turnTimerFill.fillStyle(0xFF0000);
 

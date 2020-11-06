@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Subscription, ReplaySubject, Subject } from 'rxjs';
+import { Subscription, ReplaySubject, Subject, BehaviorSubject } from 'rxjs';
 import { ICoincheContractDto } from 'src/app/typewriter/classes/CoincheContractDto';
 import { CardsEnum } from 'src/app/typewriter/enums/CardsEnum.enum';
 import { IGameInitDto } from 'src/app/typewriter/classes/GameInitDto';
@@ -38,24 +38,26 @@ export class Game {
     /**
      * Emit when a player's turn start.
      */
-    public onTurnTimeStarted: Subject<StartTurnTimerEvent> = new Subject<StartTurnTimerEvent>();
+    public onTurnTimeStarted: BehaviorSubject<StartTurnTimerEvent> = new BehaviorSubject<StartTurnTimerEvent>(undefined);
 
     /**
      * Emit each seconds of a player's turn.
      */
     public onTurnTimerTicked: Subject<TurnTimerTickedEvent> = new Subject<TurnTimerTickedEvent>();
 
+    /** Component's subscription. */
     private subscriptions: Subscription;
+
+    /** Card's width in pixel. */
     private cardWidth = 105;
 
+    /** List of players in the game. */
     private players: Player[] = []
 
-    /** Number of seconds for the player's turn. */
-    private readonly turnTimerTimespan = 30;
-
+    /** Timer reference for turn countdown. */
     private turnTimer: NodeJS.Timeout;
-    private currentTurnTimerLoopIteration: number;
 
+    /** Worker responsible for the signalR socket. */
     private readonly gameWorkerService: Worker;
 
     constructor() {
@@ -75,7 +77,7 @@ export class Game {
                 this.initGame(message.data);
             }
             else if (this.isICoincheContractDto(message.data)) {
-                this.gameContractChanged(message.data);
+                this.onGameContractChanged(message.data);
             }
         };
     }
@@ -101,17 +103,28 @@ export class Game {
         });
     }
 
+    /**
+     * Return true if obj is assignable from IGameInitDto.
+     * @param obj Object to check.
+     */
     private isGameInitDto(obj: any): obj is IGameInitDto {
         return (obj as IGameInitDto).dealer !== undefined;
     }
 
+    /**
+     * Return true if obj is assignable from ICoincheContractDto.
+     * @param obj Object to check.
+     */
     private isICoincheContractDto(obj: any): obj is ICoincheContractDto {
         return (obj as ICoincheContractDto).hasLastPLayerPassed !== undefined;
     }
 
-    private gameContractChanged(contractInfo: ICoincheContractDto) {
+    /**
+     * Invoke when a player change the game contract.
+     * @param contractInfo
+     */
+    private onGameContractChanged(contractInfo: ICoincheContractDto) {
         this.setCurrentPlayerPlaying(contractInfo.currentPlayerNumber);
-        //this.startTurnTimer(gameDatas.playerPlaying);
 
         const currentPlayer = this.players.find(p => p.id == this.playerId);
         if (currentPlayer.isPlaying) {
@@ -151,24 +164,31 @@ export class Game {
         this.startTurnTimer(gameDatas.playerPlaying, gameDatas.turnEndTime);
     }
 
+    /**
+     * Start the time timer. Place the timer in fron of the curent player playing.
+     * @param currentPlayerNumber The player whose turn it is.
+     * @param timerEndTime time at witch the turn's time out.
+     */
     private startTurnTimer(currentPlayerNumber: number, timerEndTime: Date) {
         let currentPlayer = this.players.find(p => p.number == currentPlayerNumber);
         let startEvent = currentPlayer.getTurnTimerPosition();
         this.onTurnTimeStarted.next(startEvent);
 
-        this.currentTurnTimerLoopIteration = 0;
+        const numberOfTicks = (timerEndTime.getTime() - (new Date()).getTime()) / 1000;
+        let currentTick = 0;
 
         this.turnTimer = setInterval(
             () => {
-                const completion = Math.round(this.currentTurnTimerLoopIteration * 100 / this.turnTimerTimespan);
-                this.currentTurnTimerLoopIteration++;
+                
+                const completion = Math.round(currentTick * 100 / numberOfTicks);
+                currentTick++;
 
                 const event = new TurnTimerTickedEvent();
                 event.percentage = completion;
 
                 this.onTurnTimerTicked.next(event);
 
-                if (completion == 100) {
+                if (completion >= 100) {
                     // force a random play
                     clearInterval(this.turnTimer);
                 }

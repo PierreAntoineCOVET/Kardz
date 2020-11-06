@@ -25,6 +25,7 @@ ctx.addEventListener('message', (message: any) => {
 
         subscription.add(gameService.onGameInformationsReceived.subscribe({
             next: (response) => {
+                response.turnEndTime = new Date(response.turnEndTime);
                 ctx.postMessage(response);
             }
         }));
