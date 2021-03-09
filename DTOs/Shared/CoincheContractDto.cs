@@ -10,12 +10,12 @@ namespace DTOs.Shared
         /// <summary>
         /// Contract value.
         /// </summary>
-        public int Value { get; set; }
+        public int? Value { get; set; }
 
         /// <summary>
         /// Contract color.
         /// </summary>
-        public int Color { get; set; }
+        public int? Color { get; set; }
 
         /// <summary>
         /// Id of the player that last made the contract.

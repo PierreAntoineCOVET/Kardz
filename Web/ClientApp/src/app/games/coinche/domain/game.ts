@@ -28,12 +28,12 @@ export class Game {
     /**
      * Emit when the real player is ready to vote for its contract.
      */
-    public onPlayerReadyToBet: Subject<ContractEvent> = new Subject<ContractEvent>();
+    public onPlayerReadyToBet: BehaviorSubject<ContractEvent> = new BehaviorSubject<ContractEvent>(undefined);
 
     /**
      * Emit when the game card's dealer is defined.
      */
-    public onDealerDefined: Subject<DealerSelectedEvent> = new Subject<DealerSelectedEvent>();
+    public onDealerDefined: BehaviorSubject<DealerSelectedEvent> = new BehaviorSubject<DealerSelectedEvent>(undefined);
 
     /**
      * Emit when a player's turn start.
@@ -291,11 +291,13 @@ export class Game {
      * @param contract Player's contract.
      */
     public sendContract(contract: ContractEvent) {
-        //if (contract) {
-        //    this.gameService.broadcastSetGameContract(this.gameId, this.playerId, contract.selectedColor, contract.selectedValue);
-        //}
-        //else {
-        //    this.gameService.broadcastPassGameContract(this.gameId, this.playerId);
-        //}
+        //this.gameWorkerService.broadcastSetGameContract(this.gameId, this.playerId, contract?.selectedColor, contract?.selectedValue);
+        this.gameWorkerService.postMessage({
+            fName: '',
+            playerId: this.playerId,
+            gameId: this.gameId,
+            color: contract?.selectedColor,
+            value: contract?.selectedValue
+        });
     }
 }

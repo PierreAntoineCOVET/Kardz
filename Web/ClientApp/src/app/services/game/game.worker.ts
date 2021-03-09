@@ -46,6 +46,10 @@ function SendMyMessage(messageData: any) {
             gameService.broadcastGetGameInformations(messageData.gameId, messageData.playerId);
             break;
 
+        case 'broadcastSetGameContract':
+            gameService.broadcastSetGameContract(messageData.gameId, messageData.playerId, messageData.color, messageData.value);
+            break;
+
         default:
             throw new Error(`Unsupported function ${messageData.fName}`);
     }   

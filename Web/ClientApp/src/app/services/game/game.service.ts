@@ -57,10 +57,4 @@ export class GameService {
 
         this.hubConnection.send('SetGameContract', selectedColor, selectedValue, gameId, playerId);
     }
-
-    public async broadcastPassGameContract(gameId: uuidv4, playerId: uuidv4) {
-        await this.startConnection();
-
-        this.hubConnection.send('PassGameContract', gameId, playerId);
-    }
 }

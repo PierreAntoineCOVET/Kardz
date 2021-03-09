@@ -54,7 +54,7 @@ namespace Web.Hubs
         /// <param name="gameId"></param>
         /// <param name="playerId"></param>
         /// <returns></returns>
-        public async Task SetGameContract(int color, int value, Guid gameId, Guid playerId)
+        public async Task SetGameContract(int? color, int? value, Guid gameId, Guid playerId)
         {
             var contract = await Mediator.Send(new SetGameContractCommand
             {
@@ -64,18 +64,7 @@ namespace Web.Hubs
                 Value = value
             });
 
-            // Send only to the game's players.
             await Clients.All.SendAsync("gameContractChanged", contract);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="gameId"></param>
-        /// <param name="playerId"></param>
-        /// <returns></returns>
-        public async Task PassGameContract(Guid gameId, Guid playerId)
-        {
         }
     }
 }
