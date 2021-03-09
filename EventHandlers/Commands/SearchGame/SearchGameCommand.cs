@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using DTOs;
+using MediatR;
 using System;
 
 namespace EventHandlers.Commands.SearchGame
@@ -6,7 +7,7 @@ namespace EventHandlers.Commands.SearchGame
     /// <summary>
     /// Search game command.
     /// </summary>
-    public class SearchGameCommand : IRequest<bool>
+    public class SearchGameCommand : IRequest<GameDto>
     {
         /// <summary>
         /// Player id.

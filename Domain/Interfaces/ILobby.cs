@@ -1,5 +1,6 @@
 ﻿using Domain.Enums;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Domain.Interfaces
@@ -21,24 +22,11 @@ namespace Domain.Interfaces
         Task AddPlayer(Guid id);
 
         /// <summary>
-        /// Add a player to the list of those looking for a game.
+        /// Search a game for the given player.
+        /// Return null if no games are available.
         /// </summary>
         /// <param name="id"></param>
-        Task AddPlayerLookingForGame(Guid id);
-
-        /// <summary>
-        /// Indicate wether we can start a new game or not.
-        /// </summary>
-        /// <returns>true if we can start a new game</returns>
-        /// <remarks>Check is not thread safe !</remarks>
-        Task<bool> CanStartGame();
-
-        /// <summary>
-        /// Create a new game.
-        /// </summary>
-        /// <returns><see cref="IGame"/></returns>
-        /// <remarks>PLayers in game are removed from the lobby.</remarks>
-        Task<IGame> CreateGame();
+        Task<IGame> SearchGame(Guid id);
 
         /// <summary>
         /// Get the number of players in the lobby.

@@ -1,5 +1,4 @@
 ﻿using EventHandlers.Commands.AddPlayerTolobby;
-using EventHandlers.Commands.CreateGame;
 using EventHandlers.Commands.SearchGame;
 using EventHandlers.Queries.GetNomberOfPlayersInLobby;
 using MediatR;
@@ -55,18 +54,17 @@ namespace Web.Hubs
         /// <returns></returns>
         public async Task SearchGame(Guid guid)
         {
-            var canCreateGame = await Mediator.Send(new SearchGameCommand
+            var newGame = await Mediator.Send(new SearchGameCommand
             {
-                PlayerId = guid
+                PlayerId = guid,
+                GameType = 0
             });
 
-            if(canCreateGame)
+            if(newGame != null)
             {
-                var game = await Mediator.Send(new CreateGameCommand { GameType = 0 });
-
-                var playersId = game.PlayersId.Select(pid => pid).ToList();
+                var playersId = newGame.PlayersId.Select(pid => pid).ToList();
                 var playersConnectionsId = GetPlayerConnectionId(playersId).ToList();
-                await Clients.Clients(playersConnectionsId).SendAsync("gameStarted", game.Id);
+                await Clients.Clients(playersConnectionsId).SendAsync("gameStarted", newGame.Id);
 
                 var numberOfPlayersLeft = await Mediator.Send(new GetNumberOfPlayersInLobbyQuery());
                 await Clients.All.SendAsync("playersInLobby", numberOfPlayersLeft);

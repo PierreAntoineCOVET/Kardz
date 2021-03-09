@@ -80,10 +80,12 @@ namespace Domain.GamesLogic
         /// Change a player from idle to looking for a game.
         /// </summary>
         /// <param name="id"></param>
-        public async Task AddPlayerLookingForGame(Guid id)
+        public async Task<IGame> SearchGame(Guid id)
         {
             try
             {
+                var playersForANewGame = new List<IPlayer>();
+
                 await LobbyPlayersLock.WaitAsync();
 
                 if (!PlayersInLobby.Any(p => p.Id == id))
@@ -92,7 +94,31 @@ namespace Domain.GamesLogic
                 if (PlayersLookingForGame.Any(p => p.Id == id))
                     throw new LobbyException($"Player {id} is already looking for a game.");
 
-                PlayersLookingForGame.Add(PlayersInLobby.Single(p => p.Id == id));
+                var requiredNumberOfPlayersWaiting = NumberOfPlayerForANewGame - 1;
+
+                if (PlayersLookingForGame.Count == requiredNumberOfPlayersWaiting)
+                {
+                    playersForANewGame.AddRange(PlayersLookingForGame);
+                    playersForANewGame.Add(PlayersInLobby.Single(p => p.Id == id));
+
+                    PlayersLookingForGame.Clear();
+                    foreach (var player in playersForANewGame)
+                    {
+                        PlayersInLobby.Remove(player);
+                    }
+
+                    return GameFactory.CreateGame(Game, playersForANewGame);
+                }
+                else if(PlayersLookingForGame.Count < requiredNumberOfPlayersWaiting)
+                {
+                    PlayersLookingForGame.Add(PlayersInLobby.Single(p => p.Id == id));
+
+                    return null;
+                }
+                else
+                {
+                    throw new LobbyException($"The number of players waiting for a game is {PlayersLookingForGame.Count}");
+                }
             }
             finally
             {
@@ -101,15 +127,10 @@ namespace Domain.GamesLogic
         }
 
         /// <summary>
-        /// Define if a game can start.
+        /// Define the number of players needed to start the game.
+        /// Is set on the derived class.
         /// </summary>
         /// <returns></returns>
-        public abstract Task<bool> CanStartGame();
-
-        /// <summary>
-        /// Create a game based on gameType.
-        /// </summary>
-        /// <returns></returns>
-        public abstract Task<IGame> CreateGame();
+        public abstract int NumberOfPlayerForANewGame { get; }
     }
 }
