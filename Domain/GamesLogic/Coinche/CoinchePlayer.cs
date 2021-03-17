@@ -2,6 +2,8 @@
 using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain.GamesLogic.Coinche
 {
@@ -34,6 +36,26 @@ namespace Domain.GamesLogic.Coinche
         public CoinchePlayer(Guid id)
         {
             Id = id;
+        }
+
+        /// <summary>
+        /// Empty constructor.
+        /// </summary>
+        public CoinchePlayer()
+        {
+        }
+    }
+
+    public class PlayerMappingConverter : JsonConverter<IPlayer>
+    {
+        public override IPlayer Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return JsonSerializer.Deserialize<CoinchePlayer>(ref reader, options);
+        }
+
+        public override void Write(Utf8JsonWriter writer, IPlayer value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
         }
     }
 }

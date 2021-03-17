@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.EventStoreEntities;
+using Domain.Interfaces;
 using System;
 using System.Threading.Tasks;
 
@@ -8,6 +9,6 @@ namespace EventHandlers.Repositories
     {
         Task Save(Aggregate aggregate);
 
-        Task<Aggregate> Get(Guid id);
+        Task<T> Get<T>(Guid id) where T : IAggregate;
     }
 }

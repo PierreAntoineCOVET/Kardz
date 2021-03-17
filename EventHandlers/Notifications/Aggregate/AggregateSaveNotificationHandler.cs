@@ -1,9 +1,9 @@
 ﻿using Domain.Entities.EventStoreEntities;
 using EventHandlers.Repositories;
 using MediatR;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DbAggregate = Domain.Entities.EventStoreEntities.Aggregate;
@@ -61,7 +61,7 @@ namespace EventHandlers.Notifications.Aggregate
                 {
                     AggregateId = aggregate.Id,
                     Author = null,
-                    Datas = JsonConvert.SerializeObject(@event),
+                    Datas = JsonSerializer.Serialize<object>(@event),
                     Date = DateTimeOffset.Now,
                     Type = @event.GetType().FullName,
                     Id = @event.Id,

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,9 +36,9 @@ namespace EventHandlers.Behavior
         /// <returns>Response.</returns>
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            Logger.LogInformation($"{request.GetType().Name} : {JsonConvert.SerializeObject(request)}");
+            Logger.LogInformation($"{request.GetType().Name} : {JsonSerializer.Serialize(request)}");
             var response = await next();
-            Logger.LogInformation($"Response : {JsonConvert.SerializeObject(response)}");
+            Logger.LogInformation($"Response : {JsonSerializer.Serialize(response)}");
 
             return response;
         }

@@ -291,9 +291,8 @@ export class Game {
      * @param contract Player's contract.
      */
     public sendContract(contract: ContractEvent) {
-        //this.gameWorkerService.broadcastSetGameContract(this.gameId, this.playerId, contract?.selectedColor, contract?.selectedValue);
         this.gameWorkerService.postMessage({
-            fName: '',
+            fName: 'broadcastSetGameContract',
             playerId: this.playerId,
             gameId: this.gameId,
             color: contract?.selectedColor,

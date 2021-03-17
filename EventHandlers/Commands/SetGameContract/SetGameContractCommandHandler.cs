@@ -1,5 +1,6 @@
 ﻿using Domain.Enums;
 using Domain.Exceptions;
+using Domain.Interfaces;
 using DTOs.Shared;
 using EventHandlers.Repositories;
 using EventHandlers.Specifications;
@@ -29,7 +30,7 @@ namespace EventHandlers.Commands.SetGameContract
 
         public async Task<CoincheContractDto> Handle(SetGameContractCommand request, CancellationToken cancellationToken)
         {
-            var game = await StoreRepository.Get(request.GameId);
+            var game = await StoreRepository.Get<IGame>(request.GameId);
 
             if (game == null)
             {

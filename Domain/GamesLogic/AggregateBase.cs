@@ -1,4 +1,5 @@
 ﻿using Domain.Events;
+using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,23 +24,32 @@ namespace Domain.GamesLogic
         /// <summary>
         /// List of uncommited events.
         /// </summary>
-        private List<IDomainEvent> _UncommittedEvents = new List<IDomainEvent>();
+        /// <returns></returns>
+        public ICollection<IDomainEvent> UncommittedEvents { get; } = new List<IDomainEvent>();
 
         /// <summary>
-        /// Get
+        /// Apply given domain event.
+        /// Use of dynamic cast to call the function Apply(TrueDomainEventType).
         /// </summary>
-        /// <returns></returns>
-        public ICollection<IDomainEvent> UncommittedEvents { get => _UncommittedEvents; }
+        /// <param name="event"></param>
+        public void Apply(IDomainEvent @event)
+        {
+            ((dynamic)this).Apply((dynamic)@event);
+        }
 
+        /// <summary>
+        /// Apply a domain event en register it inside _UncommittedEvents.
+        /// </summary>
+        /// <param name="event"></param>
         protected void RaiseEvent(IDomainEvent @event)
         {
-            if (!_UncommittedEvents.Any(e => e.Id == @event.Id))
+            if (!UncommittedEvents.Any(e => e.Id == @event.Id))
             {
-                ((dynamic)this).Apply((dynamic)@event);
+                Apply(@event);
 
                 Version++;
 
-                _UncommittedEvents.Add(@event);
+                UncommittedEvents.Add(@event);
             }
         }
     }

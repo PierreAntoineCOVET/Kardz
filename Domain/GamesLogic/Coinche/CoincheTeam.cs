@@ -2,6 +2,8 @@
 using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain.GamesLogic.Coinche
 {
@@ -19,7 +21,11 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Team's number.
         /// </summary>
-        public int Number { get; private set; }
+        public int Number { get; set; }
+
+        public CoincheTeam()
+        {
+        }
 
         /// <summary>
         /// Constructor.
@@ -45,6 +51,71 @@ namespace Domain.GamesLogic.Coinche
 
             player.Number = Number * 2 + _Players.Count;
             _Players.Add((CoinchePlayer)player);
+        }
+    }
+
+    public class TeamMappingConverter : JsonConverter<ITeam>
+    {
+        public override ITeam Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException("Expected StartObject token");
+
+            var team = new CoincheTeam();
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    if (reader.GetString() == nameof(CoincheTeam.Number))
+                    {
+                        team.Number = GetNumber(ref reader);
+                    }
+                    else if (reader.GetString() == nameof(CoincheTeam.Players))
+                    {
+                        var plop = GetPlayers(ref reader, options);
+                        //((List<IPlayer>)team.Players).AddRange(GetPlayers(ref reader, options));
+                    }
+                }
+            }
+
+            return team;
+            //return JsonSerializer.Deserialize<CoincheTeam>(ref reader, options);
+        }
+
+        private IEnumerable<IPlayer> GetPlayers(ref Utf8JsonReader reader, JsonSerializerOptions options)
+        {
+            var players = new List<IPlayer>();
+
+            while (reader.Read())
+            {
+                if(reader.TokenType == JsonTokenType.EndArray)
+                {
+                    break;
+                }
+                else if(reader.TokenType == JsonTokenType.StartObject)
+                {
+                    players.Add(JsonSerializer.Deserialize<IPlayer>(ref reader, options));
+                }
+            }
+
+            return players;
+        }
+
+        private int GetNumber(ref Utf8JsonReader reader)
+        {
+            reader.Read();
+            return reader.GetInt32();
+        }
+
+        public override void Write(Utf8JsonWriter writer, ITeam value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
         }
     }
 }

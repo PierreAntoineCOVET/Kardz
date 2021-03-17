@@ -1,5 +1,4 @@
-﻿using Domain.Configuration;
-using Domain.Enums;
+﻿using Domain.Enums;
 using Domain.Events;
 using Domain.Exceptions;
 using Domain.Interfaces;
@@ -41,6 +40,14 @@ namespace Domain.GamesLogic.Coinche
         /// Used to synchronis the time for each game player.
         /// </summary>
         private DateTimeOffset TurnTimerBase { get; set; }
+
+        /// <summary>
+        /// Empty constructor.
+        /// </summary>
+        public CoincheGame()
+        {
+
+        }
 
         /// <summary>
         /// Constructor.

@@ -1,8 +1,14 @@
 ﻿using Domain.Entities.EventStoreEntities;
+using Domain.Events;
+using Domain.GamesLogic.Coinche;
+using Domain.Interfaces;
 using EventHandlers.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Repositories.DbContexts;
 using System;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Repositories.EventStoreRepositories
@@ -52,11 +58,31 @@ namespace Repositories.EventStoreRepositories
         /// <param name="id">Aggregate id.</param>
         /// <returns></returns>
         /// <remarks>Load all its events.</remarks>
-        public Task<Aggregate> Get(Guid id)
+        public async Task<T> Get<T>(Guid id) where T : IAggregate
         {
-            return EventStoreDbContext.Aggregates
+            var aggregate = await EventStoreDbContext.Aggregates
                 .Include(es => es.Events)
                 .SingleAsync(es => es.Id == id);
+
+            var domainAssembly = Assembly.Load("Domain");
+            var aggregateInstance = (T)Activator.CreateInstance(domainAssembly.GetType(aggregate.Type));
+
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new TeamMappingConverter(),
+                    new PlayerMappingConverter()
+                }
+            };
+
+            foreach (var @event in aggregate.Events.OrderBy(e => e.Date))
+            {
+                var eventInstance = JsonSerializer.Deserialize(@event.Datas, domainAssembly.GetType(@event.Type), options);
+                aggregateInstance.Apply((dynamic)eventInstance);
+            }
+
+            return aggregateInstance;
         }
     }
 }
