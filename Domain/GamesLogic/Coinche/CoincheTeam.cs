@@ -2,6 +2,7 @@
 using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -78,8 +79,7 @@ namespace Domain.GamesLogic.Coinche
                     }
                     else if (reader.GetString() == nameof(CoincheTeam.Players))
                     {
-                        var plop = GetPlayers(ref reader, options);
-                        //((List<IPlayer>)team.Players).AddRange(GetPlayers(ref reader, options));
+                        ((List<CoinchePlayer>)team.Players).AddRange(GetPlayers(ref reader, options).Cast<CoinchePlayer>());
                     }
                 }
             }

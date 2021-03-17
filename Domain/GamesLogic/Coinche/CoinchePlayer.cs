@@ -15,7 +15,7 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Player's Id.
         /// </summary>
-        public Guid Id { get; private set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Player's number in the game.
@@ -27,7 +27,7 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// List of cards.
         /// </summary>
-        public IEnumerable<CardsEnum> Cards { get; set; }
+        public IEnumerable<CardsEnum> Cards { get; set; } = new List<CardsEnum>();
 
         /// <summary>
         /// Constructor.
@@ -50,7 +50,70 @@ namespace Domain.GamesLogic.Coinche
     {
         public override IPlayer Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return JsonSerializer.Deserialize<CoinchePlayer>(ref reader, options);
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException("Expected StartObject token");
+
+            var player = new CoinchePlayer();
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    break;
+                }
+
+                if (reader.TokenType == JsonTokenType.PropertyName)
+                {
+                    if (reader.GetString() == nameof(CoinchePlayer.Id))
+                    {
+                        player.Id = GetId(ref reader);
+                    }
+                    else if (reader.GetString() == nameof(CoinchePlayer.Number))
+                    {
+                        player.Number = GetNumber(ref reader);
+                    }
+                    else if(reader.GetString() == nameof(CoinchePlayer.Cards))
+                    {
+                        ((List<CardsEnum>)player.Cards).AddRange(GetCards(ref reader));
+                    }
+                }
+            }
+
+            return player;
+        }
+
+        public Guid GetId(ref Utf8JsonReader reader)
+        {
+            reader.Read();
+            return Guid.Parse(reader.GetString());
+        }
+
+        public int GetNumber(ref Utf8JsonReader reader)
+        {
+            reader.Read();
+            return reader.GetInt32();
+        }
+
+        public IEnumerable<CardsEnum> GetCards(ref Utf8JsonReader reader)
+        {
+            reader.Read();
+
+            if (reader.TokenType != JsonTokenType.StartArray)
+                throw new JsonException("Expected StartArray token");
+
+            var cards = new List<CardsEnum>();
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonTokenType.EndArray)
+                {
+                    break;
+                }
+
+                cards.Add((CardsEnum)reader.GetInt32());
+            }
+
+            return cards;
         }
 
         public override void Write(Utf8JsonWriter writer, IPlayer value, JsonSerializerOptions options)
