@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Domain.Configuration
+﻿namespace Domain.Configuration
 {
     /// <summary>
     /// Coinche game configuration.

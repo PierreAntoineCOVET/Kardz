@@ -1,13 +1,18 @@
-﻿using Domain.Interfaces;
+﻿using Domain.GamesLogic.Coinche;
+using Domain.Interfaces;
+using Domain.Tools.Serialization;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Domain.Events
 {
     /// <summary>
     /// Game created event.
     /// </summary>
+    [InterfaceResolver(typeof(CoincheGame), typeof(GameCreatedEvent), typeof(CoincheGameCreatedMappingConverter))]
     public class GameCreatedEvent : IDomainEvent, INotification
     {
         /// <summary>
@@ -40,5 +45,21 @@ namespace Domain.Events
         /// Used to synchronis the time for each game player.
         /// </summary>
         public DateTimeOffset TurnTimerBase { get; set; }
+    }
+
+    /// <summary>
+    /// Inteface mapping for serializing / deserializing <see cref="GameCreatedEvent"/>.
+    /// </summary>
+    public class CoincheGameCreatedMappingConverter : JsonConverter<IDomainEvent>
+    {
+        public override IDomainEvent Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            return System.Text.Json.JsonSerializer.Deserialize<GameCreatedEvent>(ref reader, options);
+        }
+
+        public override void Write(Utf8JsonWriter writer, IDomainEvent value, JsonSerializerOptions options)
+        {
+            System.Text.Json.JsonSerializer.Serialize(writer, (GameCreatedEvent)value, options);
+        }
     }
 }

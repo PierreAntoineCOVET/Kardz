@@ -1,9 +1,9 @@
 ﻿using Domain.Entities.EventStoreEntities;
+using Domain.Tools.Serialization;
 using EventHandlers.Repositories;
 using MediatR;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DbAggregate = Domain.Entities.EventStoreEntities.Aggregate;
@@ -26,14 +26,21 @@ namespace EventHandlers.Notifications.Aggregate
         private readonly IMediator Mediator;
 
         /// <summary>
+        /// Json serializer.
+        /// </summary>
+        private readonly JsonSerializer JsonSerializer;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="eventStoreRepository">Event store repository.</param>
         /// <param name="mediator">Mediatr publisher.</param>
-        public AggregateSaveNotificationHandler(IEventStoreRepository eventStoreRepository, IMediator mediator)
+        /// <param name="jsonSerializer">Json serializer.</param>
+        public AggregateSaveNotificationHandler(IEventStoreRepository eventStoreRepository, IMediator mediator, JsonSerializer jsonSerializer)
         {
             EventStoreRepository = eventStoreRepository;
             Mediator = mediator;
+            JsonSerializer = jsonSerializer;
         }
 
         /// <summary>
@@ -61,7 +68,7 @@ namespace EventHandlers.Notifications.Aggregate
                 {
                     AggregateId = aggregate.Id,
                     Author = null,
-                    Datas = JsonSerializer.Serialize<object>(@event),
+                    Datas = JsonSerializer.Serialize(notification.Aggregate.GetType().FullName, @event.GetType().FullName, @event),
                     Date = DateTimeOffset.Now,
                     Type = @event.GetType().FullName,
                     Id = @event.Id,

@@ -3,7 +3,6 @@ using Domain.Services;
 using DTOs;
 using EventHandlers.Notifications.Aggregate;
 using MediatR;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 

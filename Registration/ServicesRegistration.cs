@@ -1,5 +1,6 @@
 ﻿using Domain.Factories;
 using Domain.Services;
+using Domain.Tools.Serialization;
 using EventHandlers.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +8,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Repositories.DbContexts;
 using Repositories.EventStoreRepositories;
 using Repositories.ReadRepositories;
+using System.Linq;
+using System.Reflection;
 
 namespace Registration
 {
@@ -53,6 +56,20 @@ namespace Registration
             {
                 options.UseSqlServer(configuration.GetConnectionString("ReadDb"));
             });
+        }
+
+        public static void AddSerializationMappers(this IServiceCollection services)
+        {
+            var assembly = Assembly.GetAssembly(typeof(InterfaceResolverAttribute));
+            var interfaceResolverAttributes = assembly.GetTypes()
+                .SelectMany(t => t.GetCustomAttributes<InterfaceResolverAttribute>());
+
+            foreach (InterfaceResolverAttribute interfaceResolverAttribute in interfaceResolverAttributes)
+            {
+                JsonSerializer.Register(interfaceResolverAttribute.Aggregate, interfaceResolverAttribute.Event, interfaceResolverAttribute.Converter);
+            }
+
+            services.AddTransient<JsonSerializer>();
         }
     }
 }

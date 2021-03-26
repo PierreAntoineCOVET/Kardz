@@ -2,8 +2,6 @@
 using EventHandlers.Validator;
 using FluentValidation;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EventHandlers.Commands.SetGameContract
 {

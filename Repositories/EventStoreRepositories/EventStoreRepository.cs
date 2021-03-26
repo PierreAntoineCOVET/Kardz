@@ -1,14 +1,12 @@
 ﻿using Domain.Entities.EventStoreEntities;
-using Domain.Events;
-using Domain.GamesLogic.Coinche;
 using Domain.Interfaces;
+using Domain.Tools.Serialization;
 using EventHandlers.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Repositories.DbContexts;
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Repositories.EventStoreRepositories
@@ -24,12 +22,19 @@ namespace Repositories.EventStoreRepositories
         private EventStoreDbContext EventStoreDbContext;
 
         /// <summary>
+        /// Json serializer.
+        /// </summary>
+        private JsonSerializer JsonSerializer;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="eventStoreDbContext">Db context to use.</param>
-        public EventStoreRepository(EventStoreDbContext eventStoreDbContext)
+        /// <param name="jsonSerializer">Json serializer.</param>
+        public EventStoreRepository(EventStoreDbContext eventStoreDbContext, JsonSerializer jsonSerializer)
         {
             EventStoreDbContext = eventStoreDbContext;
+            JsonSerializer = jsonSerializer;
         }
 
         /// <summary>
@@ -67,18 +72,9 @@ namespace Repositories.EventStoreRepositories
             var domainAssembly = Assembly.Load("Domain");
             var aggregateInstance = (T)Activator.CreateInstance(domainAssembly.GetType(aggregate.Type));
 
-            var options = new JsonSerializerOptions
-            {
-                Converters =
-                {
-                    new TeamMappingConverter(),
-                    new PlayerMappingConverter()
-                }
-            };
-
             foreach (var @event in aggregate.Events.OrderBy(e => e.Date))
             {
-                var eventInstance = JsonSerializer.Deserialize(@event.Datas, domainAssembly.GetType(@event.Type), options);
+                var eventInstance = JsonSerializer.Deserialize(aggregate.Type, @event);
                 aggregateInstance.Apply((dynamic)eventInstance);
             }
 

@@ -1,5 +1,7 @@
 ﻿using Domain.Enums;
+using Domain.Events;
 using Domain.Interfaces;
+using Domain.Tools.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -10,6 +12,7 @@ namespace Domain.GamesLogic.Coinche
     /// <summary>
     /// Coinche player.
     /// </summary>
+    [InterfaceResolver(typeof(CoincheGame), typeof(GameCreatedEvent), typeof(CoinchePlayerMappingConverter))]
     internal class CoinchePlayer : IPlayer
     {
         /// <summary>
@@ -46,79 +49,19 @@ namespace Domain.GamesLogic.Coinche
         }
     }
 
-    public class PlayerMappingConverter : JsonConverter<IPlayer>
+    /// <summary>
+    /// Inteface mapping for serializing / deserializing <see cref="CoinchePlayer"/>.
+    /// </summary>
+    public class CoinchePlayerMappingConverter : JsonConverter<IPlayer>
     {
         public override IPlayer Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType != JsonTokenType.StartObject)
-                throw new JsonException("Expected StartObject token");
-
-            var player = new CoinchePlayer();
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                {
-                    break;
-                }
-
-                if (reader.TokenType == JsonTokenType.PropertyName)
-                {
-                    if (reader.GetString() == nameof(CoinchePlayer.Id))
-                    {
-                        player.Id = GetId(ref reader);
-                    }
-                    else if (reader.GetString() == nameof(CoinchePlayer.Number))
-                    {
-                        player.Number = GetNumber(ref reader);
-                    }
-                    else if(reader.GetString() == nameof(CoinchePlayer.Cards))
-                    {
-                        ((List<CardsEnum>)player.Cards).AddRange(GetCards(ref reader));
-                    }
-                }
-            }
-
-            return player;
-        }
-
-        public Guid GetId(ref Utf8JsonReader reader)
-        {
-            reader.Read();
-            return Guid.Parse(reader.GetString());
-        }
-
-        public int GetNumber(ref Utf8JsonReader reader)
-        {
-            reader.Read();
-            return reader.GetInt32();
-        }
-
-        public IEnumerable<CardsEnum> GetCards(ref Utf8JsonReader reader)
-        {
-            reader.Read();
-
-            if (reader.TokenType != JsonTokenType.StartArray)
-                throw new JsonException("Expected StartArray token");
-
-            var cards = new List<CardsEnum>();
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndArray)
-                {
-                    break;
-                }
-
-                cards.Add((CardsEnum)reader.GetInt32());
-            }
-
-            return cards;
+            return System.Text.Json.JsonSerializer.Deserialize<CoinchePlayer>(ref reader, options);
         }
 
         public override void Write(Utf8JsonWriter writer, IPlayer value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            System.Text.Json.JsonSerializer.Serialize(writer, (CoinchePlayer)value, options);
         }
     }
 }

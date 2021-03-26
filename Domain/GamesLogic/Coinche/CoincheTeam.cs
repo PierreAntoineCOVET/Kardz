@@ -1,5 +1,7 @@
-﻿using Domain.Exceptions;
+﻿using Domain.Events;
+using Domain.Exceptions;
 using Domain.Interfaces;
+using Domain.Tools.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,7 @@ namespace Domain.GamesLogic.Coinche
     /// <summary>
     /// Coinche team.
     /// </summary>
+    [InterfaceResolver(typeof(CoincheGame), typeof(GameCreatedEvent), typeof(CoincheTeamMappingConverter))]
     internal class CoincheTeam : ITeam
     {
         private List<CoinchePlayer> _Players = new List<CoinchePlayer>();
@@ -24,8 +27,16 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         public int Number { get; set; }
 
-        public CoincheTeam()
+        /// <summary>
+        /// Contructor used for Json deserialization.
+        /// </summary>
+        /// <param name="number">Team number.</param>
+        /// <param name="players">Team players.</param>
+        [JsonConstructor]
+        public CoincheTeam(int number, IEnumerable<IPlayer> players)
         {
+            Number = number;
+            _Players = players.Cast<CoinchePlayer>().ToList();
         }
 
         /// <summary>
@@ -55,67 +66,19 @@ namespace Domain.GamesLogic.Coinche
         }
     }
 
-    public class TeamMappingConverter : JsonConverter<ITeam>
+    /// <summary>
+    /// Inteface mapping for serializing / deserializing <see cref="CoincheTeam"/>.
+    /// </summary>
+    public class CoincheTeamMappingConverter : JsonConverter<ITeam>
     {
         public override ITeam Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            if (reader.TokenType != JsonTokenType.StartObject)
-                throw new JsonException("Expected StartObject token");
-
-            var team = new CoincheTeam();
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonTokenType.EndObject)
-                {
-                    break;
-                }
-
-                if (reader.TokenType == JsonTokenType.PropertyName)
-                {
-                    if (reader.GetString() == nameof(CoincheTeam.Number))
-                    {
-                        team.Number = GetNumber(ref reader);
-                    }
-                    else if (reader.GetString() == nameof(CoincheTeam.Players))
-                    {
-                        ((List<CoinchePlayer>)team.Players).AddRange(GetPlayers(ref reader, options).Cast<CoinchePlayer>());
-                    }
-                }
-            }
-
-            return team;
-            //return JsonSerializer.Deserialize<CoincheTeam>(ref reader, options);
-        }
-
-        private IEnumerable<IPlayer> GetPlayers(ref Utf8JsonReader reader, JsonSerializerOptions options)
-        {
-            var players = new List<IPlayer>();
-
-            while (reader.Read())
-            {
-                if(reader.TokenType == JsonTokenType.EndArray)
-                {
-                    break;
-                }
-                else if(reader.TokenType == JsonTokenType.StartObject)
-                {
-                    players.Add(JsonSerializer.Deserialize<IPlayer>(ref reader, options));
-                }
-            }
-
-            return players;
-        }
-
-        private int GetNumber(ref Utf8JsonReader reader)
-        {
-            reader.Read();
-            return reader.GetInt32();
+            return System.Text.Json.JsonSerializer.Deserialize<CoincheTeam>(ref reader, options);
         }
 
         public override void Write(Utf8JsonWriter writer, ITeam value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            System.Text.Json.JsonSerializer.Serialize(writer, (CoincheTeam)value, options);
         }
     }
 }

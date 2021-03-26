@@ -1,12 +1,5 @@
-﻿using Domain.Configuration;
-using Domain.Enums;
-using Domain.Exceptions;
+﻿using Domain.Enums;
 using Domain.Factories;
-using Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Domain.GamesLogic.Coinche
 {

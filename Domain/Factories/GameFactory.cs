@@ -4,7 +4,6 @@ using Domain.GamesLogic.Coinche;
 using Domain.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Domain.Factories
 {

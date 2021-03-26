@@ -73,6 +73,8 @@ namespace Web
 
             services.AddKardzRopositories();
 
+            services.AddSerializationMappers();
+
             services.AddSwaggerGen();
 
         }
