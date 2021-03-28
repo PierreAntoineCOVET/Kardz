@@ -3,6 +3,7 @@ using Domain.Interfaces;
 using Domain.Tools.Serialization;
 using EventHandlers.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Repositories.DbContexts;
 using System;
 using System.Linq;
@@ -17,6 +18,11 @@ namespace Repositories.EventStoreRepositories
     public class EventStoreRepository : IEventStoreRepository
     {
         /// <summary>
+        /// Default cache duration in minutes.
+        /// </summary>
+        private const int DEFAULT_CACHE_DURATION = 5;
+
+        /// <summary>
         /// Db context.
         /// </summary>
         private EventStoreDbContext EventStoreDbContext;
@@ -27,14 +33,20 @@ namespace Repositories.EventStoreRepositories
         private JsonSerializer JsonSerializer;
 
         /// <summary>
+        /// Memory cache.
+        /// </summary>
+        private IMemoryCache Cache;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="eventStoreDbContext">Db context to use.</param>
         /// <param name="jsonSerializer">Json serializer.</param>
-        public EventStoreRepository(EventStoreDbContext eventStoreDbContext, JsonSerializer jsonSerializer)
+        public EventStoreRepository(EventStoreDbContext eventStoreDbContext, JsonSerializer jsonSerializer, IMemoryCache cache)
         {
             EventStoreDbContext = eventStoreDbContext;
             JsonSerializer = jsonSerializer;
+            Cache = cache;
         }
 
         /// <summary>
@@ -54,20 +66,29 @@ namespace Repositories.EventStoreRepositories
                 EventStoreDbContext.Events.Add(@event);
             }
 
+            Cache.Set(aggregate.Id, aggregate, new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(DEFAULT_CACHE_DURATION)
+            });
+
             await EventStoreDbContext.SaveChangesAsync();
         }
 
         /// <summary>
-        /// Get a aggregate from the DB.
+        /// Get a aggregate from cache or DB.
         /// </summary>
+        /// <typeparam name="T">Type of the object to get.</typeparam>
         /// <param name="id">Aggregate id.</param>
         /// <returns></returns>
-        /// <remarks>Load all its events.</remarks>
         public async Task<T> Get<T>(Guid id) where T : IAggregate
         {
-            var aggregate = await EventStoreDbContext.Aggregates
-                .Include(es => es.Events)
-                .SingleAsync(es => es.Id == id);
+            var aggregate = await Cache.GetOrCreateAsync(
+                id,
+                (entry) =>
+                {
+                    entry.SlidingExpiration = TimeSpan.FromMinutes(DEFAULT_CACHE_DURATION);
+                    return GetFromDataBase(id);
+                });
 
             var domainAssembly = Assembly.Load("Domain");
             var aggregateInstance = (T)Activator.CreateInstance(domainAssembly.GetType(aggregate.Type));
@@ -79,6 +100,20 @@ namespace Repositories.EventStoreRepositories
             }
 
             return aggregateInstance;
+        }
+
+        /// <summary>
+        /// Get a aggregate from the DB.
+        /// </summary>
+        /// <typeparam name="T">Type of the object to get.</typeparam>
+        /// <param name="id">Aggregate id.</param>
+        /// <returns></returns>
+        /// <remarks>Load all its events.</remarks>
+        private Task<Aggregate> GetFromDataBase(Guid id)
+        {
+            return EventStoreDbContext.Aggregates
+                .Include(es => es.Events)
+                .SingleAsync(es => es.Id == id);
         }
     }
 }
