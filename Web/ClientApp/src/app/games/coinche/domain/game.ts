@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Subscription, ReplaySubject, Subject, BehaviorSubject } from 'rxjs';
-import { ICoincheContractDto } from 'src/app/typewriter/classes/CoincheContractDto';
 import { CardsEnum } from 'src/app/typewriter/enums/CardsEnum.enum';
 import { IGameInitDto } from 'src/app/typewriter/classes/GameInitDto';
 import { ContractEvent } from 'src/app/games/coinche/domain/events/contract.event';
@@ -9,6 +8,7 @@ import { AddCardEvent } from 'src/app/games/coinche/domain/events/add-card.event
 import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
 import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche/domain/events/turn-timer.event';
 import { Player } from 'src/app/games/coinche/domain/player';
+import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
 //import { GameService } from 'src/app/services/game/game.service';
 
 export class Game {
@@ -115,15 +115,15 @@ export class Game {
      * Return true if obj is assignable from ICoincheContractDto.
      * @param obj Object to check.
      */
-    private isICoincheContractDto(obj: any): obj is ICoincheContractDto {
-        return (obj as ICoincheContractDto).hasLastPLayerPassed !== undefined;
+    private isICoincheContractDto(obj: any): obj is IGameContractDto {
+        return (obj as IGameContractDto).hasLastPLayerPassed !== undefined;
     }
 
     /**
      * Invoke when a player change the game contract.
      * @param contractInfo
      */
-    private onGameContractChanged(contractInfo: ICoincheContractDto) {
+    private onGameContractChanged(contractInfo: IGameContractDto) {
         this.setCurrentPlayerPlaying(contractInfo.currentPlayerNumber);
 
         const currentPlayer = this.players.find(p => p.id == this.playerId);

@@ -1,4 +1,5 @@
 ﻿using Domain.Interfaces;
+using DTOs.Shared;
 using System.Linq;
 
 namespace DTOs
@@ -21,6 +22,18 @@ namespace DTOs
                 PlayersId = game.Teams
                     .SelectMany(t => t.Players.Select(p => p.Id))
                     .ToList()
+            };
+        }
+
+        public static GameContractDto ToContractDto(this IGame game)
+        {
+            return new GameContractDto
+            {
+                Color = (int?)game.Contract.GetColor(),
+                Value = game.Contract.GetValue(),
+                LastPlayerNumber = game.LastPlayerNumber,
+                CurrentPlayerNumber = game.CurrentPlayerNumber,
+                HasLastPLayerPassed = game.Contract.HasLastPlayerPassed()
             };
         }
     }

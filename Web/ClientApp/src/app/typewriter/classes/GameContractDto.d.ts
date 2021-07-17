@@ -4,7 +4,7 @@
 
 
 
-export interface ICoincheContractDto {
+export interface IGameContractDto {
     
     value: number;
     color: number;

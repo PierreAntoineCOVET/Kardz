@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { HubConnectionBuilder, HubConnection, HubConnectionState } from '@microsoft/signalr';
 import { Subject } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { IGameInitDto } from '../../typewriter/classes/GameInitDto';
-import { ICoincheContractDto } from '../../typewriter/classes/CoincheContractDto';
+import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
+import { IGameInitDto } from 'src/app/typewriter/classes/GameInitDto';
+import { environment } from 'src/environments/environment';
 
 export class GameService {
     private hubConnection: HubConnection;
@@ -13,7 +13,7 @@ export class GameService {
      */
     public onGameInformationsReceived: Subject<IGameInitDto> = new Subject<IGameInitDto>();
 
-    public onGameContractChanged: Subject<ICoincheContractDto> = new Subject<ICoincheContractDto>();
+    public onGameContractChanged: Subject<IGameContractDto> = new Subject<IGameContractDto>();
 
     constructor(playerId: uuidv4) {
         this.hubConnection = new HubConnectionBuilder()

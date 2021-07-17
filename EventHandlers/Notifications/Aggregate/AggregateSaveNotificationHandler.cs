@@ -52,19 +52,28 @@ namespace EventHandlers.Notifications.Aggregate
         /// <returns></returns>
         public async Task Handle(AggregateSaveNotification notification, CancellationToken cancellationToken)
         {
-            var aggregate = new DbAggregate
-            {
-                Id = notification.Aggregate.Id,
-                Type = notification.Aggregate.GetType().FullName,
-                Version = notification.Aggregate.Version,
-                Events = new List<Event>()
-            };
+            var aggregate = await EventStoreRepository.Get(notification.Aggregate.Id);
 
+            if(aggregate == null)
+            {
+                aggregate = new DbAggregate
+                {
+                    Id = notification.Aggregate.Id,
+                    Type = notification.Aggregate.GetType().FullName,
+                    Version = notification.Aggregate.Version,
+                    Events = new List<Event>()
+                };
+
+                await EventStoreRepository.Save(aggregate);
+            }
+
+            var uncommittedDbEvents = new List<Event>(notification.Aggregate.UncommittedEvents.Count);
             foreach (var @event in notification.Aggregate.UncommittedEvents)
             {
-                await Mediator.Publish((dynamic)@event);
+                // update read model
+                _ = Mediator.Publish((dynamic)@event);
 
-                aggregate.Events.Add(new Event
+                var dbEvent = new Event
                 {
                     AggregateId = aggregate.Id,
                     Author = null,
@@ -72,10 +81,14 @@ namespace EventHandlers.Notifications.Aggregate
                     Date = DateTimeOffset.Now,
                     Type = @event.GetType().FullName,
                     Id = @event.Id,
-                });
+                };
+
+                uncommittedDbEvents.Add(dbEvent);
             }
 
-            await EventStoreRepository.Save(aggregate);
+            await EventStoreRepository.Save(aggregate, uncommittedDbEvents);
+
+            await EventStoreRepository.SaveChanges();
 
             notification.Aggregate.UncommittedEvents.Clear();
         }

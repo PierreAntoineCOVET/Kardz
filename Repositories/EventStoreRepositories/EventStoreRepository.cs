@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Repositories.DbContexts;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -50,32 +51,44 @@ namespace Repositories.EventStoreRepositories
         }
 
         /// <summary>
-        /// Save the aggregate and all its events into the store.
+        /// Mark the aggregate to be persisted in the store and cache.
         /// </summary>
         /// <param name="aggregate">Aggregate to save.</param>
         /// <returns></returns>
         public async Task Save(Aggregate aggregate)
         {
-            if(!await EventStoreDbContext.Aggregates.AnyAsync(a => a.Id == aggregate.Id))
-            {
-                EventStoreDbContext.Aggregates.Add(aggregate);
-            }
+            EventStoreDbContext.Aggregates.Add(aggregate);
 
-            foreach (var @event in aggregate.Events)
-            {
-                EventStoreDbContext.Events.Add(@event);
-            }
-
-            Cache.Set(aggregate.Id, aggregate, new MemoryCacheEntryOptions
-            {
-                SlidingExpiration = TimeSpan.FromMinutes(DEFAULT_CACHE_DURATION)
-            });
-
-            await EventStoreDbContext.SaveChangesAsync();
+            SaveToCache(aggregate);
         }
 
         /// <summary>
-        /// Get a aggregate from cache or DB.
+        /// Save a list of events into BDD and cache.
+        /// </summary>
+        /// <param name="events"></param>
+        /// <returns></returns>
+        public async Task Save(Aggregate aggregate, IEnumerable<Event> events)
+        {
+            foreach (var @event in events)
+            {
+                aggregate.Events.Add(@event);
+                EventStoreDbContext.Events.Add(@event);
+            }
+
+            SaveToCache(aggregate);
+        }
+
+        /// <summary>
+        /// Persist changes into DB.
+        /// </summary>
+        /// <returns></returns>
+        public Task SaveChanges()
+        {
+            return EventStoreDbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Get a aggregate as a domain instance from cache or DB.
         /// </summary>
         /// <typeparam name="T">Type of the object to get.</typeparam>
         /// <param name="id">Aggregate id.</param>
@@ -103,6 +116,38 @@ namespace Repositories.EventStoreRepositories
         }
 
         /// <summary>
+        /// Get the Db Aggregate if existing, else return null.
+        /// </summary>
+        /// <param name="id">Aggregate ID.</param>
+        /// <returns></returns>
+        public async Task<Aggregate> Get(Guid id)
+        {
+            var fromCache = Cache.Get<Aggregate>(id);
+
+            if(fromCache != null)
+            {
+                return fromCache;
+            }
+
+            var fromDb = await GetFromDataBase(id);
+
+            if(fromDb != null)
+            {
+                SaveToCache(fromDb);
+            }
+
+            return fromDb;
+        }
+
+        private void SaveToCache(Aggregate aggregate)
+        {
+            Cache.Set(aggregate.Id, aggregate, new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(DEFAULT_CACHE_DURATION)
+            });
+        }
+
+        /// <summary>
         /// Get a aggregate from the DB.
         /// </summary>
         /// <typeparam name="T">Type of the object to get.</typeparam>
@@ -113,7 +158,7 @@ namespace Repositories.EventStoreRepositories
         {
             return EventStoreDbContext.Aggregates
                 .Include(es => es.Events)
-                .SingleAsync(es => es.Id == id);
+                .SingleOrDefaultAsync(es => es.Id == id);
         }
     }
 }

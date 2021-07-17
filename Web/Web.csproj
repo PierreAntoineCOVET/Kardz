@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\CoincheContractDto.d.ts" />
+    <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\GameContractDto.d.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\typewriter\classes\GameInitDto.d.ts" />
     <TypeScriptCompile Remove="ClientApp\src\app\typewriter\enums\ColorEnum.enum.ts" />
   </ItemGroup>
@@ -68,8 +68,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="ClientApp\src\app\typewriter\classes\CoincheContractDto.d.ts">
-      <CustomToolNamespace>..\DTOs\Shared\CoincheContractDto.cs</CustomToolNamespace>
+    <None Update="ClientApp\src\app\typewriter\classes\GameContractDto.d.ts">
+      <CustomToolNamespace>..\DTOs\Shared\GameContractDto.cs</CustomToolNamespace>
     </None>
     <None Update="ClientApp\src\app\typewriter\classes\GameInitDto.d.ts">
       <CustomToolNamespace>..\DTOs\Shared\GameInitDto.cs</CustomToolNamespace>

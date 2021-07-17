@@ -31,22 +31,37 @@ namespace Domain.GamesLogic.Coinche
         public int CurrentDealer { get; set; }
 
         /// <summary>
-        /// Player whose turn it is.
+        /// Current player number.
         /// </summary>
-        public int CurrentPlayer { get; set; }
+        public int CurrentPlayerNumber { get; set; }
+
+        /// <summary>
+        /// Return the number of the player before current.
+        /// </summary>
+        public int LastPlayerNumber => CurrentPlayerNumber + 3 % 4;
+
+        /// <summary>
+        /// Game's current contract.
+        /// </summary>
+        public IContract Contract { get; set; }
 
         /// <summary>
         /// Time at wich the turn time for all players will start.
-        /// Used to synchronis the time for each game player.
+        /// Used to synchronise the time for each game player.
         /// </summary>
-        private DateTimeOffset TurnTimerBase { get; set; }
+        private DateTimeOffset TurnTimerBase;
+
+        /// <summary>
+        /// Get current player.
+        /// </summary>
+        private IPlayer CurrentPlayer => Teams.SelectMany(t => t.Players).Single(p => p.Number == CurrentPlayerNumber);
 
         /// <summary>
         /// Empty constructor.
         /// </summary>
         public CoincheGame()
         {
-
+            Init();
         }
 
         /// <summary>
@@ -55,6 +70,8 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="id">Game's Id.</param>
         public CoincheGame(Guid id, IEnumerable<IPlayer> players)
         {
+            Init();
+
             if (id == default)
                 throw new GameException($"Invalid game id {id}");
 
@@ -79,6 +96,14 @@ namespace Domain.GamesLogic.Coinche
         }
 
         /// <summary>
+        /// Instanciate properties.
+        /// </summary>
+        private void Init()
+        {
+            Contract = new CoincheContract();
+        }
+
+        /// <summary>
         /// Apply <see cref="GameCreatedEvent"/>.
         /// </summary>
         /// <param name="event"></param>
@@ -87,8 +112,66 @@ namespace Domain.GamesLogic.Coinche
             Id = @event.GameId;
             _Teams = @event.Teams.Cast<CoincheTeam>().ToList();
             CurrentDealer = @event.CurrentDealer;
-            CurrentPlayer = @event.CurrentPlayerNumber;
+            CurrentPlayerNumber = @event.CurrentPlayerNumber;
             TurnTimerBase = @event.TurnTimerBase;
+        }
+
+        /// <summary>
+        /// Aplly a contract to the game.
+        /// </summary>
+        /// <param name="color">Contract color, if needed.</param>
+        /// <param name="value">Contract value, if needed.</param>
+        /// <param name="player">Contract maker.</param>
+        /// <param name="game">Contract's game.</param>
+        public void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game)
+        {
+            if (game != Id)
+            {
+                throw new GameException("Trying to apply contract to the wrong game.");
+            }
+
+            if (player != CurrentPlayer.Id)
+            {
+                throw new GameException("Not your turn to bet.");
+            }
+
+            if (Contract.ForceGameRedistribution(color, value))
+            {
+                // cards redistribution
+            }
+            else
+            {
+                var contractMadeEvent = new ContractMadeEvent
+                {
+                    Id = Guid.NewGuid(),
+                    GameId = Id,
+                    PlayerNumber = CurrentPlayerNumber,
+                    Color = color,
+                    MinValue = value
+                };
+
+                RaiseEvent(contractMadeEvent);
+            }
+        }
+
+        /// <summary>
+        /// Apply <see cref="GameCreatedEvent"/>.
+        /// </summary>
+        /// <param name="event"></param>
+        internal void Apply(ContractMadeEvent @event)
+        {
+            Contract.SetContract(@event.Color, @event.MinValue);
+
+            SetNextPlayer(@event.PlayerNumber);
+        }
+
+        /// <summary>
+        /// Set current player as currentPlayer next player.
+        /// </summary>
+        /// <param name="currentPlayer">Current player.</param>
+        private void SetNextPlayer(int currentPlayer)
+        {
+            CurrentPlayerNumber = (currentPlayer + 1) % 4;
         }
 
         /// <summary>

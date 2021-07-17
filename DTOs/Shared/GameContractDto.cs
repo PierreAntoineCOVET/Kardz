@@ -5,7 +5,7 @@ namespace DTOs.Shared
     /// <summary>
     /// Game contract informations.
     /// </summary>
-    public class CoincheContractDto
+    public class GameContractDto
     {
         /// <summary>
         /// Contract value.

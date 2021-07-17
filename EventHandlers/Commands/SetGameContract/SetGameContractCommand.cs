@@ -4,7 +4,7 @@ using System;
 
 namespace EventHandlers.Commands.SetGameContract
 {
-    public class SetGameContractCommand : IRequest<CoincheContractDto>
+    public class SetGameContractCommand : IRequest<GameContractDto>
     {
         public int? Color { get; set; }
 

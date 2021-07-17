@@ -16,17 +16,18 @@ namespace EventHandlers.Commands.SearchGame
         /// <summary>
         /// Lobbies service.
         /// </summary>
-        private LobbiesService LobbiesService;
+        private readonly LobbiesService LobbiesService;
 
         /// <summary>
         /// Mediator.
         /// </summary>
-        private IMediator Mediator;
+        private readonly IMediator Mediator;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="lobbiesService">Lobbies service.</param>
+        /// <param name="mediator">Mediator service.</param>
         public SearchGameCommandHandler(LobbiesService lobbiesService, IMediator mediator)
         {
             LobbiesService = lobbiesService;
