@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces;
 using DTOs.Shared;
+using System;
 using System.Linq;
 
 namespace DTOs
@@ -25,7 +26,12 @@ namespace DTOs
             };
         }
 
-        public static GameContractDto ToContractDto(this IGame game)
+        /// <summary>
+        /// From IGame to GameContractDto.
+        /// </summary>
+        /// <param name="game"></param>
+        /// <returns></returns>
+        public static GameContractDto ToContractDto(this IGame game, DateTimeOffset turnTimerEnd)
         {
             return new GameContractDto
             {
@@ -33,7 +39,8 @@ namespace DTOs
                 Value = game.Contract.GetValue(),
                 LastPlayerNumber = game.LastPlayerNumber,
                 CurrentPlayerNumber = game.CurrentPlayerNumber,
-                HasLastPLayerPassed = game.Contract.HasLastPlayerPassed()
+                HasLastPLayerPassed = game.Contract.HasLastPlayerPassed(),
+                TurnEndTime = turnTimerEnd
             };
         }
     }

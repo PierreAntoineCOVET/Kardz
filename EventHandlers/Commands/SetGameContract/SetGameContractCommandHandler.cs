@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Configuration;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Interfaces;
 using DTOs;
@@ -6,6 +7,7 @@ using DTOs.Shared;
 using EventHandlers.Notifications.Aggregate;
 using EventHandlers.Repositories;
 using MediatR;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,14 +26,20 @@ namespace EventHandlers.Commands.SetGameContract
         private readonly IMediator Mediator;
 
         /// <summary>
+        /// Coinche game configuration.
+        /// </summary>
+        private readonly CoincheConfiguration Configuration;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="eventStoreRepository">Repository.</param>
         /// <param name="mediator">Mediator service.</param>
-        public SetGameContractCommandHandler(IEventStoreRepository eventStoreRepository, IMediator mediator)
+        public SetGameContractCommandHandler(IEventStoreRepository eventStoreRepository, IMediator mediator, CoincheConfiguration configuration)
         {
             EventStoreRepository = eventStoreRepository;
             Mediator = mediator;
+            Configuration = configuration;
         }
 
         /// <summary>
@@ -56,7 +64,9 @@ namespace EventHandlers.Commands.SetGameContract
                 Aggregate = game
             });
 
-            return game.ToContractDto();
+            var timerEndDate = DateTimeOffset.Now.AddSeconds(Configuration.TimerLengthInSecond + Configuration.NetworkOffsetInSecond);
+
+            return game.ToContractDto(timerEndDate);
         }
     }
 }

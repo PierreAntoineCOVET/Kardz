@@ -45,6 +45,11 @@ export class Game {
      */
     public onTurnTimerTicked: Subject<TurnTimerTickedEvent> = new Subject<TurnTimerTickedEvent>();
 
+    /**
+     * Emit when the turn timer needs to be cleared.
+     */
+    public onTurnTimerCleared: Subject<void> = new Subject<void>();
+
     /** Component's subscription. */
     private subscriptions: Subscription;
 
@@ -137,6 +142,9 @@ export class Game {
         else {
             this.onPlayerReadyToBet.next(undefined);
         }
+
+        this.onTurnTimerCleared.next();
+        this.startTurnTimer(contractInfo.currentPlayerNumber, contractInfo.turnEndTime);
     }
 
     /**
@@ -176,6 +184,10 @@ export class Game {
 
         const numberOfTicks = (timerEndTime.getTime() - (new Date()).getTime()) / 1000;
         let currentTick = 0;
+
+        if (this.turnTimer) {
+            clearInterval(this.turnTimer);
+        }
 
         this.turnTimer = setInterval(
             () => {

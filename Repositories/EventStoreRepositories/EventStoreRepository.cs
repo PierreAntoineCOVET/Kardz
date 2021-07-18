@@ -55,11 +55,13 @@ namespace Repositories.EventStoreRepositories
         /// </summary>
         /// <param name="aggregate">Aggregate to save.</param>
         /// <returns></returns>
-        public async Task Save(Aggregate aggregate)
+        public Task Save(Aggregate aggregate)
         {
             EventStoreDbContext.Aggregates.Add(aggregate);
 
             SaveToCache(aggregate);
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace Repositories.EventStoreRepositories
         /// </summary>
         /// <param name="events"></param>
         /// <returns></returns>
-        public async Task Save(Aggregate aggregate, IEnumerable<Event> events)
+        public Task Save(Aggregate aggregate, IEnumerable<Event> events)
         {
             foreach (var @event in events)
             {
@@ -76,6 +78,8 @@ namespace Repositories.EventStoreRepositories
             }
 
             SaveToCache(aggregate);
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

@@ -71,7 +71,7 @@ namespace EventHandlers.Notifications.Aggregate
             foreach (var @event in notification.Aggregate.UncommittedEvents)
             {
                 // update read model
-                _ = Mediator.Publish((dynamic)@event);
+                await Mediator.Publish((dynamic)@event);
 
                 var dbEvent = new Event
                 {

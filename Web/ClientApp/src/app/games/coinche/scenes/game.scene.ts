@@ -91,6 +91,10 @@ export class GameScene extends Phaser.Scene {
         this.subscriptions.add(this.gameDomain.onTurnTimerTicked.subscribe({
             next: (data) => this.updateTurnTimer(data)
         }));
+
+        this.subscriptions.add(this.gameDomain.onTurnTimerCleared.subscribe({
+            next: () => this.clearTurnTimer()
+        }));
     }
 
     update() {
@@ -170,6 +174,14 @@ export class GameScene extends Phaser.Scene {
     }
 
     /**
+     * Clear the current timer rectangles.
+     */
+    private clearTurnTimer() {
+        this.turnTimerBox.clear();
+        this.turnTimerFill.clear();
+    }
+
+    /**
      * Display the dealer chip at the event location.
      * @param event
      */
@@ -195,6 +207,8 @@ export class GameScene extends Phaser.Scene {
             this.currentContract = new ContractEvent();
 
             this.contractFormElement = this.add.dom(800, 550).createFromCache('contractForm');
+
+            console.log(event);
 
             const valueDropDown = this.contractFormElement.getChildByID("contractValue");
             for (let i = 80; i < event.selectedValue; i += 10) {

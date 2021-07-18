@@ -1,4 +1,4 @@
-import { ScreenCoordinate } from '../PlayerPosition';
+import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
 
 /**
  * Start a player turn's timer.
