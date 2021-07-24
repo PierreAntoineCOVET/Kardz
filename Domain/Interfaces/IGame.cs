@@ -46,6 +46,7 @@ namespace Domain.Interfaces
         /// <param name="value">Contract value, if needed.</param>
         /// <param name="player">Contract maker.</param>
         /// <param name="game">Contract's game.</param>
-        void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game);
+        /// <param name="game">Coinched or counter coinched.</param>
+        void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched);
     }
 }

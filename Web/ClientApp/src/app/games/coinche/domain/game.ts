@@ -308,7 +308,8 @@ export class Game {
             playerId: this.playerId,
             gameId: this.gameId,
             color: contract?.selectedColor,
-            value: contract?.selectedValue
+            value: contract?.selectedValue,
+            coinched: contract?.coinched
         });
     }
 }

@@ -54,7 +54,7 @@ namespace Web.Hubs
         /// <param name="gameId"></param>
         /// <param name="playerId"></param>
         /// <returns></returns>
-        public async Task SetGameContract(int? color, int? value, Guid gameId, Guid playerId)
+        public async Task SetGameContract(int? color, int? value, Guid gameId, Guid playerId, bool? coinched)
         {
             var contract = await Mediator.Send(new SetGameContractCommand
             {

@@ -52,9 +52,9 @@ export class GameService {
         this.hubConnection.send('GetGameInformations', gameId, playerId);
     }
 
-    public async broadcastSetGameContract(gameId: uuidv4, playerId: uuidv4, selectedColor: number, selectedValue: number) {
+    public async broadcastSetGameContract(gameId: uuidv4, playerId: uuidv4, selectedColor: number, selectedValue: number, coinched: boolean) {
         await this.startConnection();
 
-        this.hubConnection.send('SetGameContract', selectedColor, selectedValue, gameId, playerId);
+        this.hubConnection.send('SetGameContract', selectedColor, selectedValue, gameId, playerId, coinched);
     }
 }

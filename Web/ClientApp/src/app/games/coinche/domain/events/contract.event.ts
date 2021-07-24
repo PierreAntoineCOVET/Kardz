@@ -1,4 +1,4 @@
-import { ColorEnum } from '../../../../typewriter/enums/ColorEnum.enum';
+import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
 
 /**
  * Contract of the current player for the game.
@@ -13,4 +13,9 @@ export class ContractEvent {
      * Selected trumps value (170 = capot).
      */
     public selectedValue: number;
+
+    /**
+     * Contract coinched / counter coinched
+     */
+    public coinched: boolean;
 }

@@ -123,7 +123,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="value">Contract value, if needed.</param>
         /// <param name="player">Contract maker.</param>
         /// <param name="game">Contract's game.</param>
-        public void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game)
+        public void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool? coinched)
         {
             if (game != Id)
             {
@@ -138,20 +138,24 @@ namespace Domain.GamesLogic.Coinche
             if (Contract.ForceGameRedistribution(color, value))
             {
                 // cards redistribution
+                return;
             }
-            else
-            {
-                var contractMadeEvent = new ContractMadeEvent
-                {
-                    Id = Guid.NewGuid(),
-                    GameId = Id,
-                    PlayerNumber = CurrentPlayerNumber,
-                    Color = color,
-                    MinValue = value
-                };
 
-                RaiseEvent(contractMadeEvent);
+            if(Contract.)
+            {
+
             }
+
+            var contractMadeEvent = new ContractMadeEvent
+            {
+                Id = Guid.NewGuid(),
+                GameId = Id,
+                PlayerNumber = CurrentPlayerNumber,
+                Color = color,
+                MinValue = value
+            };
+
+            RaiseEvent(contractMadeEvent);
         }
 
         /// <summary>

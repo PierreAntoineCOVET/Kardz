@@ -48,7 +48,9 @@ function SendMyMessage(messageData: any) {
             break;
 
         case 'broadcastSetGameContract':
-            gameService.broadcastSetGameContract(messageData.gameId, messageData.playerId, messageData.color, messageData.value);
+            gameService.broadcastSetGameContract(messageData.gameId, messageData.playerId, messageData.color, messageData.value, messageData.coinched);
+            //coinched: contract?.coinched,
+            //counterCoinched
             break;
 
         default:

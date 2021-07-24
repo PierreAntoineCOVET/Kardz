@@ -249,6 +249,10 @@ export class GameScene extends Phaser.Scene {
         else if (event.target.name === 'pass') {
             this.gameDomain.sendContract(undefined);
         }
+        else if (event.target.name === 'coinche') {
+            this.currentContract.coinched = true;
+            this.gameDomain.sendContract(this.currentContract);
+        }
         else if (event.target.name !== undefined && event.target.name !== 'value') {
             if (this.currentContract && this.currentContract.selectedColor !== undefined) {
                 const previousColor = this.contractFormElement.getChildByID(ColorEnum[this.currentContract.selectedColor]);
