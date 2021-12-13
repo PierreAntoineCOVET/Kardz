@@ -141,10 +141,10 @@ namespace Domain.GamesLogic.Coinche
                 return;
             }
 
-            if(Contract.)
-            {
+            //if(Contract.)
+            //{
 
-            }
+            //}
 
             var contractMadeEvent = new ContractMadeEvent
             {
@@ -227,6 +227,11 @@ namespace Domain.GamesLogic.Coinche
                 int take = Consts.COINCHE_NUMBER_OF_CARDS_PER_PLAYER;
                 gamePlayer.Cards = cards.Skip(skip).Take(take);
             }
+        }
+
+        public void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched)
+        {
+            throw new NotImplementedException();
         }
     }
 }

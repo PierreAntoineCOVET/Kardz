@@ -4,6 +4,7 @@ using Domain.Exceptions;
 using Domain.Interfaces;
 using DTOs;
 using DTOs.Shared;
+using EventHandlers.Mappers;
 using EventHandlers.Notifications.Aggregate;
 using EventHandlers.Repositories;
 using MediatR;
@@ -57,7 +58,7 @@ namespace EventHandlers.Commands.SetGameContract
                 throw new GameException($"Game id {request.GameId} not found.");
             }
 
-            game.SetGameContract((ColorEnum?)request.Color, request.Value, request.PlayerId, request.GameId, request.Coinched);
+            game.SetGameContract((ColorEnum?)request.Color, request.Value, request.PlayerId, request.GameId, request.Coinched ?? false);
 
             await Mediator.Publish(new AggregateSaveNotification
             {

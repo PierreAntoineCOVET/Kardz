@@ -1,6 +1,7 @@
 ﻿using Domain.Enums;
 using Domain.Services;
 using DTOs;
+using EventHandlers.Mappers;
 using EventHandlers.Notifications.Aggregate;
 using MediatR;
 using System.Threading;

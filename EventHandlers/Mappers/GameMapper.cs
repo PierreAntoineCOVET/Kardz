@@ -1,9 +1,10 @@
 ﻿using Domain.Interfaces;
+using DTOs;
 using DTOs.Shared;
 using System;
 using System.Linq;
 
-namespace DTOs
+namespace EventHandlers.Mappers
 {
     /// <summary>
     /// Map from model to DTO.
