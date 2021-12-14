@@ -5,7 +5,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { GameScene } from './coinche/scenes/game.scene';
 import { MainScene } from './coinche/scenes/main.scene';
 import { LobbyScene } from './coinche/scenes/lobby.scene';
-import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Module for all the games logic.
@@ -15,7 +14,6 @@ import { TranslateModule } from '@ngx-translate/core';
     imports: [
         CommonModule,
         HttpClientModule,
-        TranslateModule
     ],
     exports: [
         CoincheComponent

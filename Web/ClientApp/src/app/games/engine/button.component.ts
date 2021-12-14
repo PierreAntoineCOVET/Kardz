@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 export class Button extends Phaser.GameObjects.Text {
     constructor(scene: Phaser.Scene, x: number, y: number, text: string, options?: Phaser.Types.GameObjects.Text.TextStyle) {
         text = '< ' + text + ' >';
-        super(scene, x, y, text, options);
+        super(scene, x, y, text, options ?? { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
 
         this.setInteractive({ useHandCursor: true })
             .on('pointerover', () => this.enterButtonHoverState())

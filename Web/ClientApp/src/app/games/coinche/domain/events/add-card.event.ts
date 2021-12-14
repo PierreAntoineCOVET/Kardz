@@ -1,9 +1,9 @@
-import { CardsEnum } from '../../../../typewriter/enums/CardsEnum.enum';
+import { CardsEnum } from 'src/app/typewriter/enums/CardsEnum.enum';
 
-export class AddCardEvent {
-    public x: number;
-    public y: number;
-    public elementName: string;
-    public card: CardsEnum;
-    public angle: number;
+export interface AddCardEvent {
+    x: number;
+    y: number;
+    elementName: string;
+    card: CardsEnum;
+    angle: number;
 }

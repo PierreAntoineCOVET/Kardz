@@ -1,4 +1,4 @@
-export class DealerSelectedEvent {
-    public x: number;
-    public y: number;
+export interface DealerSelectedEvent {
+    x: number;
+    y: number;
 }

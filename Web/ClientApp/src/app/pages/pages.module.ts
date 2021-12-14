@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { HomeComponent } from './home/home.component';
 import { CoincheComponent } from '../games/coinche/coinche.component';
 import { GamesModule } from '../games/games.module';
-import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Module registering all the pages components.
@@ -13,7 +12,6 @@ import { TranslateModule } from '@ngx-translate/core';
     imports: [
         CommonModule,
         GamesModule,
-        TranslateModule
     ],
     exports: [
         HomeComponent

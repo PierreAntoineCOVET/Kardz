@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Lobby } from '../domain/lobby';
 import { LobbyService } from '../../../services/lobby/lobby.service';
-import { TranslateService } from '@ngx-translate/core';
 import { Button } from '../../engine/button.component';
 import { Observable, Subscription } from 'rxjs';
 import { GameStartedEvent } from '../domain/events/game-started.event';
@@ -12,14 +11,14 @@ import { GameStartedEvent } from '../domain/events/game-started.event';
 @Injectable()
 export class LobbyScene extends Phaser.Scene {
     private lobby: Lobby;
-    private numberOfPlayersText: Phaser.GameObjects.Text;
-    private searchGameButton: Button;
+    private numberOfPlayersText!: Phaser.GameObjects.Text;
+    private searchGameButton!: Button;
     private isSearchingGame: boolean = false;
     private subscriptions: Subscription;
-    private numberOfPlayersBaseText: string;
-    private numberOfPLayersFormatedText: string;
+    private numberOfPlayersBaseText!: string;
+    private numberOfPLayersFormatedText!: string;
 
-    constructor(private translateService: TranslateService) {
+    constructor() {
         super({ key: 'lobby' });
 
         this.lobby = new Lobby();
@@ -33,16 +32,17 @@ export class LobbyScene extends Phaser.Scene {
 
     preload() {
     }
+
     create() {
         this.events.on('shutdown', () => this.onDestroy());
 
-        this.numberOfPlayersBaseText = this.translateService.instant('game.lobby.numberOfPlayers') + ' : ';
+        this.numberOfPlayersBaseText = 'Number of players' + ' : '; // TODO: Add translation
 
         this.numberOfPlayersText = this.add.text(1540, 50, '')
             .setOrigin(1, 0);
 
         // create search game button
-        this.searchGameButton = new Button(this, 1540, 850, this.translateService.instant('game.lobby.searchGame'))
+        this.searchGameButton = new Button(this, 1540, 850, 'Search Game') // TODO: Add translation
             .setOrigin(1, 1);
         this.add.existing(this.searchGameButton);
         this.subscriptions.add(this.searchGameButton.click
@@ -51,14 +51,15 @@ export class LobbyScene extends Phaser.Scene {
                     // disable button after first click
                     if (!this.isSearchingGame) {
                         this.isSearchingGame = true;
-                        button.setText(this.translateService.instant('game.lobby.searchingGame'));
+                        button.setText('Searching');// TODO: Add translation
                         this.lobby.searchGame();
                     }
                 }
             }));
 
     }
-    update() {
+
+    override update() {
         this.numberOfPlayersText.setText(this.numberOfPLayersFormatedText);
     }
 

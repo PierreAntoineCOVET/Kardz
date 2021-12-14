@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
  * Lobby domain actions.
  */
 export class Lobby {
-    private playerId: uuidv4;
+    private playerId: string;
     private readonly PLAYER_ID_STORAGE_KEY = 'PlayerIdKey';
     private readonly lobbyWorkerService: Worker;
 
@@ -58,7 +58,7 @@ export class Lobby {
     /**
      * Get the player id from local storage or create one if there is none.
      */
-    private getOrCreatePlayerId(): uuidv4 {
+    private getOrCreatePlayerId(): string {
         if (environment.production) {
             let currentPlayerId = localStorage.getItem(this.PLAYER_ID_STORAGE_KEY);
 

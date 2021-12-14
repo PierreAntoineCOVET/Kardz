@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { HubConnectionBuilder, HubConnection, HubConnectionState } from '@microsoft/signalr';
 import { Subject } from 'rxjs';
 import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
@@ -15,7 +14,7 @@ export class GameService {
 
     public onGameContractChanged: Subject<IGameContractDto> = new Subject<IGameContractDto>();
 
-    constructor(playerId: uuidv4) {
+    constructor(playerId: string) {
         this.hubConnection = new HubConnectionBuilder()
             .withUrl(environment.singalRBaseUrl + '/game', { accessTokenFactory: () => playerId })
             .withAutomaticReconnect()
@@ -46,13 +45,13 @@ export class GameService {
         }
     }
 
-    public async broadcastGetGameInformations(gameId: uuidv4, playerId: uuidv4) {
+    public async broadcastGetGameInformations(gameId: string, playerId: string) {
         await this.startConnection();
 
         this.hubConnection.send('GetGameInformations', gameId, playerId);
     }
 
-    public async broadcastSetGameContract(gameId: uuidv4, playerId: uuidv4, selectedColor: number, selectedValue: number, coinched: boolean) {
+    public async broadcastSetGameContract(gameId: string, playerId: string, selectedColor: number, selectedValue: number, coinched: boolean) {
         await this.startConnection();
 
         this.hubConnection.send('SetGameContract', selectedColor, selectedValue, gameId, playerId, coinched);

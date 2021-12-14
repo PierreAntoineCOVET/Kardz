@@ -8,14 +8,14 @@ import { StartTurnTimerEvent } from './events/turn-timer.event';
  * Player responsible to display it's cards.
  */
 export class Player {
-    public number: number;
-    public isDealer: boolean;
-    public isPlaying: boolean;
+    public number!: number;
+    public isDealer!: boolean;
+    public isPlaying!: boolean;
 
     private readonly turnTimerBigSide = 300;
     private readonly turnTimerSmallSide = 30;
 
-    constructor(public id: uuidv4, public position: ScreenCoordinate)
+    constructor(public id: string | null, public position: ScreenCoordinate)
     {
     }
 
@@ -79,7 +79,8 @@ export class Player {
      * Display the deal chip for the player who delt cards.
      */
     public getTurnTimerPosition(): StartTurnTimerEvent {
-        const timerRectangle = new StartTurnTimerEvent();
+        // TODO : ca marche ca ? ne pas commit
+        const timerRectangle = {} as StartTurnTimerEvent;
 
         if (this.position == ScreenCoordinate.top) {
             timerRectangle.x = 930;

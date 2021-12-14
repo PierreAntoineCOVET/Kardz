@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { v4 as uuidv4 } from 'uuid';
 import { Subscription } from 'rxjs';
 import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
 import { ContractEvent } from 'src/app/games/coinche/domain/events/contract.event';
@@ -14,7 +13,7 @@ import { Game } from 'src/app/games/coinche/domain/game';
  */
 @Injectable()
 export class GameScene extends Phaser.Scene {
-    private gameDomain: Game; // phaser already define a game variable.
+    private gameDomain!: Game; // phaser already define a game variable.
     private subscriptions: Subscription;
     private cardsSpriteOption = {
         cardWidth: 334,
@@ -22,18 +21,19 @@ export class GameScene extends Phaser.Scene {
     };
     private cardsScaleFactor = 0.3;
     private dealerChipScaleFactor = 0.3;
-    private contractFormElement: Phaser.GameObjects.DOMElement;
-    private dealerChip: Phaser.GameObjects.Image;
+    private contractFormElement!: Phaser.GameObjects.DOMElement;
+    private dealerChip!: Phaser.GameObjects.Image;
 
-    private turnTimerBox: Phaser.GameObjects.Graphics;
-    private turnTimerFill: Phaser.GameObjects.Graphics;
+    private turnTimerBox!: Phaser.GameObjects.Graphics;
+    private turnTimerFill!: Phaser.GameObjects.Graphics;
 
-    private turnTimerRectangle: { x: number, y: number, width: number, height: number, direction: ScreenCoordinate };
+    private turnTimerRectangle!: { x: number, y: number, width: number, height: number, direction: ScreenCoordinate };
 
-    private currentContract: ContractEvent;
+    private currentContract!: ContractEvent;
 
     constructor() {
         super({ key: 'game' });
+        this.subscriptions = new Subscription();
     }
 
     init() {
@@ -62,9 +62,9 @@ export class GameScene extends Phaser.Scene {
 
         this.events.on('shutdown', () => this.onDestroy());
 
-        this.subscriptions = this.gameDomain.onCurrentPlayerCardReceived.subscribe({
+        this.subscriptions.add(this.gameDomain.onCurrentPlayerCardReceived.subscribe({
             next: (data) => this.addSprite(data)
-        });
+        }));
 
         this.subscriptions.add(this.gameDomain.onOtherPlayerCardReceived.subscribe({
             next: (data) => this.addImage(data)
@@ -97,7 +97,7 @@ export class GameScene extends Phaser.Scene {
         }));
     }
 
-    update() {
+    override update() {
     }
 
     /**
@@ -105,7 +105,7 @@ export class GameScene extends Phaser.Scene {
      * @param gameId Game's ID
      * @param playerId Current player's ID
      */
-    public startListening(gameId: uuidv4, playerId: uuidv4) {
+    public startListening(gameId: string, playerId: string) {
         this.gameDomain = new Game();
 
         this.gameDomain.setGame(gameId, playerId);
@@ -185,7 +185,7 @@ export class GameScene extends Phaser.Scene {
      * Display the dealer chip at the event location.
      * @param event
      */
-    private displayDealerChip(event: DealerSelectedEvent) {
+    private displayDealerChip(event: DealerSelectedEvent | undefined) {
         if (event) {
             if (!this.dealerChip.visible) {
                 this.dealerChip.visible = true;
@@ -202,9 +202,9 @@ export class GameScene extends Phaser.Scene {
      * Display the html form to choose the contract.
      * @param event Last player choice.
      */
-    private displayContractForm(event: ContractEvent) {
+    private displayContractForm(event: ContractEvent | undefined) {
         if (event) {
-            this.currentContract = new ContractEvent();
+            this.currentContract = {} as ContractEvent; // TODO: ca marche ?
 
             this.contractFormElement = this.add.dom(800, 550).createFromCache('contractForm');
 
@@ -213,13 +213,15 @@ export class GameScene extends Phaser.Scene {
             const valueDropDown = this.contractFormElement.getChildByID("contractValue");
             for (let i = 80; i < event.selectedValue; i += 10) {
                 const optionToRemove = valueDropDown.children.item(0);
-                valueDropDown.removeChild(optionToRemove);
+                if (optionToRemove) {
+                    valueDropDown.removeChild(optionToRemove);
+                }
             }
 
             this.contractFormElement.addListener('click');
             this.contractFormElement.on(
                 'click',
-                (event) => this.contractFormClickEventHandler(event)
+                (event: any) => this.contractFormClickEventHandler(event)
             );
             this.contractFormElement.setPerspective(800);
         }
@@ -263,7 +265,9 @@ export class GameScene extends Phaser.Scene {
             selectedColorButton.classList.add('selected');
 
             let color: string = event.target.value;
-            this.currentContract.selectedColor = ColorEnum[color];
+            this.currentContract.selectedColor = (ColorEnum as { [key: string]: any })[color];
+            // TODO : if this works then remove suppressImplicitAnyIndexErrors from tsconfig.json
+            //this.currentContract.selectedColor = ColorEnum[color];
         }
     }
 
@@ -301,7 +305,7 @@ export class GameScene extends Phaser.Scene {
         this.subscriptions.unsubscribe();
     }
 
-    private createSpeechBubble(x, y, width, height, quote) {
+    private createSpeechBubble(x: number, y: number, width: number, height: number, quote: string) {
         var bubbleWidth = width;
         var bubbleHeight = height;
         var bubblePadding = 10;
@@ -341,7 +345,7 @@ export class GameScene extends Phaser.Scene {
         bubble.lineBetween(point2X, point2Y, point3X, point3Y);
         bubble.lineBetween(point1X, point1Y, point3X, point3Y);
 
-        var content = this.add.text(0, 0, quote, { fontFamily: 'Arial', fontSize: 20, color: '#000000', align: 'center', wordWrap: { width: bubbleWidth - (bubblePadding * 2) } });
+        var content = this.add.text(0, 0, quote, { fontFamily: 'Arial', fontSize: '20', color: '#000000', align: 'center', wordWrap: { width: bubbleWidth - (bubblePadding * 2) } });
 
         var b = content.getBounds();
 

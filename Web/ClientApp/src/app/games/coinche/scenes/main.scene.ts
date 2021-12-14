@@ -15,6 +15,7 @@ export class MainScene extends Phaser.Scene {
 
     preload() {
     }
+
     create() {
         this.scene.add('game', this.gameScene, false);
 
@@ -23,7 +24,8 @@ export class MainScene extends Phaser.Scene {
             next: data => this.startGame(data)
         });
     }
-    update() {
+
+    override update() {
     }
 
     private startGame(data: GameStartedEvent) {

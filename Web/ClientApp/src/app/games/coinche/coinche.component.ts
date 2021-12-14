@@ -12,7 +12,7 @@ import { MainScene } from './scenes/main.scene';
 })
 export class CoincheComponent implements OnInit {
 
-    game: Phaser.Game;
+    game!: Phaser.Game;
     gameConfig: Phaser.Types.Core.GameConfig;
 
     constructor(mainScene: MainScene) {

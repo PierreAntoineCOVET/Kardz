@@ -1,8 +1,6 @@
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { v4 as uuidv4 } from 'uuid';
-
 export class LobbyService {
     private hubConnection: HubConnection;
 
@@ -10,9 +8,9 @@ export class LobbyService {
     public onNewPlayer: Subject<number> = new Subject<number>();
 
     /** Emmit when the current player's game is starting, return the game's Id. */
-    public onGameStarted: Subject<uuidv4> = new Subject<uuidv4>();
+    public onGameStarted: Subject<string> = new Subject<string>();
 
-    constructor(playerId: uuidv4) {
+    constructor(playerId: string) {
         this.hubConnection = new HubConnectionBuilder()
             .withUrl(environment.singalRBaseUrl + '/lobby', { accessTokenFactory: () => playerId })
             .withAutomaticReconnect()
@@ -45,7 +43,7 @@ export class LobbyService {
      * Send current player's data to the hub.
      * @param data player's id.
      */
-    public async broadcastNewPlayer(data: uuidv4) {
+    public async broadcastNewPlayer(data: string) {
         await this.startConnection();
 
         this.hubConnection.invoke('AddNewPlayer', data);
@@ -55,7 +53,7 @@ export class LobbyService {
      * Record current player as ready for game.
      * @param data player's id.
      */
-    public async broadcastSearchGame(data: uuidv4) {
+    public async broadcastSearchGame(data: string) {
         await this.startConnection();
 
         this.hubConnection.invoke('SearchGame', data);

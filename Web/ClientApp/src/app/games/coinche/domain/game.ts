@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Subscription, ReplaySubject, Subject, BehaviorSubject } from 'rxjs';
 import { CardsEnum } from 'src/app/typewriter/enums/CardsEnum.enum';
 import { IGameInitDto } from 'src/app/typewriter/classes/GameInitDto';
@@ -12,8 +11,8 @@ import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
 //import { GameService } from 'src/app/services/game/game.service';
 
 export class Game {
-    public gameId: uuidv4;
-    public playerId: uuidv4;
+    public gameId!: string;
+    public playerId!: string;
 
     /**
      * Emit when a new sprite need to be added (current player has a new card).
@@ -28,17 +27,20 @@ export class Game {
     /**
      * Emit when the real player is ready to vote for its contract.
      */
-    public onPlayerReadyToBet: BehaviorSubject<ContractEvent> = new BehaviorSubject<ContractEvent>(undefined);
+    public onPlayerReadyToBet: BehaviorSubject<ContractEvent | undefined>
+        = new BehaviorSubject<ContractEvent | undefined>(undefined);
 
     /**
      * Emit when the game card's dealer is defined.
      */
-    public onDealerDefined: BehaviorSubject<DealerSelectedEvent> = new BehaviorSubject<DealerSelectedEvent>(undefined);
+    public onDealerDefined: BehaviorSubject<DealerSelectedEvent | undefined>
+        = new BehaviorSubject<DealerSelectedEvent | undefined>(undefined);
 
     /**
      * Emit when a player's turn start.
      */
-    public onTurnTimeStarted: BehaviorSubject<StartTurnTimerEvent> = new BehaviorSubject<StartTurnTimerEvent>(undefined);
+    public onTurnTimeStarted: BehaviorSubject<StartTurnTimerEvent | undefined>
+        = new BehaviorSubject<StartTurnTimerEvent | undefined>(undefined);
 
     /**
      * Emit each seconds of a player's turn.
@@ -51,7 +53,7 @@ export class Game {
     public onTurnTimerCleared: Subject<void> = new Subject<void>();
 
     /** Component's subscription. */
-    private subscriptions: Subscription;
+    private subscriptions!: Subscription;
 
     /** Card's width in pixel. */
     private cardWidth = 105;
@@ -60,7 +62,7 @@ export class Game {
     private players: Player[] = []
 
     /** Timer reference for turn countdown. */
-    private turnTimer: NodeJS.Timeout;
+    private turnTimer!: NodeJS.Timeout;
 
     /** Worker responsible for the signalR socket. */
     private readonly gameWorkerService: Worker;
@@ -92,7 +94,7 @@ export class Game {
      * @param gameId Game ID.
      * @param playerId Player ID.
      */
-    public setGame(gameId: uuidv4, playerId: uuidv4) {
+    public setGame(gameId: string, playerId: string) {
         this.gameId = gameId;
         this.playerId = playerId;
 
@@ -132,10 +134,12 @@ export class Game {
         this.setCurrentPlayerPlaying(contractInfo.currentPlayerNumber);
 
         const currentPlayer = this.players.find(p => p.id == this.playerId);
-        if (currentPlayer.isPlaying) {
-            var contractEvent = new ContractEvent();
-            contractEvent.selectedValue = contractInfo.value + 10;
-            contractEvent.selectedColor = contractInfo.color;
+
+        if (currentPlayer?.isPlaying) {
+            var contractEvent = {
+                selectedValue: contractInfo.value + 10,
+                selectedColor: contractInfo.color,
+            } as ContractEvent;
 
             this.onPlayerReadyToBet.next(contractEvent);
         }
@@ -162,9 +166,11 @@ export class Game {
         this.setCurrentPlayerPlaying(gameDatas.playerPlaying);
 
         const currentPlayer = this.players.find(p => p.id == this.playerId);
-        if (currentPlayer.isPlaying) {
-            var contractEvent = new ContractEvent();
-            contractEvent.selectedValue = 80;
+
+        if (currentPlayer?.isPlaying) {
+            var contractEvent = {
+                selectedValue: 80,
+            } as ContractEvent;
 
             this.onPlayerReadyToBet.next(contractEvent);
         }
@@ -179,7 +185,7 @@ export class Game {
      */
     private startTurnTimer(currentPlayerNumber: number, timerEndTime: Date) {
         let currentPlayer = this.players.find(p => p.number == currentPlayerNumber);
-        let startEvent = currentPlayer.getTurnTimerPosition();
+        let startEvent = currentPlayer?.getTurnTimerPosition();
         this.onTurnTimeStarted.next(startEvent);
 
         const numberOfTicks = (timerEndTime.getTime() - (new Date()).getTime()) / 1000;
@@ -195,8 +201,9 @@ export class Game {
                 const completion = Math.round(currentTick * 100 / numberOfTicks);
                 currentTick++;
 
-                const event = new TurnTimerTickedEvent();
-                event.percentage = completion;
+                const event = {
+                    percentage: completion
+                } as TurnTimerTickedEvent;
 
                 this.onTurnTimerTicked.next(event);
 
@@ -214,7 +221,10 @@ export class Game {
      */
     private setCurrentPlayerPlaying(currentPlayerPlaying: number) {
         this.players.forEach(p => p.isPlaying = false);
-        this.players.find(p => p.number == currentPlayerPlaying).isPlaying = true;
+        var player = this.players.find(p => p.number == currentPlayerPlaying);
+        if (player) {
+            player.isPlaying = true;
+        }
     }
 
     /**
@@ -223,11 +233,12 @@ export class Game {
      */
     private setDealer(dealerNumber: number) {
         const dealer = this.players.find(p => p.number == dealerNumber);
-        const position = dealer.getDealerChipPosition();
+        const position = dealer?.getDealerChipPosition();
 
-        let dealerChipEvent = new DealerSelectedEvent();
-        dealerChipEvent.x = position.x;
-        dealerChipEvent.y = position.y;
+        let dealerChipEvent = {
+            x: position?.x,
+            y: position?.y,
+        } as DealerSelectedEvent;
 
         this.onDealerDefined.next(dealerChipEvent);
     }
@@ -239,10 +250,25 @@ export class Game {
      * @param playerNumber number of the current real player.
      */
     private setPlayersNumber(playerNumber: number) {
-        this.players.find(p => p.position == ScreenCoordinate.bottom).number = playerNumber;
-        this.players.find(p => p.position == ScreenCoordinate.right).number = (playerNumber + 1) % 4;
-        this.players.find(p => p.position == ScreenCoordinate.top).number = (playerNumber + 2) % 4;
-        this.players.find(p => p.position == ScreenCoordinate.left).number = (playerNumber + 3) % 4;
+        var bottomPlayer = this.players.find(p => p.position == ScreenCoordinate.bottom);
+        if (bottomPlayer) {
+            bottomPlayer.number = playerNumber;
+        }
+
+        var rightPlayer = this.players.find(p => p.position == ScreenCoordinate.right);
+        if (rightPlayer) {
+            rightPlayer.number = (playerNumber + 1) % 4;;
+        }
+
+        var topPlayer = this.players.find(p => p.position == ScreenCoordinate.top);
+        if (topPlayer) {
+            topPlayer.number = (playerNumber + 2) % 4;
+        }
+
+        var leftPlayer = this.players.find(p => p.position == ScreenCoordinate.left);
+        if (leftPlayer) {
+            leftPlayer.number = (playerNumber + 3) % 4;
+        }
     }
 
     /**
@@ -255,11 +281,12 @@ export class Game {
                 cards.sort((a, b) => a - b).forEach((spriteNumber, index) => {
                     const spritePosition = player.getSpritePosition(index, this.cardWidth);
 
-                    const cardEvent = new AddCardEvent();
-                    cardEvent.x = spritePosition.x;
-                    cardEvent.y = spritePosition.y;
-                    cardEvent.elementName = 'cards';
-                    cardEvent.card = spriteNumber;
+                    const cardEvent = {
+                        x           : spritePosition.x,
+                        y           : spritePosition.y,
+                        elementName : 'cards',
+                        card        : spriteNumber,
+                    } as AddCardEvent;
 
                     this.onCurrentPlayerCardReceived.next(cardEvent);
                 });
@@ -268,11 +295,12 @@ export class Game {
                 for (let i = 0; i < 8; i++) {
                     const spritePosition = player.getSpritePosition(i, this.cardWidth);
 
-                    const cardEvent = new AddCardEvent();
-                    cardEvent.x = spritePosition.x;
-                    cardEvent.y = spritePosition.y;
-                    cardEvent.elementName = 'cardBack';
-                    cardEvent.angle = spritePosition.angle;
+                    const cardEvent = {
+                        x           : spritePosition.x,
+                        y           : spritePosition.y,
+                        elementName : 'cardBack',
+                        angle       : spritePosition.angle,
+                    } as AddCardEvent;
 
                     this.onOtherPlayerCardReceived.next(cardEvent);
                 }
@@ -302,7 +330,7 @@ export class Game {
      * Send the ContractEvent to the server.
      * @param contract Player's contract.
      */
-    public sendContract(contract: ContractEvent) {
+    public sendContract(contract: ContractEvent | undefined) {
         this.gameWorkerService.postMessage({
             fName: 'broadcastSetGameContract',
             playerId: this.playerId,
