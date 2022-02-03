@@ -8,7 +8,6 @@ import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
 import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche/domain/events/turn-timer.event';
 import { Player } from 'src/app/games/coinche/domain/player';
 import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
-//import { GameService } from 'src/app/services/game/game.service';
 
 export class Game {
     public gameId!: string;
@@ -68,7 +67,7 @@ export class Game {
     private readonly gameWorkerService: Worker;
 
     constructor() {
-        this.gameWorkerService = new Worker('../../../services/game/game.worker', { name: 'game', type: 'module' });
+        this.gameWorkerService = new Worker(new URL('../../../services/game/game.worker', import.meta.url), { name: 'game', type: 'module' });
 
         this.gameWorkerService.onerror = (evt) => {
             console.error('Worker error :');

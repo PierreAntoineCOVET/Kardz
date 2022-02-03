@@ -20,7 +20,7 @@ export class Lobby {
     constructor() {
         this.playerId = this.getOrCreatePlayerId();
 
-        this.lobbyWorkerService = new Worker('../../../services/lobby/lobby.worker', { name: 'lobby', type: 'module' });
+        this.lobbyWorkerService = new Worker(new URL('../../../services/lobby/lobby.worker', import.meta.url), { name: 'lobby', type: 'module' });
 
         this.lobbyWorkerService.onerror = (evt) => {
             console.error('Worker error :');
