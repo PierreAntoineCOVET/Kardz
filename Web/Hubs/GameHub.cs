@@ -1,4 +1,5 @@
-﻿using EventHandlers.Commands.SetGameContract;
+﻿using Domain.Enums;
+using EventHandlers.Commands.SetGameContract;
 using EventHandlers.Queries.GetPlayerCards;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
@@ -60,7 +61,7 @@ namespace Web.Hubs
             {
                 GameId = gameId,
                 PlayerId = playerId,
-                Color = color,
+                Color = (ColorEnum?)color,
                 Value = value
             });
 

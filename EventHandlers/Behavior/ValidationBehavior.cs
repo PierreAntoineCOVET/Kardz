@@ -12,7 +12,7 @@ namespace EventHandlers.Behavior
     /// </summary>
     /// <typeparam name="TRequest">Request type.</typeparam>
     /// <typeparam name="TResponse">Response type.</typeparam>
-    public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
         /// <summary>
         /// List of all validators for the current request type.
@@ -34,7 +34,7 @@ namespace EventHandlers.Behavior
         /// <returns><see cref="TResponse"/></returns>
         public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            var context = new ValidationContext(request);
+            var context = new ValidationContext<TRequest>(request);
 
             var failures = _validators
                 .Select(v => v.Validate(context))

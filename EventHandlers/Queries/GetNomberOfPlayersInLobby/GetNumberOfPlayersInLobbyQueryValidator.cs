@@ -1,6 +1,4 @@
-﻿using Domain.Enums;
-using EventHandlers.Validator;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace EventHandlers.Queries.GetNomberOfPlayersInLobby
 {
@@ -8,7 +6,7 @@ namespace EventHandlers.Queries.GetNomberOfPlayersInLobby
     {
         public GetNumberOfPlayersInLobbyQueryValidator()
         {
-            RuleFor(query => query.GameType).Custom(EnumValidator.Validate<GamesEnum>);
+            RuleFor(query => query.GameType).IsInEnum();
         }
     }
 }

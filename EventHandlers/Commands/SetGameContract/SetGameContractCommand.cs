@@ -1,4 +1,5 @@
-﻿using DTOs.Shared;
+﻿using Domain.Enums;
+using DTOs.Shared;
 using MediatR;
 using System;
 
@@ -12,7 +13,7 @@ namespace EventHandlers.Commands.SetGameContract
         /// <summary>
         /// Contract color (null if passed).
         /// </summary>
-        public int? Color { get; set; }
+        public ColorEnum? Color { get; set; }
 
         /// <summary>
         /// Contract value (null if passed).

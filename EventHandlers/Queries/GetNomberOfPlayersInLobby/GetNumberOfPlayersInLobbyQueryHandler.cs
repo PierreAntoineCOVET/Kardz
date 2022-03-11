@@ -33,7 +33,7 @@ namespace EventHandlers.Queries.GetNomberOfPlayersInLobby
         /// <returns>Number of idle players in lobby.</returns>
         public Task<int> Handle(GetNumberOfPlayersInLobbyQuery request, CancellationToken cancellationToken)
         {
-            var lobby = LobbiesService.GetLobby((GamesEnum)request.GameType);
+            var lobby = LobbiesService.GetLobby(request.GameType);
 
             return Task.FromResult(lobby.NumberOfPlayers);
         }

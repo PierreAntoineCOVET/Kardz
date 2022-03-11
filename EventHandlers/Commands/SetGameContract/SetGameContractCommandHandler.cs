@@ -58,7 +58,7 @@ namespace EventHandlers.Commands.SetGameContract
                 throw new GameException($"Game id {request.GameId} not found.");
             }
 
-            game.SetGameContract((ColorEnum?)request.Color, request.Value, request.PlayerId, request.GameId, request.Coinched ?? false);
+            game.SetGameContract(request.Color, request.Value, request.PlayerId, request.GameId, request.Coinched ?? false);
 
             await Mediator.Publish(new AggregateSaveNotification
             {

@@ -143,6 +143,10 @@ namespace Repositories.EventStoreRepositories
             return fromDb;
         }
 
+        /// <summary>
+        /// Save aggregate to cache form <see cref="DEFAULT_CACHE_DURATION"/> minutes.
+        /// </summary>
+        /// <param name="aggregate"></param>
         private void SaveToCache(Aggregate aggregate)
         {
             Cache.Set(aggregate.Id, aggregate, new MemoryCacheEntryOptions

@@ -1,8 +1,5 @@
-﻿using Domain.Enums;
-using FluentValidation;
-using FluentValidation.Validators;
+﻿using FluentValidation;
 using System;
-using EnumValidator = EventHandlers.Validator.EnumValidator;
 
 namespace EventHandlers.Commands.SetGameContract
 {
@@ -14,14 +11,14 @@ namespace EventHandlers.Commands.SetGameContract
 
             RuleFor(query => query.GameId).NotNull().NotEqual(default(Guid));
 
-            RuleFor(query => query.Color).Custom(EnumValidator.Validate<ColorEnum>);
+            RuleFor(query => query.Color).IsInEnum();
 
             RuleFor(query => query.PlayerId).NotNull().NotEqual(default(Guid));
 
             RuleFor(query => query).Custom(ContractIsValid);
         }
 
-        private void ContractIsValid(SetGameContractCommand query, CustomContext context)
+        private void ContractIsValid(SetGameContractCommand query, ValidationContext<SetGameContractCommand> context)
         {
             if ((query.Color.HasValue && !query.Value.HasValue)
                 || (!query.Color.HasValue && query.Value.HasValue))

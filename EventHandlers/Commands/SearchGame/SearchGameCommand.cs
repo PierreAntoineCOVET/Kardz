@@ -1,4 +1,5 @@
-﻿using DTOs;
+﻿using Domain.Enums;
+using DTOs;
 using MediatR;
 using System;
 
@@ -14,6 +15,6 @@ namespace EventHandlers.Commands.SearchGame
         /// </summary>
         public Guid PlayerId { get; set; }
 
-        public int GameType { get; set; }
+        public GamesEnum GameType { get; set; }
     }
 }

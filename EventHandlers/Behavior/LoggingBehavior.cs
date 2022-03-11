@@ -11,7 +11,7 @@ namespace EventHandlers.Behavior
     /// </summary>
     /// <typeparam name="TRequest">Request type.</typeparam>
     /// <typeparam name="TResponse">Response type.</typeparam>
-    public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
         /// <summary>
         /// Log4net logger.

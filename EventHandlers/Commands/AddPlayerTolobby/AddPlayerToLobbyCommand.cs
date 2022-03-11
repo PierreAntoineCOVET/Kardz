@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Domain.Enums;
+using MediatR;
 using System;
 
 namespace EventHandlers.Commands.AddPlayerTolobby
@@ -16,6 +17,6 @@ namespace EventHandlers.Commands.AddPlayerTolobby
         /// <summary>
         /// Game's type of the Lobby.
         /// </summary>
-        public int GameType { get; set; }
+        public GamesEnum GameType { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Domain.Enums;
+using MediatR;
 
 namespace EventHandlers.Queries.GetNomberOfPlayersInLobby
 {
@@ -10,6 +11,6 @@ namespace EventHandlers.Queries.GetNomberOfPlayersInLobby
         /// <summary>
         /// Game's type of the Lobby.
         /// </summary>
-        public int GameType { get; set; }
+        public GamesEnum GameType { get; set; }
     }
 }
