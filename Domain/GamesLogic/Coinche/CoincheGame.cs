@@ -138,7 +138,8 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="player">Contract maker.</param>
         /// <param name="game">Contract's game.</param>
         /// <param name="coinched">True if the players has coinched.</param>
-        public void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched)
+        /// <returns>True if the contract applyed correctly, false if it failed.</returns>
+        public bool SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched)
         {
             if (game != Id)
             {
@@ -153,16 +154,20 @@ namespace Domain.GamesLogic.Coinche
             if (Contract.IsContractFailed(color, value))
             {
                 var cardsDistribution = DealCards(Teams.SelectMany(t => t.Players));
+                var nextDealer = GetNext(CurrentDealer);
 
                 var contractFailedEvent = new ContractFailedEvent
                 {
                     Id = Guid.NewGuid(),
+                    GameId = game,
                     CardsDistribution = cardsDistribution,
-                    CurrentDealer = GetNext(CurrentDealer),
-                    CurrentPlayerNumber = GetNext(CurrentPlayerNumber),
+                    CurrentDealer = nextDealer,
+                    CurrentPlayerNumber = GetNext(nextDealer),
                 };
 
                 RaiseEvent(contractFailedEvent);
+
+                return false;
             }
             else
             {
@@ -172,6 +177,8 @@ namespace Domain.GamesLogic.Coinche
                 contractMadeEvent.CurrentPlayerNumber = GetNext(CurrentPlayerNumber);
 
                 RaiseEvent(contractMadeEvent);
+
+                return true;
             }
         }
 

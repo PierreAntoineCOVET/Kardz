@@ -1,9 +1,11 @@
 ﻿using Domain.Entities.ReadEntities;
+using Domain.Enums;
 using Domain.Events;
 using EventHandlers.Repositories;
 using EventHandlers.Specifications;
 using MediatR;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +17,8 @@ namespace EventHandlers.Notifications.Game
     /// </summary>
     public class GameEventsHandler :
         INotificationHandler<GameCreatedEvent>,
-        INotificationHandler<ContractMadeEvent>
+        INotificationHandler<ContractMadeEvent>,
+        INotificationHandler<ContractFailedEvent>
     {
         /// <summary>
         /// Read modele repository.
@@ -53,7 +56,7 @@ namespace EventHandlers.Notifications.Game
                     Players = t.Players.Select(p => new CoinchePlayer
                     {
                         Id = p.Id,
-                        Cards = string.Join(";", p.Cards.Cast<int>()),
+                        Cards = CardsSerialize(p.Cards),
                         Number = p.Number,
                         GameId = notification.GameId,
                         TeamNumber = t.Number
@@ -77,37 +80,32 @@ namespace EventHandlers.Notifications.Game
         /// <returns></returns>
         public async Task Handle(ContractMadeEvent notification, CancellationToken cancellationToken)
         {
-            //var games = await GenericRepository.Query(new CoincheGameDatasSpecification(notification.GameId));
+            //var games = await GenericRepository.Query(new GetCoincheGameByIdWithPlayersSpecification(notification.GameId));
             //var game = games.SingleOrDefault();
 
-            //game.CurrentPayerTurn = notification.PlayerNumber
-                
-            //    new CoincheGame
-            //{
-            //    Id = notification.GameId,
-            //    CurrentDealer = notification.CurrentDealer,
-            //    CurrentPayerTurn = notification.CurrentPlayerNumber,
-            //    TurnTimerBase = notification.TurnTimerBase,
-            //    Teams = notification.Teams.Select(t => new CoincheTeam
-            //    {
-            //        GameId = notification.GameId,
-            //        Number = t.Number,
-            //        Score = 0,
-            //        Players = t.Players.Select(p => new CoinchePlayer
-            //        {
-            //            Id = p.Id,
-            //            Cards = String.Join(";", p.Cards.Cast<int>()),
-            //            Number = p.Number,
-            //            GameId = notification.GameId,
-            //            TeamNumber = t.Number
-
-            //        }).ToList()
-            //    }).ToList()
-            //};
-
-            //await GenericRepository.Add(coincheGame);
-
             //await GenericRepository.SaveChanges();
+        }
+
+        public async Task Handle(ContractFailedEvent notification, CancellationToken cancellationToken)
+        {
+            var games = await GenericRepository.Query(new GetFullCoincheGameByIdSpecification(notification.GameId));
+            var game = games.SingleOrDefault();
+
+            foreach (var player in game.Teams.SelectMany(t => t.Players))
+            {
+                var playerCards = notification.CardsDistribution[player.Id];
+                player.Cards = CardsSerialize(playerCards);
+            }
+
+            game.CurrentDealer = notification.CurrentDealer;
+            game.CurrentPayerTurn = notification.CurrentPlayerNumber;
+
+            await GenericRepository.SaveChanges();
+        }
+
+        private string CardsSerialize(IEnumerable<CardsEnum> cards)
+        {
+            return string.Join(";", cards.Cast<int>());
         }
     }
 }

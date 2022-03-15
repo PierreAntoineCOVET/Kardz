@@ -71,11 +71,6 @@ namespace Domain.GamesLogic.Coinche
 
         public int? Value => _Value;
 
-        public bool HasLastPlayerPassed()
-        {
-            return PassCounter > 0;
-        }
-
         public void Apply(ContractMadeEvent @event)
         {
             PassCounter = @event.PassCounter;

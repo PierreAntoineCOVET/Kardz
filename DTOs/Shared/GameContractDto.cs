@@ -25,7 +25,7 @@ namespace DTOs.Shared
         /// <summary>
         /// True if the last player did not bet
         /// </summary>
-        public bool HasLastPLayerPassed { get; set; }
+        public bool HasContractFailed { get; set; }
 
         /// <summary>
         /// Id of the player that will update the contract.

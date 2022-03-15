@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Validator\**" />
+    <EmbeddedResource Remove="Validator\**" />
+    <None Remove="Validator\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="10.4.0" />
     <PackageReference Include="MediatR" Version="10.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
@@ -13,10 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Validator\" />
   </ItemGroup>
 
 </Project>

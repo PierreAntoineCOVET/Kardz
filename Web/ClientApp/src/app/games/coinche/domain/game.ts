@@ -102,6 +102,13 @@ export class Game {
         this.players.push(new Player(null, ScreenCoordinate.top));
         this.players.push(new Player(null, ScreenCoordinate.right));
 
+        this.RequestGameInfos();
+    }
+
+    /**
+     * Request current game infos such as player cards and current dealer / player.
+     */
+    private RequestGameInfos() {
         this.gameWorkerService.postMessage({
             playerId: this.playerId,
             gameId: this.gameId,
@@ -122,7 +129,7 @@ export class Game {
      * @param obj Object to check.
      */
     private isICoincheContractDto(obj: any): obj is IGameContractDto {
-        return (obj as IGameContractDto).hasLastPLayerPassed !== undefined;
+        return (obj as IGameContractDto).hasContractFailed !== undefined;
     }
 
     /**
@@ -130,11 +137,16 @@ export class Game {
      * @param contractInfo
      */
     private onGameContractChanged(contractInfo: IGameContractDto) {
-        this.setCurrentPlayerPlaying(contractInfo.currentPlayerNumber);
+        if (contractInfo.hasContractFailed) {
+            this.RequestGameInfos();
+            return;
+        }
 
-        const currentPlayer = this.players.find(p => p.id == this.playerId);
+        this.updateCurrentPlayer(contractInfo.currentPlayerNumber);
 
-        if (currentPlayer?.isPlaying) {
+        const localPlayer = this.players.find(p => p.id == this.playerId);
+
+        if (localPlayer?.isPlaying) {
             var contractEvent = {
                 selectedValue: contractInfo.value + 10,
                 selectedColor: contractInfo.color,
@@ -162,7 +174,7 @@ export class Game {
         this.displayCards(gameDatas.playerCards);
         this.setPlayersNumber(gameDatas.playerNumber);
         this.setDealer(gameDatas.dealer);
-        this.setCurrentPlayerPlaying(gameDatas.playerPlaying);
+        this.updateCurrentPlayer(gameDatas.playerPlaying);
 
         const currentPlayer = this.players.find(p => p.id == this.playerId);
 
@@ -218,7 +230,7 @@ export class Game {
      * Indicate which player has to play for the current turn.
      * @param currentPlayerPlaying number of the player who has to play.
      */
-    private setCurrentPlayerPlaying(currentPlayerPlaying: number) {
+    private updateCurrentPlayer(currentPlayerPlaying: number) {
         this.players.forEach(p => p.isPlaying = false);
         var player = this.players.find(p => p.number == currentPlayerPlaying);
         if (player) {

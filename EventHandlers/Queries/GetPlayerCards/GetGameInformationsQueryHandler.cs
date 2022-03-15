@@ -44,7 +44,7 @@ namespace EventHandlers.Queries.GetPlayerCards
         /// TODO: delete and send all infos on search game command
         public async Task<GameInitDto> Handle(GetGameInformationsQuery request, CancellationToken cancellationToken)
         {
-            var games = await GenericRepository.Query(new CoincheGameDatasSpecification(request.GameId));
+            var games = await GenericRepository.Query(new GetFullCoincheGameByIdSpecification(request.GameId));
             var game = games.SingleOrDefault();
 
             if (game == null)

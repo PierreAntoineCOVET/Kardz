@@ -18,12 +18,6 @@ namespace Domain.Interfaces
         int? Value { get; }
 
         /// <summary>
-        /// True if the last player has passed (regarding of contract color and  value).
-        /// </summary>
-        /// <returns></returns>
-        bool HasLastPlayerPassed();
-
-        /// <summary>
         /// Return true if the game need to redistribute the cards.
         /// </summary>
         /// <param name="color"></param>
