@@ -53,7 +53,7 @@ namespace EventHandlers.Notifications.Game
                     Players = t.Players.Select(p => new CoinchePlayer
                     {
                         Id = p.Id,
-                        Cards = String.Join(";", p.Cards.Cast<int>()),
+                        Cards = string.Join(";", p.Cards.Cast<int>()),
                         Number = p.Number,
                         GameId = notification.GameId,
                         TeamNumber = t.Number

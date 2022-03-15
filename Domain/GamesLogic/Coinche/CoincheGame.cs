@@ -80,13 +80,14 @@ namespace Domain.GamesLogic.Coinche
 
             var teams = CreateTeams(players);
 
-            DealCards(teams.SelectMany(t => t.Players));
+            var cardsDistribution = DealCards(teams.SelectMany(t => t.Players));
 
             var createGameEvent = new GameCreatedEvent
             {
                 Id = Guid.NewGuid(),
                 GameId = id,
                 Teams = teams,
+                CardsDistribution = cardsDistribution,
                 CurrentDealer = 3,
                 CurrentPlayerNumber = 0,
                 TurnTimerBase = DateTimeOffset.Now
@@ -111,9 +112,22 @@ namespace Domain.GamesLogic.Coinche
         {
             Id = @event.GameId;
             _Teams = @event.Teams.Cast<CoincheTeam>().ToList();
+            ApplyCards(@event.CardsDistribution);
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
             TurnTimerBase = @event.TurnTimerBase;
+        }
+
+        /// <summary>
+        /// Apply the cards distribution to each players.
+        /// </summary>
+        /// <param name="cards"></param>
+        private void ApplyCards(IDictionary<Guid, IEnumerable<CardsEnum>> cards)
+        {
+            foreach (var player in Teams.SelectMany(t => t.Players))
+            {
+                player.Cards = cards[player.Id];
+            }
         }
 
         /// <summary>
@@ -123,7 +137,8 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="value">Contract value, if needed.</param>
         /// <param name="player">Contract maker.</param>
         /// <param name="game">Contract's game.</param>
-        public void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool? coinched)
+        /// <param name="coinched">True if the players has coinched.</param>
+        public void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched)
         {
             if (game != Id)
             {
@@ -135,47 +150,61 @@ namespace Domain.GamesLogic.Coinche
                 throw new GameException("Not your turn to bet.");
             }
 
-            if (Contract.ForceGameRedistribution(color, value))
+            if (Contract.IsContractFailed(color, value))
             {
-                // cards redistribution
-                return;
+                var cardsDistribution = DealCards(Teams.SelectMany(t => t.Players));
+
+                var contractFailedEvent = new ContractFailedEvent
+                {
+                    Id = Guid.NewGuid(),
+                    CardsDistribution = cardsDistribution,
+                    CurrentDealer = GetNext(CurrentDealer),
+                    CurrentPlayerNumber = GetNext(CurrentPlayerNumber),
+                };
+
+                RaiseEvent(contractFailedEvent);
             }
-
-            //if(Contract.)
-            //{
-
-            //}
-
-            var contractMadeEvent = new ContractMadeEvent
+            else
             {
-                Id = Guid.NewGuid(),
-                GameId = Id,
-                PlayerNumber = CurrentPlayerNumber,
-                Color = color,
-                MinValue = value
-            };
+                var contractMadeEvent = Contract.GetContractMadeEvent(color, value);
 
-            RaiseEvent(contractMadeEvent);
+                contractMadeEvent.GameId = game;
+                contractMadeEvent.CurrentPlayerNumber = GetNext(CurrentPlayerNumber);
+
+                RaiseEvent(contractMadeEvent);
+            }
         }
 
         /// <summary>
-        /// Apply <see cref="GameCreatedEvent"/>.
+        /// Apply contract failed event to current instance.
+        /// </summary>
+        /// <param name="event"></param>
+        internal void Apply(ContractFailedEvent @event)
+        {
+            ApplyCards(@event.CardsDistribution);
+
+            CurrentDealer = @event.CurrentDealer;
+            CurrentPlayerNumber = @event.CurrentPlayerNumber;
+        }
+
+        /// <summary>
+        /// Apply contract made event to current instance.
         /// </summary>
         /// <param name="event"></param>
         internal void Apply(ContractMadeEvent @event)
         {
-            Contract.SetContract(@event.Color, @event.MinValue);
-
-            SetNextPlayer(@event.PlayerNumber);
+            CurrentPlayerNumber = @event.CurrentPlayerNumber;
+            Contract.Apply(@event);
         }
 
         /// <summary>
-        /// Set current player as currentPlayer next player.
+        /// Return the next number modulo Consts.NUMBER_OF_PLAYERS_FOR_A_GAME;
         /// </summary>
-        /// <param name="currentPlayer">Current player.</param>
-        private void SetNextPlayer(int currentPlayer)
+        /// <param name="current"></param>
+        /// <returns></returns>
+        private int GetNext(int current)
         {
-            CurrentPlayerNumber = (currentPlayer + 1) % 4;
+            return (current + 1) % Consts.NUMBER_OF_PLAYERS_FOR_A_GAME;
         }
 
         /// <summary>
@@ -214,24 +243,23 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Deal random cards to the given players.
         /// </summary>
-        /// <param name="gamePlayers">List of players to deal.</param>
-        private void DealCards(IEnumerable<IPlayer> gamePlayers)
+        /// <param name="players">List of players to deal.</param>
+        private Dictionary<Guid, IEnumerable<CardsEnum>> DealCards(IEnumerable<IPlayer> players)
         {
             var deck = new CoincheCardsDeck();
             var cards = deck.Shuffle();
 
-            //for (int i=0; i<gamePlayers.Count(); i++)
-            foreach (var gamePlayer in gamePlayers)
-            {
-                int skip = Consts.COINCHE_NUMBER_OF_CARDS_PER_PLAYER * gamePlayer.Number;
-                int take = Consts.COINCHE_NUMBER_OF_CARDS_PER_PLAYER;
-                gamePlayer.Cards = cards.Skip(skip).Take(take);
-            }
-        }
+            var shuffledCards = new Dictionary<Guid, IEnumerable<CardsEnum>>();
 
-        public void SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched)
-        {
-            throw new NotImplementedException();
+            foreach (var player in players)
+            {
+                int skip = Consts.COINCHE_NUMBER_OF_CARDS_PER_PLAYER * player.Number;
+                int take = Consts.COINCHE_NUMBER_OF_CARDS_PER_PLAYER;
+
+                shuffledCards.Add(player.Id, cards.Skip(skip).Take(take));
+            }
+
+            return shuffledCards;
         }
     }
 }

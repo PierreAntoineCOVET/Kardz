@@ -25,9 +25,9 @@ namespace Domain.Events
         public Guid GameId { get; set; }
 
         /// <summary>
-        /// Player Id.
+        /// Player who needs to play.
         /// </summary>
-        public int PlayerNumber { get; set; }
+        public int CurrentPlayerNumber { get; set; }
 
         /// <summary>
         /// Choosen color.
@@ -37,7 +37,12 @@ namespace Domain.Events
         /// <summary>
         /// Contract succes threshold.
         /// </summary>
-        public int? MinValue { get; set; }
+        public int? Value { get; set; }
+
+        /// <summary>
+        /// Number of players who passed the current contract.
+        /// </summary>
+        public int PassCounter { get; set; }
     }
 
     /// <summary>

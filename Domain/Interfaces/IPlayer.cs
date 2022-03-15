@@ -15,7 +15,7 @@ namespace Domain.Interfaces
         Guid Id { get; }
 
         /// <summary>
-        /// Player's number.
+        /// Player's number (0 base).
         /// </summary>
         int Number { get; set; }
 

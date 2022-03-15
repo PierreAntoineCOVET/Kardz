@@ -36,8 +36,8 @@ namespace EventHandlers.Mappers
         {
             return new GameContractDto
             {
-                Color = (int?)game.Contract.GetColor(),
-                Value = game.Contract.GetValue(),
+                Color = (int?)game.Contract.Color,
+                Value = game.Contract.Value,
                 LastPlayerNumber = game.LastPlayerNumber,
                 CurrentPlayerNumber = game.CurrentPlayerNumber,
                 HasLastPLayerPassed = game.Contract.HasLastPlayerPassed(),

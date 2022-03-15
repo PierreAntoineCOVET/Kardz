@@ -1,4 +1,5 @@
-﻿using Domain.GamesLogic.Coinche;
+﻿using Domain.Enums;
+using Domain.GamesLogic.Coinche;
 using Domain.Interfaces;
 using Domain.Tools.Serialization;
 using MediatR;
@@ -29,6 +30,11 @@ namespace Domain.Events
         /// Game's teams.
         /// </summary>
         public IEnumerable<ITeam> Teams { get; set; }
+
+        /// <summary>
+        /// Dictionnary of all the cards attributed to each players.
+        /// </summary>
+        public IDictionary<Guid, IEnumerable<CardsEnum>> CardsDistribution { get; set; }
 
         /// <summary>
         /// Player number for the dealer.
