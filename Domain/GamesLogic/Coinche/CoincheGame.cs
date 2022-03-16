@@ -38,7 +38,7 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Return the number of the player before current.
         /// </summary>
-        public int LastPlayerNumber => CurrentPlayerNumber + 3 % 4;
+        public int LastPlayerNumber => (CurrentPlayerNumber + 3) % 4;
 
         /// <summary>
         /// Game's current contract.

@@ -9,6 +9,7 @@ import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche
 import { Player } from 'src/app/games/coinche/domain/player';
 import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
 import { PlayerSaidEvent } from './events/player-said.event';
+import { ColorEnum } from '../../../typewriter/enums/ColorEnum.enum';
 
 export class Game {
     public gameId!: string;
@@ -150,12 +151,27 @@ export class Game {
             return;
         }
 
-        this.updateCurrentPlayer(contractInfo.currentPlayerNumber);
-
         const localPlayer = this.players.find(p => p.id == this.playerId);
 
-        if (localPlayer?.isPlaying) {
-            var contractEvent = { } as ContractEvent;
+        if (!localPlayer) {
+            throw new Error(`Cannot find designated player : ${this.playerId}`);
+        }
+
+        const lastPlayer = this.players.find(p => p.number == contractInfo.lastPlayerNumber);
+
+        if (!lastPlayer) {
+            throw new Error(`Cannot find designated player : n°${contractInfo.lastPlayerNumber}`);
+        }
+
+        this.updateCurrentPlayer(contractInfo.currentPlayerNumber);
+
+        const contractBubbleText = contractInfo.value ? `${contractInfo.value} ${ColorEnum[contractInfo.color]}` : 'Passed';
+        this.onPlayerSays.next(lastPlayer.getContractSpeechBubble(contractBubbleText));
+
+        if (localPlayer.isPlaying) {
+            var contractEvent = {
+                currentPlayerNumber: localPlayer.number
+            } as ContractEvent;
 
             if (contractInfo.value) {
                 contractEvent.selectedValue = contractInfo.value + 10;
@@ -187,8 +203,14 @@ export class Game {
 
         const currentPlayer = this.players.find(p => p.id == this.playerId);
 
-        if (currentPlayer?.isPlaying) {
-            var contractEvent = { } as ContractEvent;
+        if (!currentPlayer) {
+            throw new Error(`Cannot find designated player : ${this.playerId}`);
+        }
+
+        if (currentPlayer.isPlaying) {
+            var contractEvent = {
+                currentPlayerNumber: currentPlayer.number
+            } as ContractEvent;
 
             this.onContractChanged.next(contractEvent);
         }

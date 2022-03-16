@@ -3,9 +3,10 @@ import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { ScreenCoordinate } from '../domain/PlayerPosition';
 import { v4 as uuidv4 } from 'uuid';
 import { StartTurnTimerEvent } from './events/turn-timer.event';
+import { BubbleQueuePosition, PlayerSaidEvent } from './events/player-said.event';
 
 /**
- * Player responsible to display it's cards.
+ * Player VM responsible to compute it's UI (position and width).
  */
 export class Player {
     public number!: number;
@@ -14,6 +15,9 @@ export class Player {
 
     private readonly turnTimerBigSide = 300;
     private readonly turnTimerSmallSide = 30;
+
+    private readonly contractSpeechBubbleWidth = 200;
+    private readonly contractSpeechBubbleHeight = 100;
 
     constructor(public id: string | null, public position: ScreenCoordinate)
     {
@@ -113,6 +117,51 @@ export class Player {
         }
 
         return timerRectangle;
+    }
+
+    /**
+     * Get the position, size and content of the speech bubble
+     * annoncing the last player contract choice.
+     */
+    public getContractSpeechBubble(text: string): PlayerSaidEvent {
+        var position = this.getBubblePosition();
+
+        return {
+            height: this.contractSpeechBubbleHeight,
+            width: this.contractSpeechBubbleWidth,
+            playerNumber: this.number,
+            text: text,
+            x: position.x,
+            y: position.y,
+            bubbleQueuePosition: position.queue
+        } as PlayerSaidEvent;
+    }
+
+    private getBubblePosition(): { x: number, y: number, queue: BubbleQueuePosition } {
+        const position = {} as { x: number, y: number, queue: BubbleQueuePosition };
+
+        if (this.position == ScreenCoordinate.top) {
+            position.x = 715;
+            position.y = 205;
+            position.queue = BubbleQueuePosition.topRight;
+        }
+        else if (this.position == ScreenCoordinate.bottom) {
+            position.x = 680;
+            position.y = 610;
+            position.queue = BubbleQueuePosition.bottomLeft;
+        }
+        else if (this.position == ScreenCoordinate.right) {
+            position.x = 1230;
+            position.y = 430;
+            position.queue = BubbleQueuePosition.bottomRight;
+        }
+        else if (this.position == ScreenCoordinate.left) {
+            position.x = 180;
+            position.y = 380;
+            position.queue = BubbleQueuePosition.bottomLeft;
+        }
+
+        return position;
     }
 }
 

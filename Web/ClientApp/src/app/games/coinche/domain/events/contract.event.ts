@@ -18,4 +18,9 @@ export interface ContractEvent {
      * Contract coinched / counter coinched
      */
     coinched: boolean;
+
+    /**
+     * Number of the player currently playing.
+     */
+    currentPlayerNumber: number;
 }
