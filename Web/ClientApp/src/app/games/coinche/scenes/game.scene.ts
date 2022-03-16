@@ -70,7 +70,7 @@ export class GameScene extends Phaser.Scene {
             next: (data) => this.addImage(data)
         }));
 
-        this.subscriptions.add(this.gameDomain.onPlayerReadyToBet.subscribe({
+        this.subscriptions.add(this.gameDomain.onContractChanged.subscribe({
             next: (data) => {
                 this.displayContractForm(data);
             }
@@ -204,18 +204,21 @@ export class GameScene extends Phaser.Scene {
      */
     private displayContractForm(event: ContractEvent | undefined) {
         if (event) {
-            this.currentContract = {} as ContractEvent; // TODO: ca marche ?
+            this.currentContract = {} as ContractEvent;
 
             this.contractFormElement = this.add.dom(800, 550).createFromCache('contractForm');
 
-            console.log(event);
-
-            const valueDropDown = this.contractFormElement.getChildByID("contractValue");
-            for (let i = 80; i < event.selectedValue; i += 10) {
-                const optionToRemove = valueDropDown.children.item(0);
-                if (optionToRemove) {
-                    valueDropDown.removeChild(optionToRemove);
+            if (event.selectedValue) {
+                const valueDropDown = this.contractFormElement.getChildByID("contractValue");
+                for (let i = 80; i < event.selectedValue; i += 10) {
+                    const optionToRemove = valueDropDown.children.item(0);
+                    if (optionToRemove) {
+                        valueDropDown.removeChild(optionToRemove);
+                    }
                 }
+            }
+            else {
+                this.contractFormElement.getChildByID("coinche").setAttribute("disabled", "disabled");
             }
 
             this.contractFormElement.addListener('click');
@@ -266,9 +269,7 @@ export class GameScene extends Phaser.Scene {
             selectedColorButton.classList.add('selected');
 
             let color: string = event.target.value;
-            this.currentContract.selectedColor = (ColorEnum as { [key: string]: any })[color];
-            // TODO : if this works then remove suppressImplicitAnyIndexErrors from tsconfig.json
-            //this.currentContract.selectedColor = ColorEnum[color];
+            this.currentContract.selectedColor = ColorEnum[color];
         }
     }
 

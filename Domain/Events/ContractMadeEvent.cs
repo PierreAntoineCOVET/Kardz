@@ -25,6 +25,11 @@ namespace Domain.Events
         public Guid GameId { get; set; }
 
         /// <summary>
+        /// Contract ower player's Id.
+        /// </summary>
+        public Guid? Owner { get; set; }
+
+        /// <summary>
         /// Player who needs to play.
         /// </summary>
         public int CurrentPlayerNumber { get; set; }
@@ -43,6 +48,12 @@ namespace Domain.Events
         /// Number of players who passed the current contract.
         /// </summary>
         public int PassCounter { get; set; }
+
+        /// <summary>
+        /// Time at wich the turn time for all players will start.
+        /// Used to synchronise the time for each game player.
+        /// </summary>
+        public DateTimeOffset TurnTimerBase { get; set; }
     }
 
     /// <summary>

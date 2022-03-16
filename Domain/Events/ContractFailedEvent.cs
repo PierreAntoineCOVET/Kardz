@@ -45,6 +45,11 @@ namespace Domain.Events
         /// Used to synchronise the time for each game player.
         /// </summary>
         public DateTimeOffset TurnTimerBase { get; set; }
+
+        /// <summary>
+        /// Number of time the players passed the contract.
+        /// </summary>
+        public int ContractPassedCount { get; set; }
     }
 
     /// <summary>

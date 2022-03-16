@@ -8,6 +8,7 @@ import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
 import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche/domain/events/turn-timer.event';
 import { Player } from 'src/app/games/coinche/domain/player';
 import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
+import { PlayerSaidEvent } from './events/player-said.event';
 
 export class Game {
     public gameId!: string;
@@ -24,9 +25,9 @@ export class Game {
     public onOtherPlayerCardReceived: ReplaySubject<AddCardEvent> = new ReplaySubject<AddCardEvent>();
 
     /**
-     * Emit when the real player is ready to vote for its contract.
+     * Emit when the contract has changed.
      */
-    public onPlayerReadyToBet: BehaviorSubject<ContractEvent | undefined>
+    public onContractChanged: BehaviorSubject<ContractEvent | undefined>
         = new BehaviorSubject<ContractEvent | undefined>(undefined);
 
     /**
@@ -40,6 +41,12 @@ export class Game {
      */
     public onTurnTimeStarted: BehaviorSubject<StartTurnTimerEvent | undefined>
         = new BehaviorSubject<StartTurnTimerEvent | undefined>(undefined);
+
+    /**
+     * Emit when a player's says something or make a contract (or pass).
+     */
+    public onPlayerSays: BehaviorSubject<PlayerSaidEvent | undefined>
+        = new BehaviorSubject<PlayerSaidEvent | undefined>(undefined);
 
     /**
      * Emit each seconds of a player's turn.
@@ -138,7 +145,7 @@ export class Game {
      */
     private onGameContractChanged(contractInfo: IGameContractDto) {
         if (contractInfo.hasContractFailed) {
-            this.onPlayerReadyToBet.next(undefined);
+            this.onContractChanged.next(undefined);
             this.RequestGameInfos();
             return;
         }
@@ -148,15 +155,16 @@ export class Game {
         const localPlayer = this.players.find(p => p.id == this.playerId);
 
         if (localPlayer?.isPlaying) {
-            var contractEvent = {
-                selectedValue: contractInfo.value + 10,
-                selectedColor: contractInfo.color,
-            } as ContractEvent;
+            var contractEvent = { } as ContractEvent;
 
-            this.onPlayerReadyToBet.next(contractEvent);
+            if (contractInfo.value) {
+                contractEvent.selectedValue = contractInfo.value + 10;
+            }
+
+            this.onContractChanged.next(contractEvent);
         }
         else {
-            this.onPlayerReadyToBet.next(undefined);
+            this.onContractChanged.next(undefined);
         }
 
         this.onTurnTimerCleared.next();
@@ -180,11 +188,9 @@ export class Game {
         const currentPlayer = this.players.find(p => p.id == this.playerId);
 
         if (currentPlayer?.isPlaying) {
-            var contractEvent = {
-                selectedValue: 80,
-            } as ContractEvent;
+            var contractEvent = { } as ContractEvent;
 
-            this.onPlayerReadyToBet.next(contractEvent);
+            this.onContractChanged.next(contractEvent);
         }
 
         this.startTurnTimer(gameDatas.playerPlaying, gameDatas.turnEndTime);
@@ -332,7 +338,7 @@ export class Game {
 
         this.onCurrentPlayerCardReceived.complete();
         this.onOtherPlayerCardReceived.complete();
-        this.onPlayerReadyToBet.complete();
+        this.onContractChanged.complete();
         this.onDealerDefined.complete();
         this.onTurnTimeStarted.complete();
         this.onTurnTimerTicked.complete();

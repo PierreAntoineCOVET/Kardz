@@ -163,7 +163,8 @@ namespace Domain.GamesLogic.Coinche
                     CardsDistribution = cardsDistribution,
                     CurrentDealer = nextDealer,
                     CurrentPlayerNumber = GetNext(nextDealer),
-                    TurnTimerBase = DateTimeOffset.Now
+                    TurnTimerBase = DateTimeOffset.Now,
+                    ContractPassedCount = 0,
                 };
 
                 RaiseEvent(contractFailedEvent);
@@ -172,10 +173,11 @@ namespace Domain.GamesLogic.Coinche
             }
             else
             {
-                var contractMadeEvent = Contract.GetContractMadeEvent(color, value);
+                var contractMadeEvent = Contract.GetContractMadeEvent(color, value, player);
 
                 contractMadeEvent.GameId = game;
                 contractMadeEvent.CurrentPlayerNumber = GetNext(CurrentPlayerNumber);
+                contractMadeEvent.TurnTimerBase = DateTimeOffset.Now;
 
                 RaiseEvent(contractMadeEvent);
 
@@ -194,6 +196,8 @@ namespace Domain.GamesLogic.Coinche
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
             TurnTimerBase = @event.TurnTimerBase;
+
+            Contract.Apply(@event);
         }
 
         /// <summary>
@@ -203,6 +207,8 @@ namespace Domain.GamesLogic.Coinche
         internal void Apply(ContractMadeEvent @event)
         {
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
+            TurnTimerBase = @event.TurnTimerBase;
+
             Contract.Apply(@event);
         }
 

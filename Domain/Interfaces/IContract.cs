@@ -1,5 +1,6 @@
 ﻿using Domain.Enums;
 using Domain.Events;
+using System;
 
 namespace Domain.Interfaces
 {
@@ -30,13 +31,20 @@ namespace Domain.Interfaces
         /// </summary>
         /// <param name="color">Contract color</param>
         /// <param name="value">Contract value</param>
+        /// <param name="player">player submiting the contract</param>
         /// <returns></returns>
-        ContractMadeEvent GetContractMadeEvent(ColorEnum? color, int? value);
+        ContractMadeEvent GetContractMadeEvent(ColorEnum? color, int? value, Guid player);
 
         /// <summary>
         /// Apply the event contract information to current contract instance.
         /// </summary>
         /// <param name="event"></param>
         void Apply(ContractMadeEvent @event);
+
+        /// <summary>
+        /// Apply the event contract information to current contract instance.
+        /// </summary>
+        /// <param name="event"></param>
+        void Apply(ContractFailedEvent @event);
     }
 }
