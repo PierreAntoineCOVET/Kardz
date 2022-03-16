@@ -163,6 +163,7 @@ namespace Domain.GamesLogic.Coinche
                     CardsDistribution = cardsDistribution,
                     CurrentDealer = nextDealer,
                     CurrentPlayerNumber = GetNext(nextDealer),
+                    TurnTimerBase = DateTimeOffset.Now
                 };
 
                 RaiseEvent(contractFailedEvent);
@@ -192,6 +193,7 @@ namespace Domain.GamesLogic.Coinche
 
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
+            TurnTimerBase = @event.TurnTimerBase;
         }
 
         /// <summary>

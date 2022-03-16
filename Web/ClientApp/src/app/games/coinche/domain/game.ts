@@ -138,6 +138,7 @@ export class Game {
      */
     private onGameContractChanged(contractInfo: IGameContractDto) {
         if (contractInfo.hasContractFailed) {
+            this.onPlayerReadyToBet.next(undefined);
             this.RequestGameInfos();
             return;
         }

@@ -39,6 +39,12 @@ namespace Domain.Events
         /// Player who needs to play.
         /// </summary>
         public int CurrentPlayerNumber { get; set; }
+
+        /// <summary>
+        /// Time at wich the turn time for all players will start.
+        /// Used to synchronise the time for each game player.
+        /// </summary>
+        public DateTimeOffset TurnTimerBase { get; set; }
     }
 
     /// <summary>

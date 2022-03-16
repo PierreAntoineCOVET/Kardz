@@ -99,6 +99,7 @@ namespace EventHandlers.Notifications.Game
 
             game.CurrentDealer = notification.CurrentDealer;
             game.CurrentPayerTurn = notification.CurrentPlayerNumber;
+            game.TurnTimerBase = notification.TurnTimerBase;
 
             await GenericRepository.SaveChanges();
         }

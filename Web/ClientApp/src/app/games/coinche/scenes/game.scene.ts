@@ -226,6 +226,7 @@ export class GameScene extends Phaser.Scene {
             this.contractFormElement.setPerspective(800);
         }
         else {
+            this.clearTurnTimer();
             if (this.contractFormElement) {
                 this.contractFormElement.destroy();
             }
