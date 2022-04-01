@@ -40,7 +40,7 @@ namespace Domain.GamesLogic
         /// Apply a domain event en register it inside _UncommittedEvents.
         /// </summary>
         /// <param name="event"></param>
-        protected void RaiseEvent(IDomainEvent @event)
+        protected virtual void RaiseEvent(IDomainEvent @event)
         {
             if (!UncommittedEvents.Any(e => e.Id == @event.Id))
             {

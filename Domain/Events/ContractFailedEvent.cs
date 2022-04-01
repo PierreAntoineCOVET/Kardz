@@ -13,7 +13,7 @@ namespace Domain.Events
     /// Contract has failed to be established event.
     /// </summary>
     [InterfaceResolver(typeof(CoincheGame), typeof(ContractFailedEvent), typeof(ContractFailedEventMappingConverter))]
-    public class ContractFailedEvent : IDomainEvent, INotification
+    public class ContractFailedEvent : IDomainEvent, INotification, ITurnTimerBasedEvent
     {
         /// <summary>
         /// Event ID.

@@ -23,8 +23,9 @@ namespace Domain.Interfaces
         /// </summary>
         /// <param name="color"></param>
         /// <param name="value"></param>
+        /// <param name="coinched"></param>
         /// <returns></returns>
-        bool IsContractFailed(ColorEnum? color, int? value);
+        ContractState GetContractState(ColorEnum? color, int? value, bool coinched);
 
         /// <summary>
         /// Set color and value to the contract.
@@ -33,7 +34,7 @@ namespace Domain.Interfaces
         /// <param name="value">Contract value</param>
         /// <param name="player">player submiting the contract</param>
         /// <returns></returns>
-        ContractMadeEvent GetContractMadeEvent(ColorEnum? color, int? value, Guid player);
+        ContractMadeEvent GetContractMadeEvent(ColorEnum? color, int? value, Guid player, bool coinched);
 
         /// <summary>
         /// Apply the event contract information to current contract instance.
@@ -46,5 +47,11 @@ namespace Domain.Interfaces
         /// </summary>
         /// <param name="event"></param>
         void Apply(ContractFailedEvent @event);
+
+        /// <summary>
+        /// Return true if the contract has been coinched.
+        /// </summary>
+        /// <returns></returns>
+        bool IsCoinched();
     }
 }

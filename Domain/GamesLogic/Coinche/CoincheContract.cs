@@ -36,14 +36,48 @@ namespace Domain.GamesLogic.Coinche
         private Guid? Owner;
 
         /// <summary>
-        /// Return true if the game has to redistribute the players cards
+        /// Special state of the contract regarding coinche.
         /// </summary>
-        /// <param name="color">Contract color</param>
-        /// <param name="value">Contract value</param>
+        private ContractCoincheState CoincheState = ContractCoincheState.NotCoinched;
+
+        /// <summary>
+        /// Contract current null. Null if none.
+        /// </summary>
+        public ColorEnum? Color => _Color;
+
+        /// <summary>
+        /// Contract current null. Null if none.
+        /// </summary>
+        public int? Value => _Value;
+
+        /// <summary>
+        /// Return the state of the contract with the given values update.
+        /// </summary>
+        /// <param name="color">Contract color.</param>
+        /// <param name="value">Contract value.</param>
+        /// <param name="coinched">Contract coinched state.</param>
         /// <returns></returns>
-        public bool IsContractFailed(ColorEnum? color, int? value)
+        public ContractState GetContractState(ColorEnum? color, int? value, bool coinched)
         {
-            return !color.HasValue && !value.HasValue && PassCounter == 3;
+            if(!color.HasValue && !value.HasValue && PassCounter == 3)
+            {
+                return ContractState.Failed;
+            }
+
+            var normalClose = color.HasValue && value.HasValue && PassCounter == 3;
+
+            var coinchedClose = CoincheState == ContractCoincheState.Coinched
+                && !color.HasValue && !value.HasValue && PassCounter == 1;
+
+            var counterCoinchedClose = CoincheState == ContractCoincheState.Coinched
+                && coinched;
+
+            if (normalClose || coinchedClose || counterCoinchedClose)
+            {
+                return ContractState.Closed;
+            }
+
+            return ContractState.Valid;
         }
 
         /// <summary>
@@ -51,31 +85,84 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         /// <param name="color">Contract color</param>
         /// <param name="value">Contract value</param>
-        public ContractMadeEvent GetContractMadeEvent(ColorEnum? color, int? value, Guid player)
+        /// <param name="player">Current player id.</param>
+        /// <param name="coinched">Contract value</param>
+        public ContractMadeEvent GetContractMadeEvent(ColorEnum? color, int? value, Guid player, bool coinched)
         {
-            var contractMadeEvent = new ContractMadeEvent
-            {
-                Id = Guid.NewGuid()
-            };
-
             if(!color.HasValue && !value.HasValue)
             {
-                contractMadeEvent.PassCounter = PassCounter + 1;
-                contractMadeEvent.Color = _Color;
-                contractMadeEvent.Value = _Value;
-                contractMadeEvent.Owner = Owner;
+                if (coinched)
+                {
+                    return GetCoinchedEvent(player);
+                }
+                else
+                {
+                    return GetPassedEvent();
+                }
             }
             else
             {
-                CheckContract(color.Value, value.Value, player);
-
-                contractMadeEvent.PassCounter = 0;
-                contractMadeEvent.Color = color.Value;
-                contractMadeEvent.Value = value.Value;
-                contractMadeEvent.Owner = player;
+                return GetNewContractEvent(color.Value, value.Value, player);
             }
+        }
+
+        private ContractMadeEvent GetNewContractEvent(ColorEnum color, int value, Guid player)
+        {
+            CheckContract(color, value, player);
+
+            var contractMadeEvent = GetEmptyContract();
+
+            contractMadeEvent.PassCounter = 0;
+            contractMadeEvent.Color = color;
+            contractMadeEvent.Value = value;
+            contractMadeEvent.Owner = player;
 
             return contractMadeEvent;
+        }
+
+        private ContractMadeEvent GetPassedEvent()
+        {
+            var contractMadeEvent = GetEmptyContract();
+
+            contractMadeEvent.PassCounter = PassCounter + 1;
+            contractMadeEvent.Color = _Color;
+            contractMadeEvent.Value = _Value;
+            contractMadeEvent.Owner = Owner;
+
+            return contractMadeEvent;
+        }
+
+        private ContractMadeEvent GetCoinchedEvent(Guid player)
+        {
+            CheckCoinchableContract();
+
+            var contractMadeEvent = GetEmptyContract();
+
+            contractMadeEvent.PassCounter = 0;
+            contractMadeEvent.Color = _Color;
+            contractMadeEvent.Value = _Value;
+            contractMadeEvent.Owner = player;
+            CoincheState = CoincheState == ContractCoincheState.NotCoinched
+                ? ContractCoincheState.Coinched
+                : ContractCoincheState.CounterCoinched;
+
+            return contractMadeEvent;
+        }
+
+        private ContractMadeEvent GetEmptyContract()
+        {
+            return new ContractMadeEvent
+            {
+                Id = Guid.NewGuid()
+            };
+        }
+
+        private void CheckCoinchableContract()
+        {
+            if(!_Value.HasValue || !_Color.HasValue)
+            {
+                throw new GameException("Cannnot coinche contract without color and value.");
+            }
         }
 
         /// <summary>
@@ -97,16 +184,12 @@ namespace Domain.GamesLogic.Coinche
             if (Owner != null)
             {
                 if (player == Owner
-                    && color == Color)
+                    && color == _Color)
                 {
                     throw new GameException("Player must change color to speak over himself.");
                 }
             }
         }
-
-        public ColorEnum? Color => _Color;
-
-        public int? Value => _Value;
 
         /// <summary>
         /// Apply the event contract information to current contract instance.
@@ -127,6 +210,15 @@ namespace Domain.GamesLogic.Coinche
         public void Apply(ContractFailedEvent @event)
         {
             PassCounter = @event.ContractPassedCount;
+        }
+
+        /// <summary>
+        /// Return true if the contract has been coinched.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsCoinched()
+        {
+            return CoincheState == ContractCoincheState.Coinched || CoincheState == ContractCoincheState.CounterCoinched;
         }
     }
 }

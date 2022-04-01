@@ -58,7 +58,7 @@ namespace EventHandlers.Commands.SetGameContract
                 throw new GameException($"Game id {request.GameId} not found.");
             }
 
-            var contractIsOk = game.SetGameContract(request.Color, request.Value, request.PlayerId, request.GameId, request.Coinched ?? false);
+            var contractState = game.SetGameContract(request.Color, request.Value, request.PlayerId, request.GameId, request.Coinched ?? false);
 
             await Mediator.Publish(new AggregateSaveNotification
             {
@@ -67,7 +67,7 @@ namespace EventHandlers.Commands.SetGameContract
 
             var timerEndDate = DateTimeOffset.Now.AddSeconds(Configuration.TimerLengthInSecond + Configuration.NetworkOffsetInSecond);
 
-            return game.ToContractDto(timerEndDate, contractIsOk);
+            return game.ToContractDto(timerEndDate, contractState);
         }
     }
 }

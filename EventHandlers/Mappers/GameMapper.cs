@@ -1,4 +1,5 @@
-﻿using Domain.Interfaces;
+﻿using Domain.Enums;
+using Domain.Interfaces;
 using DTOs;
 using DTOs.Shared;
 using System;
@@ -32,7 +33,7 @@ namespace EventHandlers.Mappers
         /// </summary>
         /// <param name="game"></param>
         /// <returns></returns>
-        public static GameContractDto ToContractDto(this IGame game, DateTimeOffset turnTimerEnd, bool contractOk)
+        public static GameContractDto ToContractDto(this IGame game, DateTimeOffset turnTimerEnd, ContractState contractState)
         {
             return new GameContractDto
             {
@@ -40,7 +41,7 @@ namespace EventHandlers.Mappers
                 Value = game.Contract.Value,
                 LastPlayerNumber = game.LastPlayerNumber,
                 CurrentPlayerNumber = game.CurrentPlayerNumber,
-                HasContractFailed = !contractOk,
+                HasContractFailed = contractState == ContractState.Failed,
                 TurnEndTime = turnTimerEnd
             };
         }

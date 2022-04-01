@@ -14,7 +14,7 @@ namespace Domain.Events
     /// Game created event.
     /// </summary>
     [InterfaceResolver(typeof(CoincheGame), typeof(GameCreatedEvent), typeof(CoincheGameCreatedMappingConverter))]
-    public class GameCreatedEvent : IDomainEvent, INotification
+    public class GameCreatedEvent : IDomainEvent, INotification, ITurnTimerBasedEvent
     {
         /// <summary>
         /// Event's id.

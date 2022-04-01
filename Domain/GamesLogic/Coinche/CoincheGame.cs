@@ -45,11 +45,12 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         public IContract Contract { get; set; }
 
+        private DateTimeOffset _TurnTimerBase;
         /// <summary>
         /// Time at wich the turn time for all players will start.
         /// Used to synchronise the time for each game player.
         /// </summary>
-        private DateTimeOffset TurnTimerBase;
+        public DateTimeOffset TurnTimerBase => _TurnTimerBase;
 
         /// <summary>
         /// Get current player.
@@ -90,7 +91,6 @@ namespace Domain.GamesLogic.Coinche
                 CardsDistribution = cardsDistribution,
                 CurrentDealer = 3,
                 CurrentPlayerNumber = 0,
-                TurnTimerBase = DateTimeOffset.Now
             };
 
             RaiseEvent(createGameEvent);
@@ -115,7 +115,7 @@ namespace Domain.GamesLogic.Coinche
             ApplyCards(@event.CardsDistribution);
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
-            TurnTimerBase = @event.TurnTimerBase;
+            _TurnTimerBase = @event.TurnTimerBase;
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="game">Contract's game.</param>
         /// <param name="coinched">True if the players has coinched.</param>
         /// <returns>True if the contract applyed correctly, false if it failed.</returns>
-        public bool SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched)
+        public ContractState SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched)
         {
             if (game != Id)
             {
@@ -151,38 +151,68 @@ namespace Domain.GamesLogic.Coinche
                 throw new GameException("Not your turn to bet.");
             }
 
-            if (Contract.IsContractFailed(color, value))
+            var contractState = Contract.GetContractState(color, value, coinched);
+
+            switch(contractState)
             {
-                var cardsDistribution = DealCards(Teams.SelectMany(t => t.Players));
-                var nextDealer = GetNext(CurrentDealer);
+                case ContractState.Failed:
+                    RaiseContractFailedEvent();
+                    break;
 
-                var contractFailedEvent = new ContractFailedEvent
-                {
-                    Id = Guid.NewGuid(),
-                    GameId = game,
-                    CardsDistribution = cardsDistribution,
-                    CurrentDealer = nextDealer,
-                    CurrentPlayerNumber = GetNext(nextDealer),
-                    TurnTimerBase = DateTimeOffset.Now,
-                    ContractPassedCount = 0,
-                };
+                case ContractState.Valid:
+                    RaiseContractValidEvent(color, value, coinched);
+                    break;
 
-                RaiseEvent(contractFailedEvent);
+                case ContractState.Closed:
+                    RaiseGameStartedEvent();
+                    break;
 
-                return false;
+                default:
+                    throw new GameException($"Unknown contract state value : {contractState}.");
+            }
+
+            return contractState;
+        }
+
+        private void RaiseGameStartedEvent()
+        {
+            throw new NotImplementedException();
+        }
+
+        private void RaiseContractValidEvent(ColorEnum? color, int? value, bool coinched)
+        {
+            var contractMadeEvent = Contract.GetContractMadeEvent(color, value, CurrentPlayer.Id, coinched);
+
+            contractMadeEvent.GameId = Id;
+
+            if (Contract.IsCoinched())
+            {
+                contractMadeEvent.CurrentPlayerNumber = GetPlayerRelative(CurrentPlayerNumber, 2);
             }
             else
             {
-                var contractMadeEvent = Contract.GetContractMadeEvent(color, value, player);
-
-                contractMadeEvent.GameId = game;
-                contractMadeEvent.CurrentPlayerNumber = GetNext(CurrentPlayerNumber);
-                contractMadeEvent.TurnTimerBase = DateTimeOffset.Now;
-
-                RaiseEvent(contractMadeEvent);
-
-                return true;
+                contractMadeEvent.CurrentPlayerNumber = GetPlayerRelative(CurrentPlayerNumber, 1);
             }
+
+            RaiseEvent(contractMadeEvent);
+        }
+
+        private void RaiseContractFailedEvent()
+        {
+            var cardsDistribution = DealCards(Teams.SelectMany(t => t.Players));
+            var nextDealer = GetPlayerRelative(CurrentDealer, 1);
+
+            var contractFailedEvent = new ContractFailedEvent
+            {
+                Id = Guid.NewGuid(),
+                GameId = Id,
+                CardsDistribution = cardsDistribution,
+                CurrentDealer = nextDealer,
+                CurrentPlayerNumber = GetPlayerRelative(nextDealer, 1),
+                ContractPassedCount = 0,
+            };
+
+            RaiseEvent(contractFailedEvent);
         }
 
         /// <summary>
@@ -195,7 +225,7 @@ namespace Domain.GamesLogic.Coinche
 
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
-            TurnTimerBase = @event.TurnTimerBase;
+            _TurnTimerBase = @event.TurnTimerBase;
 
             Contract.Apply(@event);
         }
@@ -207,19 +237,20 @@ namespace Domain.GamesLogic.Coinche
         internal void Apply(ContractMadeEvent @event)
         {
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
-            TurnTimerBase = @event.TurnTimerBase;
+            _TurnTimerBase = @event.TurnTimerBase;
 
             Contract.Apply(@event);
         }
 
         /// <summary>
-        /// Return the next number modulo Consts.NUMBER_OF_PLAYERS_FOR_A_GAME;
+        /// Return the number of the player that is offset positions after the current.
         /// </summary>
-        /// <param name="current"></param>
+        /// <param name="current">Current player number.</param>
+        /// <param name="offset">Offset that is looked for.</param>
         /// <returns></returns>
-        private int GetNext(int current)
+        private int GetPlayerRelative(int current, int offset)
         {
-            return (current + 1) % Consts.NUMBER_OF_PLAYERS_FOR_A_GAME;
+            return (current + offset) % Consts.NUMBER_OF_PLAYERS_FOR_A_GAME;
         }
 
         /// <summary>
@@ -275,6 +306,16 @@ namespace Domain.GamesLogic.Coinche
             }
 
             return shuffledCards;
+        }
+
+        protected override void RaiseEvent(IDomainEvent @event)
+        {
+            if(@event is ITurnTimerBasedEvent turnTimeBasedEvent)
+            {
+                turnTimeBasedEvent.TurnTimerBase = DateTimeOffset.Now;
+            }
+
+            base.RaiseEvent(@event);
         }
     }
 }

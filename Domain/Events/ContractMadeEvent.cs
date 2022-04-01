@@ -12,7 +12,7 @@ namespace Domain.Events
     /// Contract made event (bet or pass).
     /// </summary>
     [InterfaceResolver(typeof(CoincheGame), typeof(ContractMadeEvent), typeof(CoincheContractMadeMappingConverter))]
-    public class ContractMadeEvent : IDomainEvent, INotification
+    public class ContractMadeEvent : IDomainEvent, INotification, ITurnTimerBasedEvent
     {
         /// <summary>
         /// Event's id.
@@ -54,6 +54,12 @@ namespace Domain.Events
         /// Used to synchronise the time for each game player.
         /// </summary>
         public DateTimeOffset TurnTimerBase { get; set; }
+
+        /// <summary>
+        /// Return true if the contract has been coinched.
+        /// </summary>
+        /// <returns></returns>
+        public ContractCoincheState ContractCoincheState { get; set; }
     }
 
     /// <summary>

@@ -48,6 +48,6 @@ namespace Domain.Interfaces
         /// <param name="game">Contract's game.</param>
         /// <param name="game">Coinched or counter coinched.</param>
         /// <returns>True if the contract applyed correctly, false if it failed.</returns>
-        bool SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched);
+        ContractState SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched);
     }
 }
