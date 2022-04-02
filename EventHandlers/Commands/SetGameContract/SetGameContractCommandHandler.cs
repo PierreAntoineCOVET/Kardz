@@ -67,7 +67,7 @@ namespace EventHandlers.Commands.SetGameContract
                 Aggregate = game
             });
 
-            return game.ToContractDto();
+            return game.ToContractDto(request.Color, request.Value);
         }
     }
 }

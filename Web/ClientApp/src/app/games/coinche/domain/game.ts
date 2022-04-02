@@ -165,7 +165,9 @@ export class Game {
 
         this.updateCurrentPlayer(contractInfo.currentPlayerNumber);
 
-        const contractBubbleText = contractInfo.value ? `${contractInfo.value} ${ColorEnum[contractInfo.color]}` : 'Passed';
+        const contractBubbleText = contractInfo.lastValue
+            ? `${contractInfo.lastValue} ${ColorEnum[contractInfo.lastColor]}`
+            : 'Passed';
         this.onPlayerSays.next(lastPlayer.getContractSpeechBubble(contractBubbleText));
 
         if (localPlayer.isPlaying) {
@@ -219,13 +221,19 @@ export class Game {
     }
 
     /**
-     * Start the time timer. Place the timer in fron of the curent player playing.
-     * @param currentPlayerNumber The player whose turn it is.
+     * Start the turn timer. Place the timer in fron of the curent player.
+     * @param currentPlayerNumber The current player number.
      * @param timerEndTime time at witch the turn's time out.
      */
     private startTurnTimer(currentPlayerNumber: number, timerEndTime: Date) {
         let currentPlayer = this.players.find(p => p.number == currentPlayerNumber);
-        let startEvent = currentPlayer?.getTurnTimerPosition();
+
+        if (!currentPlayer) {
+            throw new Error(`Cannot find designated player : ${currentPlayerNumber}`);
+        }
+
+        let startEvent = currentPlayer.getTurnTimerPosition();
+        startEvent.playerNumber = currentPlayerNumber;
         this.onTurnTimeStarted.next(startEvent);
 
         const numberOfTicks = (timerEndTime.getTime() - (new Date()).getTime()) / 1000;

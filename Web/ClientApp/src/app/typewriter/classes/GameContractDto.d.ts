@@ -14,5 +14,7 @@ export interface IGameContractDto {
     hasContractFailed: boolean;
     currentPlayerNumber: number;
     turnEndTime: Date;
+    lastColor: number;
+    lastValue: number;
 }
 

@@ -36,5 +36,15 @@ namespace DTOs.Shared
         /// Time at wich the current turn ends.
         /// </summary>
         public DateTimeOffset TurnEndTime { get; set; }
+
+        /// <summary>
+        /// Last player voted color.
+        /// </summary>
+        public int? LastColor { get; set; }
+
+        /// <summary>
+        /// LAst player voted value.
+        /// </summary>
+        public int? LastValue { get; set; }
     }
 }

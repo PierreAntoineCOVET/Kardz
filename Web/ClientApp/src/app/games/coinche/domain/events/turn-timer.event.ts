@@ -28,6 +28,11 @@ export interface StartTurnTimerEvent {
      * Direction for the fill.
      */
     direction: ScreenCoordinate;
+
+    /**
+     * Number of the player having the timer.
+     */
+    playerNumber: number;
 }
 
 /**

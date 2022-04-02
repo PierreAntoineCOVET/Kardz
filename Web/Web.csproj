@@ -6,18 +6,23 @@
 
   <ItemGroup>
     <Compile Remove="ClientApp\dist\**" />
+    <Compile Remove="ClientApp\node_modules\**" />
     <Compile Remove="ClientApp\out-tsc\**" />
     <Compile Remove="Log\**" />
     <Content Remove="ClientApp\dist\**" />
+    <Content Remove="ClientApp\node_modules\**" />
     <Content Remove="ClientApp\out-tsc\**" />
     <Content Remove="Log\**" />
     <EmbeddedResource Remove="ClientApp\dist\**" />
+    <EmbeddedResource Remove="ClientApp\node_modules\**" />
     <EmbeddedResource Remove="ClientApp\out-tsc\**" />
     <EmbeddedResource Remove="Log\**" />
     <None Remove="ClientApp\dist\**" />
+    <None Remove="ClientApp\node_modules\**" />
     <None Remove="ClientApp\out-tsc\**" />
     <None Remove="Log\**" />
     <TypeScriptCompile Remove="ClientApp\dist\**" />
+    <TypeScriptCompile Remove="ClientApp\node_modules\**" />
     <TypeScriptCompile Remove="ClientApp\out-tsc\**" />
     <TypeScriptCompile Remove="Log\**" />
   </ItemGroup>

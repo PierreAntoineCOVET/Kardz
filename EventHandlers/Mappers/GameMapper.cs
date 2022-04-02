@@ -33,7 +33,7 @@ namespace EventHandlers.Mappers
         /// </summary>
         /// <param name="game"></param>
         /// <returns></returns>
-        public static GameContractDto ToContractDto(this IGame game)
+        public static GameContractDto ToContractDto(this IGame game, ColorEnum? color, int? value)
         {
             return new GameContractDto
             {
@@ -42,7 +42,9 @@ namespace EventHandlers.Mappers
                 LastPlayerNumber = game.LastPlayerNumber,
                 CurrentPlayerNumber = game.CurrentPlayerNumber,
                 HasContractFailed = game.Contract.CurrentState == ContractState.Failed,
-                TurnEndTime = game.CurrentTurnTimeout
+                TurnEndTime = game.CurrentTurnTimeout,
+                LastColor = (int?)color,
+                LastValue = value
             };
         }
     }

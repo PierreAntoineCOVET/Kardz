@@ -136,10 +136,11 @@ export class GameScene extends Phaser.Scene {
     }
 
     /**
-     * Display the dealer chip at the event location.
+     * Display a green rectangle representing the turn timer;
      * @param event
      */
     private displayTurnTimer(event: StartTurnTimerEvent) {
+        this.cleanBubble(event.playerNumber);
         this.turnTimerRectangle = {
             x: event.x,
             y: event.y,
@@ -165,9 +166,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     /**
-     * Display the dealer chip at the event location.
-     * Function can be called while on inactive tab in which case Phaser
-     * might not have initialised the rectangle.
+     * Fill the turn timer in red for the given percentage.
      * @param event
      */
     private updateTurnTimer(event: TurnTimerTickedEvent) {
