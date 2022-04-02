@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Configuration;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.GamesLogic.Coinche;
 using Domain.Interfaces;
@@ -10,14 +11,24 @@ namespace Domain.Factories
     /// <summary>
     /// Game factory.
     /// </summary>
-    public static class GameFactory
+    public class GameFactory
     {
-        public static IGame CreateGame(GamesEnum gamesEnum, IEnumerable<IPlayer> players)
+        /// <summary>
+        /// Coinche game configuration.
+        /// </summary>
+        private readonly CoincheConfiguration Configuration;
+
+        public GameFactory(CoincheConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        public IGame CreateGame(GamesEnum gamesEnum, IEnumerable<IPlayer> players)
         {
             switch (gamesEnum)
             {
                 case GamesEnum.Coinche:
-                    return new CoincheGame(Guid.NewGuid(), players);
+                    return new CoincheGame(Guid.NewGuid(), players, Configuration);
 
                 default:
                     throw new UnknownGameTypeException(gamesEnum);

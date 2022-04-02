@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Configuration;
+using Domain.Enums;
 using Domain.Events;
 using Domain.Exceptions;
 using Domain.Interfaces;
@@ -45,17 +46,22 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         public IContract Contract { get; set; }
 
-        private DateTimeOffset _TurnTimerBase;
+        private DateTimeOffset _CurrentTurnTimeout;
         /// <summary>
         /// Time at wich the turn time for all players will start.
         /// Used to synchronise the time for each game player.
         /// </summary>
-        public DateTimeOffset TurnTimerBase => _TurnTimerBase;
+        public DateTimeOffset CurrentTurnTimeout => _CurrentTurnTimeout;
 
         /// <summary>
         /// Get current player.
         /// </summary>
         private IPlayer CurrentPlayer => Teams.SelectMany(t => t.Players).Single(p => p.Number == CurrentPlayerNumber);
+
+        /// <summary>
+        /// Current server configuration for the game.
+        /// </summary>
+        private CoincheConfiguration Configuration;
 
         /// <summary>
         /// Empty constructor.
@@ -69,9 +75,13 @@ namespace Domain.GamesLogic.Coinche
         /// Constructor.
         /// </summary>
         /// <param name="id">Game's Id.</param>
-        public CoincheGame(Guid id, IEnumerable<IPlayer> players)
+        /// <param name="players">Game's players.</param>
+        /// <param name="configuration">Game's server configuration.</param>
+        public CoincheGame(Guid id, IEnumerable<IPlayer> players, CoincheConfiguration configuration)
         {
             Init();
+
+            Configuration = configuration;
 
             if (id == default)
                 throw new GameException($"Invalid game id {id}");
@@ -97,6 +107,15 @@ namespace Domain.GamesLogic.Coinche
         }
 
         /// <summary>
+        /// Set the current configuration (not persisted).
+        /// </summary>
+        /// <param name="configuration"></param>
+        public void SetConfiguration(CoincheConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+        /// <summary>
         /// Instanciate properties.
         /// </summary>
         private void Init()
@@ -115,7 +134,7 @@ namespace Domain.GamesLogic.Coinche
             ApplyCards(@event.CardsDistribution);
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
-            _TurnTimerBase = @event.TurnTimerBase;
+            _CurrentTurnTimeout = @event.EndOfTurn;
         }
 
         /// <summary>
@@ -136,24 +155,20 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="color">Contract color, if needed.</param>
         /// <param name="value">Contract value, if needed.</param>
         /// <param name="player">Contract maker.</param>
-        /// <param name="game">Contract's game.</param>
         /// <param name="coinched">True if the players has coinched.</param>
         /// <returns>True if the contract applyed correctly, false if it failed.</returns>
-        public ContractState SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched)
+        public void SetGameContract(ColorEnum? color, int? value, Guid player, bool coinched)
         {
-            if (game != Id)
-            {
-                throw new GameException("Trying to apply contract to the wrong game.");
-            }
+            //CheckTurnNotExpired();
 
             if (player != CurrentPlayer.Id)
             {
                 throw new GameException("Not your turn to bet.");
             }
 
-            var contractState = Contract.GetContractState(color, value, coinched);
+            var contractNextState = Contract.GetNextState(color, value, coinched);
 
-            switch(contractState)
+            switch(contractNextState)
             {
                 case ContractState.Failed:
                     RaiseContractFailedEvent();
@@ -168,14 +183,13 @@ namespace Domain.GamesLogic.Coinche
                     break;
 
                 default:
-                    throw new GameException($"Unknown contract state value : {contractState}.");
+                    throw new GameException($"Unknown contract state value : {contractNextState}.");
             }
-
-            return contractState;
         }
 
         private void RaiseGameStartedEvent()
         {
+            // Todo: change contract state to closed.
             throw new NotImplementedException();
         }
 
@@ -185,7 +199,7 @@ namespace Domain.GamesLogic.Coinche
 
             contractMadeEvent.GameId = Id;
 
-            if (Contract.IsCoinched())
+            if (Contract.ShouldSkipNextPlayer(contractMadeEvent))
             {
                 contractMadeEvent.CurrentPlayerNumber = GetPlayerRelative(CurrentPlayerNumber, 2);
             }
@@ -225,7 +239,7 @@ namespace Domain.GamesLogic.Coinche
 
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
-            _TurnTimerBase = @event.TurnTimerBase;
+            _CurrentTurnTimeout = @event.EndOfTurn;
 
             Contract.Apply(@event);
         }
@@ -237,7 +251,7 @@ namespace Domain.GamesLogic.Coinche
         internal void Apply(ContractMadeEvent @event)
         {
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
-            _TurnTimerBase = @event.TurnTimerBase;
+            _CurrentTurnTimeout = @event.EndOfTurn;
 
             Contract.Apply(@event);
         }
@@ -312,7 +326,7 @@ namespace Domain.GamesLogic.Coinche
         {
             if(@event is ITurnTimerBasedEvent turnTimeBasedEvent)
             {
-                turnTimeBasedEvent.TurnTimerBase = DateTimeOffset.Now;
+                turnTimeBasedEvent.EndOfTurn = DateTimeOffset.Now.AddSeconds(Configuration.TimerLengthInSecond);
             }
 
             base.RaiseEvent(@event);

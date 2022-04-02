@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Configuration;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -40,14 +41,24 @@ namespace Domain.Interfaces
         IContract Contract { get; }
 
         /// <summary>
+        /// Time at wich the current turn times out.
+        /// </summary>
+        DateTimeOffset CurrentTurnTimeout { get; }
+
+        /// <summary>
+        /// Set the current configuration (not persisted).
+        /// </summary>
+        /// <param name="configuration"></param>
+        void SetConfiguration(CoincheConfiguration configuration);
+
+        /// <summary>
         /// Aplly a contract to the game.
         /// </summary>
         /// <param name="color">Contract color, if needed.</param>
         /// <param name="value">Contract value, if needed.</param>
         /// <param name="player">Contract maker.</param>
-        /// <param name="game">Contract's game.</param>
-        /// <param name="game">Coinched or counter coinched.</param>
+        /// <param name="coinched">Coinched or counter coinched.</param>
         /// <returns>True if the contract applyed correctly, false if it failed.</returns>
-        ContractState SetGameContract(ColorEnum? color, int? value, Guid player, Guid game, bool coinched);
+        void SetGameContract(ColorEnum? color, int? value, Guid player, bool coinched);
     }
 }

@@ -19,13 +19,18 @@ namespace Domain.Interfaces
         int? Value { get; }
 
         /// <summary>
-        /// Return true if the game need to redistribute the cards.
+        /// Get the contract current state.
+        /// </summary>
+        ContractState CurrentState { get; }
+
+        /// <summary>
+        /// Return the state of the contract if we apply the given values.
         /// </summary>
         /// <param name="color"></param>
         /// <param name="value"></param>
         /// <param name="coinched"></param>
         /// <returns></returns>
-        ContractState GetContractState(ColorEnum? color, int? value, bool coinched);
+        ContractState GetNextState(ColorEnum? color, int? value, bool coinched);
 
         /// <summary>
         /// Set color and value to the contract.
@@ -49,9 +54,10 @@ namespace Domain.Interfaces
         void Apply(ContractFailedEvent @event);
 
         /// <summary>
-        /// Return true if the contract has been coinched.
+        /// Return true if the the next player in line should be skipped (his part just coinched).
         /// </summary>
+        /// <param name="@event"></param>
         /// <returns></returns>
-        bool IsCoinched();
+        bool ShouldSkipNextPlayer(ContractMadeEvent @event);
     }
 }

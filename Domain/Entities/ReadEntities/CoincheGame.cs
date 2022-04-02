@@ -29,9 +29,9 @@ namespace Domain.Entities.ReadEntities
         public int CurrentPayerTurn { get; set; }
 
         /// <summary>
-        /// Time at wich the turn time for all players will start.
+        /// Current turn timeout limit.
         /// </summary>
-        public DateTimeOffset TurnTimerBase { get; set; }
+        public DateTimeOffset CurrentTurnTimeout { get; set; }
 
         /// <summary>
         /// Teams of the game.

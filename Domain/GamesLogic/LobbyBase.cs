@@ -21,12 +21,18 @@ namespace Domain.GamesLogic
         PlayerFactory PlayerFactory;
 
         /// <summary>
+        /// Game factory.
+        /// </summary>
+        GameFactory GameFactory;
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="playerFactory"></param>
-        public LobbyBase(PlayerFactory playerFactory)
+        public LobbyBase(PlayerFactory playerFactory, GameFactory gameFactory)
         {
             PlayerFactory = playerFactory;
+            GameFactory = gameFactory;
         }
 
         /// <summary>

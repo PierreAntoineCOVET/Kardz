@@ -53,13 +53,13 @@ namespace Domain.Events
         /// Time at wich the turn time for all players will start.
         /// Used to synchronise the time for each game player.
         /// </summary>
-        public DateTimeOffset TurnTimerBase { get; set; }
+        public DateTimeOffset EndOfTurn { get; set; }
 
         /// <summary>
         /// Return true if the contract has been coinched.
         /// </summary>
         /// <returns></returns>
-        public ContractCoincheState ContractCoincheState { get; set; }
+        public ContractCoincheState CoincheState { get; set; }
     }
 
     /// <summary>

@@ -10,7 +10,7 @@ namespace Domain.Services
     /// </summary>
     public class LobbiesService
     {
-        private LobbyFactory LobbyFactory;
+        private readonly LobbyFactory LobbyFactory;
 
         /// <summary>
         /// Constructor.
@@ -26,7 +26,7 @@ namespace Domain.Services
             if (!Lobbys.ContainsKey(game))
             {
                 var lobby = LobbyFactory.CreateLobby(game);
-                Lobbys.Add(game, LobbyFactory.CreateLobby(game));
+                Lobbys.Add(game, lobby);
             }
 
             return Lobbys[game];

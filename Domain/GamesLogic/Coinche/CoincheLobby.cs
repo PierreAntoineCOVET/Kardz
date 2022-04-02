@@ -12,8 +12,8 @@ namespace Domain.GamesLogic.Coinche
         /// Constructor.
         /// </summary>
         /// <param name="PlayerFactory">Player creationf factory.</param>
-        public CoincheLobby(PlayerFactory PlayerFactory)
-            : base(PlayerFactory)
+        public CoincheLobby(PlayerFactory playerFactory, GameFactory gameFactory)
+            : base(playerFactory, gameFactory)
         { }
 
         /// <summary>

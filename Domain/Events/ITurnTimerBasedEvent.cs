@@ -8,6 +8,6 @@ namespace Domain.Events
 {
     internal interface ITurnTimerBasedEvent
     {
-        DateTimeOffset TurnTimerBase { get; set; }
+        DateTimeOffset EndOfTurn { get; set; }
     }
 }

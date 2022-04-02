@@ -52,22 +52,21 @@ namespace EventHandlers.Commands.SetGameContract
         public async Task<GameContractDto> Handle(SetGameContractCommand request, CancellationToken cancellationToken)
         {
             var game = await EventStoreRepository.Get<IGame>(request.GameId);
+            game.SetConfiguration(Configuration);
 
             if (game == null)
             {
                 throw new GameException($"Game id {request.GameId} not found.");
             }
 
-            var contractState = game.SetGameContract(request.Color, request.Value, request.PlayerId, request.GameId, request.Coinched ?? false);
+            game.SetGameContract(request.Color, request.Value, request.PlayerId, request.Coinched ?? false);
 
             await Mediator.Publish(new AggregateSaveNotification
             {
                 Aggregate = game
             });
 
-            var timerEndDate = DateTimeOffset.Now.AddSeconds(Configuration.TimerLengthInSecond + Configuration.NetworkOffsetInSecond);
-
-            return game.ToContractDto(timerEndDate, contractState);
+            return game.ToContractDto();
         }
     }
 }

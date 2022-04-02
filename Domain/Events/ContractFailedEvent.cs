@@ -44,7 +44,7 @@ namespace Domain.Events
         /// Time at wich the turn time for all players will start.
         /// Used to synchronise the time for each game player.
         /// </summary>
-        public DateTimeOffset TurnTimerBase { get; set; }
+        public DateTimeOffset EndOfTurn { get; set; }
 
         /// <summary>
         /// Number of time the players passed the contract.

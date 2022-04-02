@@ -27,6 +27,7 @@ namespace Registration
             services.AddSingleton<LobbiesService>();
 
             services.AddSingleton<LobbyFactory>();
+            services.AddSingleton<GameFactory>();
             services.AddSingleton<PlayerFactory>();
         }
 

@@ -54,6 +54,7 @@ namespace Web.Hubs
         /// <param name="value"></param>
         /// <param name="gameId"></param>
         /// <param name="playerId"></param>
+        /// <param name="coinched"></param>
         /// <returns></returns>
         public async Task SetGameContract(int? color, int? value, Guid gameId, Guid playerId, bool? coinched)
         {
@@ -62,7 +63,8 @@ namespace Web.Hubs
                 GameId = gameId,
                 PlayerId = playerId,
                 Color = (ColorEnum?)color,
-                Value = value
+                Value = value,
+                Coinched = coinched
             });
 
             await Clients.All.SendAsync("gameContractChanged", contract);

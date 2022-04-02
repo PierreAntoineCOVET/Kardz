@@ -13,15 +13,21 @@ namespace Domain.Factories
         /// <summary>
         /// Factory to create a player depending on the game type.
         /// </summary>
-        PlayerFactory PlayerFactory;
+        private readonly PlayerFactory PlayerFactory;
+
+        /// <summary>
+        /// Game factory.
+        /// </summary>
+        private readonly GameFactory GameFactory;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="playerFactory"></param>
-        public LobbyFactory(PlayerFactory playerFactory)
+        public LobbyFactory(PlayerFactory playerFactory, GameFactory gameFactory)
         {
             PlayerFactory = playerFactory;
+            GameFactory = gameFactory;
         }
 
         /// <summary>
@@ -34,7 +40,7 @@ namespace Domain.Factories
             switch (gamesEnum)
             {
                 case GamesEnum.Coinche:
-                    return new CoincheLobby(PlayerFactory);
+                    return new CoincheLobby(PlayerFactory, GameFactory);
 
                 default:
                     throw new UnknownGameTypeException(gamesEnum);

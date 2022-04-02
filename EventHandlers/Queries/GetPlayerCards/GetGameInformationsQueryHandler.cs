@@ -21,18 +21,12 @@ namespace EventHandlers.Queries.GetPlayerCards
         private readonly IGenericRepository GenericRepository;
 
         /// <summary>
-        /// Coinche game configuration.
-        /// </summary>
-        private readonly CoincheConfiguration Configuration;
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="gameRepository"></param>
-        public GetGameInformationsQueryHandler(IGenericRepository gameRepository, CoincheConfiguration configuration)
+        public GetGameInformationsQueryHandler(IGenericRepository gameRepository)
         {
             GenericRepository = gameRepository;
-            Configuration = configuration;
         }
 
         /// <summary>
@@ -61,15 +55,13 @@ namespace EventHandlers.Queries.GetPlayerCards
 
             var cards = player.Cards.Split(';').Select(c => int.Parse(c));
 
-            var timerEndDate = game.TurnTimerBase.AddSeconds(Configuration.TimerLengthInSecond + Configuration.NetworkOffsetInSecond);
-
             return new GameInitDto
             {
                 PlayerCards = cards,
                 Dealer = game.CurrentDealer,
                 PlayerPlaying = game.CurrentPayerTurn,
                 PlayerNumber = player.Number,
-                TurnEndTime = timerEndDate
+                TurnEndTime = game.CurrentTurnTimeout
             };
         }
     }

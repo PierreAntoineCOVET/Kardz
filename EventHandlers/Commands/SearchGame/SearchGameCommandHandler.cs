@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Configuration;
+using Domain.Enums;
 using Domain.Services;
 using DTOs;
 using EventHandlers.Mappers;
@@ -43,11 +44,11 @@ namespace EventHandlers.Commands.SearchGame
         /// <returns>True if there is enough non idle player to start a game.</returns>
         public async Task<GameDto> Handle(SearchGameCommand request, CancellationToken cancellationToken)
         {
-            var lobby = LobbiesService.GetLobby((GamesEnum)request.GameType);
+            var lobby = LobbiesService.GetLobby(request.GameType);
 
             var newGame = await lobby.SearchGame(request.PlayerId);
 
-            if(newGame != null)
+            if (newGame != null)
             {
                 await Mediator.Publish(new AggregateSaveNotification
                 {
