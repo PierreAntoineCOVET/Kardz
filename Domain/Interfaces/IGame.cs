@@ -46,12 +46,6 @@ namespace Domain.Interfaces
         DateTimeOffset CurrentTurnTimeout { get; }
 
         /// <summary>
-        /// Set the current configuration (not persisted).
-        /// </summary>
-        /// <param name="configuration"></param>
-        void SetConfiguration(CoincheConfiguration configuration);
-
-        /// <summary>
         /// Aplly a contract to the game.
         /// </summary>
         /// <param name="color">Contract color, if needed.</param>

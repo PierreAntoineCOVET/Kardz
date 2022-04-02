@@ -1,14 +1,10 @@
 ﻿using Domain.Entities.EventStoreEntities;
-using Domain.Interfaces;
-using Domain.Tools.Serialization;
 using EventHandlers.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Repositories.DbContexts;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Repositories.EventStoreRepositories
@@ -29,11 +25,6 @@ namespace Repositories.EventStoreRepositories
         private EventStoreDbContext EventStoreDbContext;
 
         /// <summary>
-        /// Json serializer.
-        /// </summary>
-        private JsonSerializer JsonSerializer;
-
-        /// <summary>
         /// Memory cache.
         /// </summary>
         private IMemoryCache Cache;
@@ -43,10 +34,9 @@ namespace Repositories.EventStoreRepositories
         /// </summary>
         /// <param name="eventStoreDbContext">Db context to use.</param>
         /// <param name="jsonSerializer">Json serializer.</param>
-        public EventStoreRepository(EventStoreDbContext eventStoreDbContext, JsonSerializer jsonSerializer, IMemoryCache cache)
+        public EventStoreRepository(EventStoreDbContext eventStoreDbContext, IMemoryCache cache)
         {
             EventStoreDbContext = eventStoreDbContext;
-            JsonSerializer = jsonSerializer;
             Cache = cache;
         }
 
@@ -92,55 +82,19 @@ namespace Repositories.EventStoreRepositories
         }
 
         /// <summary>
-        /// Get a aggregate as a domain instance from cache or DB.
+        /// Get the Db Aggregate if existing, else return null.
         /// </summary>
-        /// <typeparam name="T">Type of the object to get.</typeparam>
         /// <param name="id">Aggregate id.</param>
         /// <returns></returns>
-        public async Task<T> Get<T>(Guid id) where T : IAggregate
+        public Task<Aggregate> Get(Guid id)
         {
-            var aggregate = await Cache.GetOrCreateAsync(
+            return Cache.GetOrCreateAsync(
                 id,
                 (entry) =>
                 {
                     entry.SlidingExpiration = TimeSpan.FromMinutes(DEFAULT_CACHE_DURATION);
                     return GetFromDataBase(id);
                 });
-
-            var domainAssembly = Assembly.Load("Domain");
-            var aggregateInstance = (T)Activator.CreateInstance(domainAssembly.GetType(aggregate.Type));
-
-            foreach (var @event in aggregate.Events.OrderBy(e => e.Date))
-            {
-                var eventInstance = JsonSerializer.Deserialize(aggregate.Type, @event);
-                aggregateInstance.Apply((dynamic)eventInstance);
-            }
-
-            return aggregateInstance;
-        }
-
-        /// <summary>
-        /// Get the Db Aggregate if existing, else return null.
-        /// </summary>
-        /// <param name="id">Aggregate ID.</param>
-        /// <returns></returns>
-        public async Task<Aggregate> Get(Guid id)
-        {
-            var fromCache = Cache.Get<Aggregate>(id);
-
-            if(fromCache != null)
-            {
-                return fromCache;
-            }
-
-            var fromDb = await GetFromDataBase(id);
-
-            if(fromDb != null)
-            {
-                SaveToCache(fromDb);
-            }
-
-            return fromDb;
         }
 
         /// <summary>

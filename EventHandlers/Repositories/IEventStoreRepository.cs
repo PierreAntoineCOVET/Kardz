@@ -24,18 +24,9 @@ namespace EventHandlers.Repositories
 
 
         /// <summary>
-        /// Get a aggregate as a domain instance from cache or DB.
-        /// </summary>
-        /// <typeparam name="T">Type of the object to get.</typeparam>
-        /// <param name="id">Aggregate id.</param>
-        /// <returns></returns>
-        Task<T> Get<T>(Guid id) where T : IAggregate;
-
-
-        /// <summary>
         /// Get the Db Aggregate if existing, else return null.
         /// </summary>
-        /// <param name="id">Aggregate ID.</param>
+        /// <param name="id">Aggregate id.</param>
         /// <returns></returns>
         Task<Aggregate> Get(Guid id);
 

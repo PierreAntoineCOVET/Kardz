@@ -66,9 +66,9 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Empty constructor.
         /// </summary>
-        public CoincheGame()
+        public CoincheGame(CoincheConfiguration configuration)
         {
-            Init();
+            Init(configuration);
         }
 
         /// <summary>
@@ -79,9 +79,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="configuration">Game's server configuration.</param>
         public CoincheGame(Guid id, IEnumerable<IPlayer> players, CoincheConfiguration configuration)
         {
-            Init();
-
-            Configuration = configuration;
+            Init(configuration);
 
             if (id == default)
                 throw new GameException($"Invalid game id {id}");
@@ -107,19 +105,12 @@ namespace Domain.GamesLogic.Coinche
         }
 
         /// <summary>
-        /// Set the current configuration (not persisted).
-        /// </summary>
-        /// <param name="configuration"></param>
-        public void SetConfiguration(CoincheConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        /// <summary>
         /// Instanciate properties.
         /// </summary>
-        private void Init()
+        private void Init(CoincheConfiguration configuration)
         {
+
+            Configuration = configuration;
             Contract = new CoincheContract();
         }
 

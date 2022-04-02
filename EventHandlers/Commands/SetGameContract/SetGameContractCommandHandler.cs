@@ -1,6 +1,7 @@
 ﻿using Domain.Configuration;
 using Domain.Enums;
 using Domain.Exceptions;
+using Domain.Factories;
 using Domain.Interfaces;
 using DTOs;
 using DTOs.Shared;
@@ -27,20 +28,20 @@ namespace EventHandlers.Commands.SetGameContract
         private readonly IMediator Mediator;
 
         /// <summary>
-        /// Coinche game configuration.
+        /// 
         /// </summary>
-        private readonly CoincheConfiguration Configuration;
+        private readonly GameFactory GameFactory;
 
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="eventStoreRepository">Repository.</param>
         /// <param name="mediator">Mediator service.</param>
-        public SetGameContractCommandHandler(IEventStoreRepository eventStoreRepository, IMediator mediator, CoincheConfiguration configuration)
+        public SetGameContractCommandHandler(IEventStoreRepository eventStoreRepository, IMediator mediator, GameFactory gameFactory)
         {
             EventStoreRepository = eventStoreRepository;
             Mediator = mediator;
-            Configuration = configuration;
+            GameFactory = gameFactory;
         }
 
         /// <summary>
@@ -51,8 +52,8 @@ namespace EventHandlers.Commands.SetGameContract
         /// <returns></returns>
         public async Task<GameContractDto> Handle(SetGameContractCommand request, CancellationToken cancellationToken)
         {
-            var game = await EventStoreRepository.Get<IGame>(request.GameId);
-            game.SetConfiguration(Configuration);
+            var gameAggregate = await EventStoreRepository.Get(request.GameId);
+            var game = GameFactory.LoadFromAggregate<IGame>(gameAggregate);
 
             if (game == null)
             {
