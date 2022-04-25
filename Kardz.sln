@@ -12,6 +12,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{747521A0-B107-403D-B231-7617C213F7B5}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		Repositories\MigrationHelper.txt = Repositories\MigrationHelper.txt
+		RabbitMqHelper.txt = RabbitMqHelper.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DTOs", "DTOs\DTOs.csproj", "{69C15485-7CCF-4B4F-8705-FACE7F3E5FC4}"
@@ -32,7 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TimedEvents", "TimedEvents"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimedEvents", "TimedEventWorker\TimedEvents.csproj", "{FFC80C6F-4506-4C94-8C0E-ACAC6299D135}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Messages\Messages.csproj", "{A8E2707A-4886-44B1-AE7A-0237B40F22B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messages", "Messages\Messages.csproj", "{A8E2707A-4886-44B1-AE7A-0237B40F22B5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
