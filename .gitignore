@@ -24,3 +24,7 @@
 /Repositories/bin
 /Web/ClientApp/.angular/cache
 /.vs/VSWorkspaceState.json
+/TimedEventWorker/bin/Debug/net6.0
+/TimedEventWorker/obj
+/Messages/obj
+/Messages/bin/Debug/net6.0
