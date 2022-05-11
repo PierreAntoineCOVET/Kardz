@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.ReadEntities;
 using Domain.Enums;
 using Domain.Events;
+using Domain.Interfaces;
 using EventHandlers.Repositories;
 using EventHandlers.Specifications;
 using MediatR;
@@ -53,10 +54,10 @@ namespace EventHandlers.Notifications.Game
                     GameId = notification.GameId,
                     Number = t.Number,
                     Score = 0,
-                    Players = t.Players.Select(p => new CoinchePlayer
+                    Players = t.GetPlayers().Select(p => new CoinchePlayer
                     {
                         Id = p.Id,
-                        Cards = CardsSerialize(p.Cards),
+                        Cards = CardsSerialize(p.GetCards()),
                         Number = p.Number,
                         GameId = notification.GameId,
                         TeamNumber = t.Number
@@ -73,7 +74,7 @@ namespace EventHandlers.Notifications.Game
         /// <summary>
         /// TODO: Implement
         ///   - need a special event to record the new current player (not ContractMadeEvent responsability)
-        ///   - need a contract read model table (or fields...)
+        ///   - need a contract/turn read model table (or fields...)
         /// </summary>
         /// <param name="notification"></param>
         /// <param name="cancellationToken"></param>
@@ -104,9 +105,9 @@ namespace EventHandlers.Notifications.Game
             await GenericRepository.SaveChanges();
         }
 
-        private string CardsSerialize(IEnumerable<CardsEnum> cards)
+        private string CardsSerialize(IEnumerable<ICards> cards)
         {
-            return string.Join(";", cards.Cast<int>());
+            return string.Join(";", cards.Select(c => (int)c.ToCardEnum()));
         }
     }
 }

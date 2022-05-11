@@ -62,7 +62,7 @@ namespace Web.Hubs
             {
                 GameId = gameId,
                 PlayerId = playerId,
-                Color = (ColorEnum?)color,
+                Color = (CoincheCardColorsEnum?)color,
                 Value = value,
                 Coinched = coinched
             });

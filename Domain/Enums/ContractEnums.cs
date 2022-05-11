@@ -9,7 +9,7 @@ namespace Domain.Enums
     /// <summary>
     /// Represente the coinched state of the contract.
     /// </summary>
-    public enum ContractCoincheState
+    public enum ContractCoincheStatesEnum
     {
         NotCoinched,
         Coinched,
@@ -19,7 +19,7 @@ namespace Domain.Enums
     /// <summary>
     /// Represent the overall contract state.
     /// </summary>
-    public enum ContractState
+    public enum ContractStatesEnum
     {
         Failed,
         Valid,

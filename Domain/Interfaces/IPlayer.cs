@@ -7,6 +7,7 @@ namespace Domain.Interfaces
     /// <summary>
     /// Player contract.
     /// </summary>
+    // TODO: realy usefull ? use directly CoinchePlayer inside domain ?
     public interface IPlayer
     {
         /// <summary>
@@ -22,6 +23,6 @@ namespace Domain.Interfaces
         /// <summary>
         /// Player's cards.
         /// </summary>
-        IEnumerable<CardsEnum> Cards { get; set; }
+        IEnumerable<ICards> GetCards();
     }
 }

@@ -16,11 +16,11 @@ namespace Domain.GamesLogic.Coinche
     [InterfaceResolver(typeof(CoincheGame), typeof(GameCreatedEvent), typeof(CoincheTeamMappingConverter))]
     internal class CoincheTeam : ITeam
     {
-        private List<CoinchePlayer> _Players = new List<CoinchePlayer>();
+        public List<CoinchePlayer> Players = new List<CoinchePlayer>();
         /// <summary>
         /// List of players in the team.
         /// </summary>
-        public IEnumerable<IPlayer> Players => _Players;
+        public IEnumerable<IPlayer> GetPlayers() => Players;
 
         /// <summary>
         /// Team's number.
@@ -36,7 +36,7 @@ namespace Domain.GamesLogic.Coinche
         public CoincheTeam(int number, IEnumerable<IPlayer> players)
         {
             Number = number;
-            _Players = players.Cast<CoinchePlayer>().ToList();
+            Players = players.Cast<CoinchePlayer>().ToList();
         }
 
         /// <summary>
@@ -55,14 +55,14 @@ namespace Domain.GamesLogic.Coinche
         /// <remarks>Compute player's number based on the team's number and number of player in the team.</remarks>
         public void AddPlayer(IPlayer player)
         {
-            if (_Players.Count >= 2)
-                throw new GameException($"Game {Enums.GamesEnum.Coinche} teams doesn't allow for {_Players.Count} player(s)");
+            if (Players.Count >= 2)
+                throw new GameException($"Game {Enums.GamesEnum.Coinche} teams doesn't allow for {Players.Count} player(s)");
 
             if (!(player is CoinchePlayer))
                 throw new InvalidCastException($"{nameof(player)} shoud be of type 'CoinchePlayer'");
 
-            player.Number = Number * 2 + _Players.Count;
-            _Players.Add((CoinchePlayer)player);
+            player.Number = Number * 2 + Players.Count;
+            Players.Add((CoinchePlayer)player);
         }
     }
 

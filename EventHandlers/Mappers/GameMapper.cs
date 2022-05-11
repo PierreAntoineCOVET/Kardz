@@ -22,8 +22,8 @@ namespace EventHandlers.Mappers
             return new GameDto
             {
                 Id = game.Id,
-                PlayersId = game.Teams
-                    .SelectMany(t => t.Players.Select(p => p.Id))
+                PlayersId = game.GetTeams()
+                    .SelectMany(t => t.GetPlayers().Select(p => p.Id))
                     .ToList()
             };
         }
@@ -33,15 +33,16 @@ namespace EventHandlers.Mappers
         /// </summary>
         /// <param name="game"></param>
         /// <returns></returns>
-        public static GameContractDto ToContractDto(this IGame game, ColorEnum? color, int? value)
+        public static GameContractDto ToContractDto(this IGame game, CoincheCardColorsEnum? color, int? value)
         {
+            var gameContract = game.GetContract();
             return new GameContractDto
             {
-                Color = (int?)game.Contract.Color,
-                Value = game.Contract.Value,
+                Color = (int?)gameContract.Color,
+                Value = gameContract.Value,
                 LastPlayerNumber = game.LastPlayerNumber,
                 CurrentPlayerNumber = game.CurrentPlayerNumber,
-                HasContractFailed = game.Contract.CurrentState == ContractState.Failed,
+                HasContractFailed = gameContract.CurrentState == ContractStatesEnum.Failed,
                 TurnEndTime = game.CurrentTurnTimeout,
                 LastColor = (int?)color,
                 LastValue = value

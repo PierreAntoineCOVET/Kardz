@@ -28,12 +28,12 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Special state of the contract regarding coinche.
         /// </summary>
-        private ContractCoincheState CoincheState = ContractCoincheState.NotCoinched;
+        private ContractCoincheStatesEnum CoincheState = ContractCoincheStatesEnum.NotCoinched;
 
         /// <summary>
         /// Contract current color. Null if none.
         /// </summary>
-        public ColorEnum? Color { get; private set; }
+        public CoincheCardColorsEnum? Color { get; private set; }
 
         /// <summary>
         /// Contract current value. Null if none.
@@ -44,7 +44,7 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Get the current contract state.
         /// </summary>
-        public ContractState CurrentState { get; private set; } = ContractState.Valid;
+        public ContractStatesEnum CurrentState { get; private set; } = ContractStatesEnum.Valid;
 
         /// <summary>
         /// Return the state of the contract if we apply the given values.
@@ -53,30 +53,30 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="value">Contract value.</param>
         /// <param name="coinched">Contract coinched state.</param>
         /// <returns></returns>
-        public ContractState GetNextState(ColorEnum? color, int? value, bool coinched)
+        public ContractStatesEnum GetNextState(CoincheCardColorsEnum? color, int? value, bool coinched)
         {
             if(!Color.HasValue && !Value.HasValue
                 && !color.HasValue && !value.HasValue && PassCounter == 3)
             {
-                return ContractState.Failed;
+                return ContractStatesEnum.Failed;
             }
 
             var normalClose = Color.HasValue && Value.HasValue 
                 && !color.HasValue && !value.HasValue
                 && PassCounter == 3;
 
-            var coinchedClose = CoincheState == ContractCoincheState.Coinched
+            var coinchedClose = CoincheState == ContractCoincheStatesEnum.Coinched
                 && !color.HasValue && !value.HasValue && PassCounter == 1;
 
-            var counterCoinchedClose = CoincheState == ContractCoincheState.Coinched
+            var counterCoinchedClose = CoincheState == ContractCoincheStatesEnum.Coinched
                 && coinched;
 
             if (normalClose || coinchedClose || counterCoinchedClose)
             {
-                return ContractState.Closed;
+                return ContractStatesEnum.Closed;
             }
 
-            return ContractState.Valid;
+            return ContractStatesEnum.Valid;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="value">Contract value</param>
         /// <param name="player">Current player id.</param>
         /// <param name="coinched">Contract value</param>
-        public ContractMadeEvent GetContractMadeEvent(ColorEnum? color, int? value, Guid player, bool coinched)
+        public ContractMadeEvent GetContractMadeEvent(CoincheCardColorsEnum? color, int? value, Guid player, bool coinched)
         {
             if(!color.HasValue && !value.HasValue)
             {
@@ -105,7 +105,7 @@ namespace Domain.GamesLogic.Coinche
             }
         }
 
-        private ContractMadeEvent GetNewContractEvent(ColorEnum color, int value, Guid player)
+        private ContractMadeEvent GetNewContractEvent(CoincheCardColorsEnum color, int value, Guid player)
         {
             CheckContract(color, value, player);
 
@@ -115,7 +115,7 @@ namespace Domain.GamesLogic.Coinche
             contractMadeEvent.Color = color;
             contractMadeEvent.Value = value;
             contractMadeEvent.Owner = player;
-            contractMadeEvent.CoincheState = ContractCoincheState.NotCoinched;
+            contractMadeEvent.CoincheState = ContractCoincheStatesEnum.NotCoinched;
 
             return contractMadeEvent;
         }
@@ -143,9 +143,9 @@ namespace Domain.GamesLogic.Coinche
             contractMadeEvent.Color = Color;
             contractMadeEvent.Value = Value;
             contractMadeEvent.Owner = player;
-            contractMadeEvent.CoincheState = CoincheState == ContractCoincheState.NotCoinched
-                ? ContractCoincheState.Coinched
-                : ContractCoincheState.CounterCoinched;
+            contractMadeEvent.CoincheState = CoincheState == ContractCoincheStatesEnum.NotCoinched
+                ? ContractCoincheStatesEnum.Coinched
+                : ContractCoincheStatesEnum.CounterCoinched;
 
             return contractMadeEvent;
         }
@@ -173,7 +173,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="value"></param>
         /// <param name="player"></param>
         /// <exception cref="GameException"></exception>
-        private void CheckContract(ColorEnum color, int value, Guid player)
+        private void CheckContract(CoincheCardColorsEnum color, int value, Guid player)
         {
             if (value < 80
                 || value % 10 != 0
@@ -198,7 +198,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="event"></param>
         public void Apply(ContractMadeEvent @event)
         {
-            CurrentState = ContractState.Valid;
+            CurrentState = ContractStatesEnum.Valid;
             PassCounter = @event.PassCounter;
             Color = @event.Color;
             Value = @event.Value;
@@ -212,7 +212,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="event"></param>
         public void Apply(ContractFailedEvent @event)
         {
-            CurrentState = ContractState.Failed;
+            CurrentState = ContractStatesEnum.Failed;
             PassCounter = @event.ContractPassedCount;
         }
 
@@ -223,7 +223,7 @@ namespace Domain.GamesLogic.Coinche
         /// <returns></returns>
         public bool ShouldSkipNextPlayer(ContractMadeEvent @event)
         {
-            return @event.CoincheState == ContractCoincheState.Coinched && @event.PassCounter == 1;
+            return @event.CoincheState == ContractCoincheStatesEnum.Coinched && @event.PassCounter == 1;
         }
     }
 }

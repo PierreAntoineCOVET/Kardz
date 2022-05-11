@@ -37,7 +37,7 @@ namespace Domain.Events
         /// <summary>
         /// Choosen color.
         /// </summary>
-        public ColorEnum? Color { get; set; }
+        public CoincheCardColorsEnum? Color { get; set; }
 
         /// <summary>
         /// Contract succes threshold.
@@ -59,7 +59,7 @@ namespace Domain.Events
         /// Return true if the contract has been coinched.
         /// </summary>
         /// <returns></returns>
-        public ContractCoincheState CoincheState { get; set; }
+        public ContractCoincheStatesEnum CoincheState { get; set; }
     }
 
     /// <summary>

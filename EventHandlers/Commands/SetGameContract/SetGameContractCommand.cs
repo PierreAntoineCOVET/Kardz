@@ -13,7 +13,7 @@ namespace EventHandlers.Commands.SetGameContract
         /// <summary>
         /// Contract color (null if passed).
         /// </summary>
-        public ColorEnum? Color { get; set; }
+        public CoincheCardColorsEnum? Color { get; set; }
 
         /// <summary>
         /// Contract value (null if passed).

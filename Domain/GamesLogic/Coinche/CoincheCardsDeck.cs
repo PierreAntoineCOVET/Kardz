@@ -2,13 +2,14 @@
 using Domain.Interfaces;
 using Domain.Tools;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Domain.GamesLogic.Coinche
 {
     /// <summary>
     /// List of classic 53 cards.
     /// </summary>
-    internal class CoincheCardsDeck : ICardsDeck
+    internal class CoincheCardsDeck
     {
         /// <summary>
         /// List of cards that compose the deck.
@@ -56,9 +57,9 @@ namespace Domain.GamesLogic.Coinche
         /// Randomly shuffle the cards.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<CardsEnum> Shuffle()
+        public IEnumerable<CoincheCard> Shuffle()
         {
-            return RandomSorter.Randomize(Cards);
+            return RandomSorter.Randomize(Cards).Select(c => new CoincheCard(c));
         }
     }
 }

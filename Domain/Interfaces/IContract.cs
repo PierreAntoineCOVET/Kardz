@@ -10,7 +10,7 @@ namespace Domain.Interfaces
         /// Get the contract current color.
         /// </summary>
         /// <returns></returns>
-        ColorEnum? Color { get; }
+        CoincheCardColorsEnum? Color { get; }
 
         /// <summary>
         /// Get the contract current value.
@@ -21,7 +21,7 @@ namespace Domain.Interfaces
         /// <summary>
         /// Get the contract current state.
         /// </summary>
-        ContractState CurrentState { get; }
+        ContractStatesEnum CurrentState { get; }
 
         /// <summary>
         /// Return the state of the contract if we apply the given values.
@@ -30,7 +30,7 @@ namespace Domain.Interfaces
         /// <param name="value"></param>
         /// <param name="coinched"></param>
         /// <returns></returns>
-        ContractState GetNextState(ColorEnum? color, int? value, bool coinched);
+        ContractStatesEnum GetNextState(CoincheCardColorsEnum? color, int? value, bool coinched);
 
         /// <summary>
         /// Set color and value to the contract.
@@ -39,7 +39,7 @@ namespace Domain.Interfaces
         /// <param name="value">Contract value</param>
         /// <param name="player">player submiting the contract</param>
         /// <returns></returns>
-        ContractMadeEvent GetContractMadeEvent(ColorEnum? color, int? value, Guid player, bool coinched);
+        ContractMadeEvent GetContractMadeEvent(CoincheCardColorsEnum? color, int? value, Guid player, bool coinched);
 
         /// <summary>
         /// Apply the event contract information to current contract instance.

@@ -18,7 +18,7 @@ namespace Domain.Interfaces
         /// <summary>
         /// Game's teams.
         /// </summary>
-        IEnumerable<ITeam> Teams { get; }
+        IEnumerable<ITeam> GetTeams();
 
         /// <summary>
         /// Number of the current dealer.
@@ -38,7 +38,7 @@ namespace Domain.Interfaces
         /// <summary>
         /// Game contract.
         /// </summary>
-        IContract Contract { get; }
+        IContract GetContract();
 
         /// <summary>
         /// Time at wich the current turn times out.
@@ -53,6 +53,6 @@ namespace Domain.Interfaces
         /// <param name="player">Contract maker.</param>
         /// <param name="coinched">Coinched or counter coinched.</param>
         /// <returns>True if the contract applyed correctly, false if it failed.</returns>
-        void SetGameContract(ColorEnum? color, int? value, Guid player, bool coinched);
+        void SetGameContract(CoincheCardColorsEnum? color, int? value, Guid player, bool coinched);
     }
 }

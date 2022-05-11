@@ -10,15 +10,15 @@ namespace TimedEvents
     {
         public const string ConfigurationKey = "RabbitMq";
 
-        public string Host { get; set; }
+        public string Host { get; set; } = String.Empty;
 
         public ushort Port { get; set; }
 
-        public string VirtualHost { get; set; }
+        public string VirtualHost { get; set; } = String.Empty;
 
-        public string User { get; set; }
+        public string User { get; set; } = String.Empty;
 
-        public string Password { get; set; }
+        public string Password { get; set; } = String.Empty;
 
     }
 }

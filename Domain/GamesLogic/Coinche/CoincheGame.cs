@@ -15,16 +15,11 @@ namespace Domain.GamesLogic.Coinche
     /// </summary>
     internal class CoincheGame : AggregateBase, IGame
     {
-        private List<CoincheTeam> _Teams = new List<CoincheTeam>(2);
+        private List<CoincheTeam> Teams = new List<CoincheTeam>(2);
         /// <summary>
         /// List of teams for the game.
         /// </summary>
-        public IEnumerable<ITeam> Teams => _Teams;
-
-        /// <summary>
-        /// Liste of shuffled cards.
-        /// </summary>
-        public IEnumerable<CardsEnum> Cards { get; private set; }
+        public IEnumerable<ITeam> GetTeams() => Teams;
 
         /// <summary>
         /// Current dealer number.
@@ -41,10 +36,11 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         public int LastPlayerNumber => (CurrentPlayerNumber + 3) % 4;
 
+        private CoincheContract Contract = new CoincheContract();
         /// <summary>
         /// Game's current contract.
         /// </summary>
-        public IContract Contract { get; set; }
+        public IContract GetContract() => Contract;
 
         private DateTimeOffset _CurrentTurnTimeout;
         /// <summary>
@@ -56,7 +52,7 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Get current player.
         /// </summary>
-        private IPlayer CurrentPlayer => Teams.SelectMany(t => t.Players).Single(p => p.Number == CurrentPlayerNumber);
+        private IPlayer CurrentPlayer => GetPlayerFromNumber(CurrentPlayerNumber);
 
         /// <summary>
         /// Current server configuration for the game.
@@ -64,11 +60,16 @@ namespace Domain.GamesLogic.Coinche
         private CoincheConfiguration Configuration;
 
         /// <summary>
+        /// Game current turn.
+        /// </summary>
+        private CoincheTurn CurrentTurn { get; init; } = new CoincheTurn();
+
+        /// <summary>
         /// Empty constructor.
         /// </summary>
         public CoincheGame(CoincheConfiguration configuration)
         {
-            Init(configuration);
+            Configuration = configuration;
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="configuration">Game's server configuration.</param>
         public CoincheGame(Guid id, IEnumerable<IPlayer> players, CoincheConfiguration configuration)
         {
-            Init(configuration);
+            Configuration = configuration;
 
             if (id == default)
                 throw new GameException($"Invalid game id {id}");
@@ -96,22 +97,12 @@ namespace Domain.GamesLogic.Coinche
                 Id = Guid.NewGuid(),
                 GameId = id,
                 Teams = teams,
-                CardsDistribution = cardsDistribution,
+                CardsDistribution = cardsDistribution.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Cast<ICards>()),
                 CurrentDealer = 3,
                 CurrentPlayerNumber = 0,
             };
 
             RaiseEvent(createGameEvent);
-        }
-
-        /// <summary>
-        /// Instanciate properties.
-        /// </summary>
-        private void Init(CoincheConfiguration configuration)
-        {
-
-            Configuration = configuration;
-            Contract = new CoincheContract();
         }
 
         /// <summary>
@@ -121,7 +112,7 @@ namespace Domain.GamesLogic.Coinche
         internal void Apply(GameCreatedEvent @event)
         {
             Id = @event.GameId;
-            _Teams = @event.Teams.Cast<CoincheTeam>().ToList();
+            Teams = @event.Teams.Cast<CoincheTeam>().ToList();
             ApplyCards(@event.CardsDistribution);
             CurrentDealer = @event.CurrentDealer;
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
@@ -132,11 +123,11 @@ namespace Domain.GamesLogic.Coinche
         /// Apply the cards distribution to each players.
         /// </summary>
         /// <param name="cards"></param>
-        private void ApplyCards(IDictionary<Guid, IEnumerable<CardsEnum>> cards)
+        private void ApplyCards(IDictionary<Guid, IEnumerable<ICards>> cards)
         {
             foreach (var player in Teams.SelectMany(t => t.Players))
             {
-                player.Cards = cards[player.Id];
+                player.Cards.AddRange((IEnumerable<CoincheCard>)cards[player.Id]);
             }
         }
 
@@ -148,7 +139,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="player">Contract maker.</param>
         /// <param name="coinched">True if the players has coinched.</param>
         /// <returns>True if the contract applyed correctly, false if it failed.</returns>
-        public void SetGameContract(ColorEnum? color, int? value, Guid player, bool coinched)
+        public void SetGameContract(CoincheCardColorsEnum? color, int? value, Guid player, bool coinched)
         {
             //CheckTurnNotExpired();
 
@@ -161,15 +152,15 @@ namespace Domain.GamesLogic.Coinche
 
             switch(contractNextState)
             {
-                case ContractState.Failed:
+                case ContractStatesEnum.Failed:
                     RaiseContractFailedEvent();
                     break;
 
-                case ContractState.Valid:
+                case ContractStatesEnum.Valid:
                     RaiseContractValidEvent(color, value, coinched);
                     break;
 
-                case ContractState.Closed:
+                case ContractStatesEnum.Closed:
                     RaiseGameStartedEvent();
                     break;
 
@@ -180,11 +171,16 @@ namespace Domain.GamesLogic.Coinche
 
         private void RaiseGameStartedEvent()
         {
+            var startingPlayer = GetPlayerRelative(CurrentDealer, 1);
+            var currentPlayer = GetPlayerFromNumber(startingPlayer);
+            
+            var playableCards = CurrentTurn.GetPlayableCards(currentPlayer.Cards, Contract.Color.Value);
+
             // Todo: change contract state to closed.
             throw new NotImplementedException();
         }
 
-        private void RaiseContractValidEvent(ColorEnum? color, int? value, bool coinched)
+        private void RaiseContractValidEvent(CoincheCardColorsEnum? color, int? value, bool coinched)
         {
             var contractMadeEvent = Contract.GetContractMadeEvent(color, value, CurrentPlayer.Id, coinched);
 
@@ -211,7 +207,7 @@ namespace Domain.GamesLogic.Coinche
             {
                 Id = Guid.NewGuid(),
                 GameId = Id,
-                CardsDistribution = cardsDistribution,
+                CardsDistribution = cardsDistribution.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Cast<ICards>()),
                 CurrentDealer = nextDealer,
                 CurrentPlayerNumber = GetPlayerRelative(nextDealer, 1),
                 ContractPassedCount = 0,
@@ -295,12 +291,12 @@ namespace Domain.GamesLogic.Coinche
         /// Deal random cards to the given players.
         /// </summary>
         /// <param name="players">List of players to deal.</param>
-        private Dictionary<Guid, IEnumerable<CardsEnum>> DealCards(IEnumerable<IPlayer> players)
+        private Dictionary<Guid, IEnumerable<CoincheCard>> DealCards(IEnumerable<CoinchePlayer> players)
         {
             var deck = new CoincheCardsDeck();
             var cards = deck.Shuffle();
 
-            var shuffledCards = new Dictionary<Guid, IEnumerable<CardsEnum>>();
+            var shuffledCards = new Dictionary<Guid, IEnumerable<CoincheCard>>();
 
             foreach (var player in players)
             {
@@ -322,5 +318,13 @@ namespace Domain.GamesLogic.Coinche
 
             base.RaiseEvent(@event);
         }
+
+        /// <summary>
+        /// Return the <see cref="CoinchePlayer"/> object from the player number.
+        /// </summary>
+        /// <param name="playerNumber">Number.</param>
+        /// <returns></returns>
+        private CoinchePlayer GetPlayerFromNumber(int playerNumber) 
+            => Teams.SelectMany(t => t.Players).Single(p => p.Number == playerNumber);
     }
 }

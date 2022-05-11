@@ -4,6 +4,7 @@ using Domain.Interfaces;
 using Domain.Tools.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -27,10 +28,11 @@ namespace Domain.GamesLogic.Coinche
         /// <remarks>Can be replaced with id ?</remarks>
         public int Number { get; set; }
 
+        public List<CoincheCard> Cards = new List<CoincheCard>();
         /// <summary>
         /// List of cards.
         /// </summary>
-        public IEnumerable<CardsEnum> Cards { get; set; } = new List<CardsEnum>();
+        public IEnumerable<ICards> GetCards() => Cards;
 
         /// <summary>
         /// Constructor.
