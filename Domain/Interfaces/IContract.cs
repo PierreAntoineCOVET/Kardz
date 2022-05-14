@@ -23,6 +23,8 @@ namespace Domain.Interfaces
         /// </summary>
         ContractStatesEnum CurrentState { get; }
 
+        ContractCoincheStatesEnum CoincheState { get; }
+
         /// <summary>
         /// Return the state of the contract if we apply the given values.
         /// </summary>

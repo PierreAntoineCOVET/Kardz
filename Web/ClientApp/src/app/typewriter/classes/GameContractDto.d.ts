@@ -11,10 +11,13 @@ export interface IGameContractDto {
     value: number;
     color: number;
     lastPlayerNumber: number;
-    hasContractFailed: boolean;
+    isContractFailed: boolean;
     currentPlayerNumber: number;
     turnEndTime: Date;
     lastColor: number;
     lastValue: number;
+    isContractCoinched: boolean;
+    isContractCounterCoinched: boolean;
+    isContractClosed: boolean;
 }
 

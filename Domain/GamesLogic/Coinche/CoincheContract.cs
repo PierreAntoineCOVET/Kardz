@@ -28,7 +28,7 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Special state of the contract regarding coinche.
         /// </summary>
-        private ContractCoincheStatesEnum CoincheState = ContractCoincheStatesEnum.NotCoinched;
+        public ContractCoincheStatesEnum CoincheState { get; private set; } = ContractCoincheStatesEnum.NotCoinched;
 
         /// <summary>
         /// Contract current color. Null if none.
@@ -40,7 +40,6 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         public int? Value { get; private set; }
 
-        //private ContractState _CurrentState;
         /// <summary>
         /// Get the current contract state.
         /// </summary>

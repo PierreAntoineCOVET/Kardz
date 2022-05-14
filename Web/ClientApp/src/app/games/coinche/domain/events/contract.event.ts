@@ -1,9 +1,9 @@
 import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
 
 /**
- * Contract of the current player for the game.
+ * Raised when the current player need to vote on the game's contract.
  */
-export interface ContractEvent {
+export interface ContractMadeEvent {
     /**
      * Selected color for trumps.
      */

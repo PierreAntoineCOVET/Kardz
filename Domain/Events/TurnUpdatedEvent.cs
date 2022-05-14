@@ -9,6 +9,9 @@ using System.Text.Json.Serialization;
 
 namespace Domain.Events
 {
+    /// <summary>
+    /// Raised each time the game's turn need to be updated (game started or player played).
+    /// </summary>
     [InterfaceResolver(typeof(CoincheGame), typeof(TurnUpdatedEvent), typeof(TurnUpdatedMappingConverter))]
     public class TurnUpdatedEvent : IDomainEvent, INotification, ITurnTimerBasedEvent
     {

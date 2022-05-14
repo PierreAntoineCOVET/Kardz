@@ -161,7 +161,8 @@ namespace Domain.GamesLogic.Coinche
                     break;
 
                 case ContractStatesEnum.Closed:
-                    RaiseTurnStartedEvent();
+                    RaiseContractValidEvent(color, value, coinched);
+                    RaiseTurnUpdatedEvent(CurrentDealer);
                     break;
 
                 default:
@@ -172,10 +173,10 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Raise a <see cref="TurnUpdatedEvent"/> to list the current player and the playable cards for this player.
         /// </summary>
-        private void RaiseTurnStartedEvent()
+        private void RaiseTurnUpdatedEvent(int lastPLayerNumber)
         {
-            var startingPlayer = GetPlayerRelative(CurrentDealer, 1);
-            var currentPlayer = GetPlayerFromNumber(startingPlayer);
+            var currentPlayerNumber = GetPlayerRelative(lastPLayerNumber, 1);
+            var currentPlayer = GetPlayerFromNumber(currentPlayerNumber);
             
             var turnUpdatedEvent = new TurnUpdatedEvent
             {

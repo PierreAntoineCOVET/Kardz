@@ -42,7 +42,10 @@ namespace EventHandlers.Mappers
                 Value = gameContract.Value,
                 LastPlayerNumber = game.LastPlayerNumber,
                 CurrentPlayerNumber = game.CurrentPlayerNumber,
-                HasContractFailed = gameContract.CurrentState == ContractStatesEnum.Failed,
+                IsContractFailed = gameContract.CurrentState == ContractStatesEnum.Failed,
+                IsContractCoinched = gameContract.CoincheState == ContractCoincheStatesEnum.Coinched,
+                IsContractCounterCoinched = gameContract.CoincheState == ContractCoincheStatesEnum.CounterCoinched,
+                IsContractClosed = gameContract.CurrentState == ContractStatesEnum.Closed,
                 TurnEndTime = game.CurrentTurnTimeout,
                 LastColor = (int?)color,
                 LastValue = value

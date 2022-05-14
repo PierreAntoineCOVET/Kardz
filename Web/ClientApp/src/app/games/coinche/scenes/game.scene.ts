@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
-import { ContractEvent } from 'src/app/games/coinche/domain/events/contract.event';
+import { ContractMadeEvent } from 'src/app/games/coinche/domain/events/contract.event';
 import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
 import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche/domain/events/turn-timer.event';
 import { DealerSelectedEvent } from 'src/app/games/coinche/domain/events/dealer-selected.event';
@@ -30,7 +30,7 @@ export class GameScene extends Phaser.Scene {
 
     private turnTimerRectangle!: { x: number, y: number, width: number, height: number, direction: ScreenCoordinate };
 
-    private currentContract!: ContractEvent;
+    private currentContract!: ContractMadeEvent;
 
     private speechBubbles: { playerNumber: number, bubble: Phaser.GameObjects.Graphics, text: Phaser.GameObjects.Text }[];
 
@@ -225,11 +225,11 @@ export class GameScene extends Phaser.Scene {
      * Display the html form to choose the contract.
      * @param event Last player choice.
      */
-    private displayContractForm(event: ContractEvent | undefined) {
+    private displayContractForm(event: ContractMadeEvent | undefined) {
         if (event) {
             this.cleanBubble(event.currentPlayerNumber);
 
-            this.currentContract = {} as ContractEvent;
+            this.currentContract = {} as ContractMadeEvent;
 
             this.contractFormElement = this.add.dom(800, 550).createFromCache('contractForm');
 

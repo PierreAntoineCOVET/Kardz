@@ -25,7 +25,7 @@ namespace DTOs.Shared
         /// <summary>
         /// True if the last player did not bet
         /// </summary>
-        public bool HasContractFailed { get; set; }
+        public bool IsContractFailed { get; set; }
 
         /// <summary>
         /// Id of the player that will update the contract.
@@ -43,8 +43,23 @@ namespace DTOs.Shared
         public int? LastColor { get; set; }
 
         /// <summary>
-        /// LAst player voted value.
+        /// Last player voted value.
         /// </summary>
         public int? LastValue { get; set; }
+
+        /// <summary>
+        /// Indicate if any player has coinched.
+        /// </summary>
+        public bool IsContractCoinched { get; set; }
+
+        /// <summary>
+        /// Indicate if any player has counter coinched.
+        /// </summary>
+        public bool IsContractCounterCoinched { get; set; }
+
+        /// <summary>
+        /// True if the contract is closed and the game should start.
+        /// </summary>
+        public bool IsContractClosed { get; set; }
     }
 }

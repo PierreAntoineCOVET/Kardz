@@ -1,7 +1,7 @@
 import { Subscription, ReplaySubject, Subject, BehaviorSubject } from 'rxjs';
 import { CardsEnum } from 'src/app/typewriter/enums/CardsEnum.enum';
 import { IGameInitDto } from 'src/app/typewriter/classes/GameInitDto';
-import { ContractEvent } from 'src/app/games/coinche/domain/events/contract.event';
+import { ContractMadeEvent } from 'src/app/games/coinche/domain/events/contract.event';
 import { DealerSelectedEvent } from 'src/app/games/coinche/domain/events/dealer-selected.event';
 import { AddCardEvent } from 'src/app/games/coinche/domain/events/add-card.event';
 import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
@@ -9,7 +9,6 @@ import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche
 import { Player } from 'src/app/games/coinche/domain/player';
 import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
 import { PlayerSaidEvent } from './events/player-said.event';
-import { ColorEnum } from '../../../typewriter/enums/ColorEnum.enum';
 
 export class Game {
     public gameId!: string;
@@ -28,8 +27,8 @@ export class Game {
     /**
      * Emit when the contract has changed.
      */
-    public onContractChanged: BehaviorSubject<ContractEvent | undefined>
-        = new BehaviorSubject<ContractEvent | undefined>(undefined);
+    public onContractChanged: BehaviorSubject<ContractMadeEvent | undefined>
+        = new BehaviorSubject<ContractMadeEvent | undefined>(undefined);
 
     /**
      * Emit when the game card's dealer is defined.
@@ -137,7 +136,7 @@ export class Game {
      * @param obj Object to check.
      */
     private isICoincheContractDto(obj: any): obj is IGameContractDto {
-        return (obj as IGameContractDto).hasContractFailed !== undefined;
+        return (obj as IGameContractDto).isContractFailed !== undefined;
     }
 
     /**
@@ -145,10 +144,19 @@ export class Game {
      * @param contractInfo
      */
     private onGameContractChanged(contractInfo: IGameContractDto) {
-        if (contractInfo.hasContractFailed) {
+        if (contractInfo.isContractFailed) {
             this.onContractChanged.next(undefined);
             this.RequestGameInfos();
             return;
+        }
+
+        let currentPlayer = this.players.find(p => p.number == contractInfo.currentPlayerNumber);
+        if (!currentPlayer) {
+            throw new Error(`Cannot find designated player : ${contractInfo.currentPlayerNumber}`);
+        }
+
+        if (contractInfo.isContractClosed) {
+            contractInfo.currentPlayerNumber
         }
 
         const localPlayer = this.players.find(p => p.id == this.playerId);
@@ -163,17 +171,13 @@ export class Game {
             throw new Error(`Cannot find designated player : n°${contractInfo.lastPlayerNumber}`);
         }
 
-        this.updateCurrentPlayer(contractInfo.currentPlayerNumber);
-
-        const contractBubbleText = contractInfo.lastValue
-            ? `${contractInfo.lastValue} ${ColorEnum[contractInfo.lastColor]}`
-            : 'Passed';
-        this.onPlayerSays.next(lastPlayer.getContractSpeechBubble(contractBubbleText));
+        this.updateCurrentPlayer(currentPlayer);
+        this.onPlayerSays.next(lastPlayer.getContractSpeechBubble(contractInfo));
 
         if (localPlayer.isPlaying) {
-            var contractEvent = {
+            let contractEvent = {
                 currentPlayerNumber: localPlayer.number
-            } as ContractEvent;
+            } as ContractMadeEvent;
 
             if (contractInfo.value) {
                 contractEvent.selectedValue = contractInfo.value + 10;
@@ -186,7 +190,7 @@ export class Game {
         }
 
         this.onTurnTimerCleared.next();
-        this.startTurnTimer(contractInfo.currentPlayerNumber, contractInfo.turnEndTime);
+        this.startTurnTimer(currentPlayer, contractInfo.turnEndTime);
     }
 
     /**
@@ -198,26 +202,29 @@ export class Game {
      * @param gameDatas
      */
     private initGame(gameDatas: IGameInitDto) {
+        let currentPlayer = this.players.find(p => p.number == gameDatas.playerPlaying);
+        if (!currentPlayer) {
+            throw new Error(`Cannot find designated player : ${gameDatas.playerPlaying}`);
+        }
+
         this.displayCards(gameDatas.playerCards);
         this.setPlayersNumber(gameDatas.playerNumber);
         this.setDealer(gameDatas.dealer);
-        this.updateCurrentPlayer(gameDatas.playerPlaying);
-
-        const currentPlayer = this.players.find(p => p.id == this.playerId);
+        this.updateCurrentPlayer(currentPlayer);
 
         if (!currentPlayer) {
             throw new Error(`Cannot find designated player : ${this.playerId}`);
         }
 
         if (currentPlayer.isPlaying) {
-            var contractEvent = {
+            let contractEvent = {
                 currentPlayerNumber: currentPlayer.number
-            } as ContractEvent;
+            } as ContractMadeEvent;
 
             this.onContractChanged.next(contractEvent);
         }
 
-        this.startTurnTimer(gameDatas.playerPlaying, gameDatas.turnEndTime);
+        this.startTurnTimer(currentPlayer, gameDatas.turnEndTime);
     }
 
     /**
@@ -225,15 +232,9 @@ export class Game {
      * @param currentPlayerNumber The current player number.
      * @param timerEndTime time at witch the turn's time out.
      */
-    private startTurnTimer(currentPlayerNumber: number, timerEndTime: Date) {
-        let currentPlayer = this.players.find(p => p.number == currentPlayerNumber);
-
-        if (!currentPlayer) {
-            throw new Error(`Cannot find designated player : ${currentPlayerNumber}`);
-        }
-
+    private startTurnTimer(currentPlayer: Player, timerEndTime: Date) {
         let startEvent = currentPlayer.getTurnTimerPosition();
-        startEvent.playerNumber = currentPlayerNumber;
+        startEvent.playerNumber = currentPlayer.number;
         this.onTurnTimeStarted.next(startEvent);
 
         const numberOfTicks = (timerEndTime.getTime() - (new Date()).getTime()) / 1000;
@@ -265,11 +266,10 @@ export class Game {
 
     /**
      * Indicate which player has to play for the current turn.
-     * @param currentPlayerPlaying number of the player who has to play.
+     * @param player the current player.
      */
-    private updateCurrentPlayer(currentPlayerPlaying: number) {
+    private updateCurrentPlayer(player: Player) {
         this.players.forEach(p => p.isPlaying = false);
-        var player = this.players.find(p => p.number == currentPlayerPlaying);
         if (player) {
             player.isPlaying = true;
         }
@@ -298,22 +298,22 @@ export class Game {
      * @param playerNumber number of the current real player.
      */
     private setPlayersNumber(playerNumber: number) {
-        var bottomPlayer = this.players.find(p => p.position == ScreenCoordinate.bottom);
+        let bottomPlayer = this.players.find(p => p.position == ScreenCoordinate.bottom);
         if (bottomPlayer) {
             bottomPlayer.number = playerNumber;
         }
 
-        var rightPlayer = this.players.find(p => p.position == ScreenCoordinate.right);
+        let rightPlayer = this.players.find(p => p.position == ScreenCoordinate.right);
         if (rightPlayer) {
             rightPlayer.number = (playerNumber + 1) % 4;;
         }
 
-        var topPlayer = this.players.find(p => p.position == ScreenCoordinate.top);
+        let topPlayer = this.players.find(p => p.position == ScreenCoordinate.top);
         if (topPlayer) {
             topPlayer.number = (playerNumber + 2) % 4;
         }
 
-        var leftPlayer = this.players.find(p => p.position == ScreenCoordinate.left);
+        let leftPlayer = this.players.find(p => p.position == ScreenCoordinate.left);
         if (leftPlayer) {
             leftPlayer.number = (playerNumber + 3) % 4;
         }
@@ -378,7 +378,7 @@ export class Game {
      * Send the ContractEvent to the server.
      * @param contract Player's contract.
      */
-    public sendContract(contract: ContractEvent | undefined) {
+    public sendContract(contract: ContractMadeEvent | undefined) {
         this.gameWorkerService.postMessage({
             fName: 'broadcastSetGameContract',
             playerId: this.playerId,

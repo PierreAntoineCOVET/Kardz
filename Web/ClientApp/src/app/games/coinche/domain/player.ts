@@ -1,9 +1,8 @@
-import { Observable } from 'rxjs';
-import { CardsEnum } from '../../../typewriter/enums/CardsEnum.enum';
 import { ScreenCoordinate } from '../domain/PlayerPosition';
-import { v4 as uuidv4 } from 'uuid';
 import { StartTurnTimerEvent } from './events/turn-timer.event';
 import { BubbleQueuePosition, PlayerSaidEvent } from './events/player-said.event';
+import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
+import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
 
 /**
  * Player VM responsible to compute it's UI (position and width).
@@ -123,8 +122,9 @@ export class Player {
      * Get the position, size and content of the speech bubble
      * annoncing the last player contract choice.
      */
-    public getContractSpeechBubble(text: string): PlayerSaidEvent {
-        var position = this.getBubblePosition();
+    public getContractSpeechBubble(contractInfo: IGameContractDto): PlayerSaidEvent {
+        let text = this.getBubbleText(contractInfo);
+        let position = this.getBubblePosition();
 
         return {
             height: this.contractSpeechBubbleHeight,
@@ -162,6 +162,23 @@ export class Player {
         }
 
         return position;
+    }
+
+    private getBubbleText(contractInfo: IGameContractDto): string {
+        if (contractInfo.lastValue) {
+            return `${contractInfo.lastValue} ${ColorEnum[contractInfo.lastColor]}`;
+        }
+        else {
+            if (contractInfo.isContractCoinched) {
+                return 'Coinche !'
+            }
+            else if (contractInfo.isContractCounterCoinched) {
+                return 'Contre Coinche !'
+            }
+            else {
+                return 'Passed'
+            }
+        }
     }
 }
 
