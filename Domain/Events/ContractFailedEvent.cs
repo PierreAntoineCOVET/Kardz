@@ -1,8 +1,6 @@
-﻿using Domain.Enums;
-using Domain.GamesLogic.Coinche;
+﻿using Domain.GamesLogic.Coinche;
 using Domain.Interfaces;
 using Domain.Tools.Serialization;
-using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -14,7 +12,7 @@ namespace Domain.Events
     /// Contract has failed to be established event.
     /// </summary>
     [InterfaceResolver(typeof(CoincheGame), typeof(ContractFailedEvent), typeof(ContractFailedEventMappingConverter))]
-    public class ContractFailedEvent : IDomainEvent, INotification, ITurnTimerBasedEvent
+    public class ContractFailedEvent : IDomainEvent, ITurnTimerBasedEvent
     {
         /// <summary>
         /// Event ID.

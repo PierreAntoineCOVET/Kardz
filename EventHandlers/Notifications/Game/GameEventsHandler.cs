@@ -18,8 +18,7 @@ namespace EventHandlers.Notifications.Game
     /// </summary>
     public class GameEventsHandler :
         INotificationHandler<GameCreatedEvent>,
-        INotificationHandler<ContractMadeEvent>,
-        INotificationHandler<ContractFailedEvent>
+        INotificationHandler<TurnUpdatedEvent>
     {
         /// <summary>
         /// Read modele repository.
@@ -47,7 +46,7 @@ namespace EventHandlers.Notifications.Game
             {
                 Id = notification.GameId,
                 CurrentDealer = notification.CurrentDealer,
-                CurrentPayerTurn = notification.CurrentPlayerNumber,
+                CurrentPayerNumber = notification.CurrentPlayerNumber,
                 CurrentTurnTimeout = notification.EndOfTurn,
                 Teams = notification.Teams.Select(t => new CoincheTeam
                 {
@@ -58,9 +57,7 @@ namespace EventHandlers.Notifications.Game
                     {
                         Id = p.Id,
                         Cards = CardsSerialize(p.GetCards()),
-                        Number = p.Number,
-                        GameId = notification.GameId,
-                        TeamNumber = t.Number
+                        Number = p.Number
 
                     }).ToList()
                 }).ToList()
@@ -71,37 +68,17 @@ namespace EventHandlers.Notifications.Game
             await GenericRepository.SaveChanges();
 
         }
-        /// <summary>
-        /// TODO: Implement
-        ///   - need a special event to record the new current player (not ContractMadeEvent responsability)
-        ///   - need a contract/turn read model table (or fields...)
-        /// </summary>
-        /// <param name="notification"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        public async Task Handle(ContractMadeEvent notification, CancellationToken cancellationToken)
+
+        public async Task Handle(TurnUpdatedEvent notification, CancellationToken cancellationToken)
         {
-            //var games = await GenericRepository.Query(new GetCoincheGameByIdWithPlayersSpecification(notification.GameId));
-            //var game = games.SingleOrDefault();
+            var currentGame = await GenericRepository.GetSingleOrDefault(new GetFullCoincheGameByIdSpecification(notification.GameId));
+            currentGame.CurrentPayerNumber = notification.CurrentPlayerNumber;
+            currentGame.CurrentTurnTimeout = notification.EndOfTurn;
 
-            //await GenericRepository.SaveChanges();
-        }
+            var currentPlayer = currentGame.Teams.SelectMany(t => t.Players).Single(p => p.Id == notification.CurrentPlayerId);
+            currentPlayer.PlayableCards = CardsSerialize(notification.PlayableCards);
 
-        public async Task Handle(ContractFailedEvent notification, CancellationToken cancellationToken)
-        {
-            var games = await GenericRepository.Query(new GetFullCoincheGameByIdSpecification(notification.GameId));
-            var game = games.SingleOrDefault();
-
-            foreach (var player in game.Teams.SelectMany(t => t.Players))
-            {
-                var playerCards = notification.CardsDistribution[player.Id];
-                player.Cards = CardsSerialize(playerCards);
-            }
-
-            game.CurrentDealer = notification.CurrentDealer;
-            game.CurrentPayerTurn = notification.CurrentPlayerNumber;
-            game.CurrentTurnTimeout = notification.EndOfTurn;
-
+            await GenericRepository.Update(currentGame);
             await GenericRepository.SaveChanges();
         }
 

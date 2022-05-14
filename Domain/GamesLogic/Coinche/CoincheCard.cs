@@ -21,6 +21,8 @@ namespace Domain.GamesLogic.Coinche
 
         public CoincheCardValuesEnum Value { get; init; }
 
+        public CoincheCard() { }
+
         public CoincheCard(CardsEnum card)
         {
             Value = GetCardValue(card);

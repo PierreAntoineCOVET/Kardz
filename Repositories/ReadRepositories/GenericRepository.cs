@@ -52,6 +52,17 @@ namespace Repositories.ReadRepositories
         }
 
         /// <summary>
+        /// Query a single entity.
+        /// </summary>
+        /// <typeparam name="T">Entity's type.</typeparam>
+        /// <returns><see cref="IQueryable{T}"/>.</returns>
+        public Task<T> GetSingleOrDefault<T>(ISpecification<T> spec)
+             where T : class
+        {
+            return ApplySpecification(spec).SingleOrDefaultAsync();
+        }
+
+        /// <summary>
         /// Add an entity.
         /// </summary>
         /// <typeparam name="T">Entity's type.</typeparam>

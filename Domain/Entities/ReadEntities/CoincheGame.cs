@@ -14,9 +14,14 @@ namespace Domain.Entities.ReadEntities
         public Guid Id { get; set; }
 
         /// <summary>
+        /// Cards of the current turn.
+        /// </summary>
+        public string CurrentTurnCards { get; set; }
+
+        /// <summary>
         /// Cards on the board.
         /// </summary>
-        public string CurrentCards { get; set; }
+        public string LastTurnCards { get; set; }
 
         /// <summary>
         /// Number of the current card's dealer.
@@ -24,9 +29,9 @@ namespace Domain.Entities.ReadEntities
         public int CurrentDealer { get; set; }
 
         /// <summary>
-        /// Number of the player whose turn it is.
+        /// Number of the current player.
         /// </summary>
-        public int CurrentPayerTurn { get; set; }
+        public int CurrentPayerNumber { get; set; }
 
         /// <summary>
         /// Current turn timeout limit.

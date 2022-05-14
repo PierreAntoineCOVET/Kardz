@@ -26,7 +26,7 @@ namespace Repositories.DbContexts
         public DbSet<CoincheTeam> CoincheTeams { get; set; }
 
         /// <summary>
-        /// Teams (/game) 's players).
+        /// Teams's players.
         /// </summary>
         public DbSet<CoinchePlayer> CoinchePlayers { get; set; }
 
@@ -43,12 +43,16 @@ namespace Repositories.DbContexts
                 .IsUnicode(false)
                 .HasMaxLength(23);
             modelBuilder.Entity<CoinchePlayer>()
+                .Property(p => p.PlayableCards)
+                .IsUnicode(false)
+                .HasMaxLength(23);
+            modelBuilder.Entity<CoinchePlayer>()
                 .HasOne(p => p.Team)
                 .WithMany(t => t.Players)
-                .HasForeignKey(p => new { p.GameId, p.TeamNumber });
+                .HasForeignKey(p => p.TeamId);
 
             modelBuilder.Entity<CoincheTeam>()
-                .HasKey(t => new { t.GameId, t.Number });
+                .HasKey(t => t.Id);
             modelBuilder.Entity<CoincheTeam>()
                 .HasOne(t => t.Game)
                 .WithMany(g => g.Teams)
@@ -57,7 +61,11 @@ namespace Repositories.DbContexts
             modelBuilder.Entity<CoincheGame>()
                 .HasKey(g => g.Id);
             modelBuilder.Entity<CoincheGame>()
-                .Property(p => p.CurrentCards)
+                .Property(g => g.CurrentTurnCards)
+                .IsUnicode(false)
+                .HasMaxLength(8);
+            modelBuilder.Entity<CoincheGame>()
+                .Property(g => g.LastTurnCards)
                 .IsUnicode(false)
                 .HasMaxLength(8);
         }

@@ -65,7 +65,7 @@ namespace Domain.GamesLogic.Coinche
         private CoincheTurn CurrentTurn { get; init; } = new CoincheTurn();
 
         /// <summary>
-        /// Empty constructor.
+        /// Reflexion construction for deserialization.
         /// </summary>
         public CoincheGame(CoincheConfiguration configuration)
         {
@@ -127,7 +127,7 @@ namespace Domain.GamesLogic.Coinche
         {
             foreach (var player in Teams.SelectMany(t => t.Players))
             {
-                player.Cards.AddRange((IEnumerable<CoincheCard>)cards[player.Id]);
+                player.Cards.AddRange(cards[player.Id].Cast<CoincheCard>());
             }
         }
 
@@ -141,7 +141,7 @@ namespace Domain.GamesLogic.Coinche
         /// <returns>True if the contract applyed correctly, false if it failed.</returns>
         public void SetGameContract(CoincheCardColorsEnum? color, int? value, Guid player, bool coinched)
         {
-            //CheckTurnNotExpired();
+            // TODO: CheckTurnNotExpired();
 
             if (player != CurrentPlayer.Id)
             {
@@ -161,7 +161,7 @@ namespace Domain.GamesLogic.Coinche
                     break;
 
                 case ContractStatesEnum.Closed:
-                    RaiseGameStartedEvent();
+                    RaiseTurnStartedEvent();
                     break;
 
                 default:
@@ -169,17 +169,42 @@ namespace Domain.GamesLogic.Coinche
             }
         }
 
-        private void RaiseGameStartedEvent()
+        /// <summary>
+        /// Raise a <see cref="TurnUpdatedEvent"/> to list the current player and the playable cards for this player.
+        /// </summary>
+        private void RaiseTurnStartedEvent()
         {
             var startingPlayer = GetPlayerRelative(CurrentDealer, 1);
             var currentPlayer = GetPlayerFromNumber(startingPlayer);
             
-            var playableCards = CurrentTurn.GetPlayableCards(currentPlayer.Cards, Contract.Color.Value);
+            var turnUpdatedEvent = new TurnUpdatedEvent
+            {
+                Id = Guid.NewGuid(),
+                CurrentPlayerId = currentPlayer.Id,
+                CurrentPlayerNumber = currentPlayer.Number,
+                GameId = Id,
+                PlayableCards = CurrentTurn.GetPlayableCards(currentPlayer.Cards, Contract.Color.Value)
+            };
 
-            // Todo: change contract state to closed.
-            throw new NotImplementedException();
+            RaiseEvent(turnUpdatedEvent);
         }
 
+        /// <summary>
+        /// Apply the <see cref="TurnUpdatedEvent"/> on the current instance.
+        /// </summary>
+        /// <param name="event"></param>
+        internal void Apply(TurnUpdatedEvent @event)
+        {
+            CurrentPlayerNumber = @event.CurrentPlayerNumber;
+            _CurrentTurnTimeout = @event.EndOfTurn;
+        }
+
+        /// <summary>
+        /// Raise a <see cref="ContractMadeEvent"/> to advange the game to the next stage of bets.
+        /// </summary>
+        /// <param name="color"></param>
+        /// <param name="value"></param>
+        /// <param name="coinched"></param>
         private void RaiseContractValidEvent(CoincheCardColorsEnum? color, int? value, bool coinched)
         {
             var contractMadeEvent = Contract.GetContractMadeEvent(color, value, CurrentPlayer.Id, coinched);
@@ -198,6 +223,21 @@ namespace Domain.GamesLogic.Coinche
             RaiseEvent(contractMadeEvent);
         }
 
+        /// <summary>
+        /// Apply <see cref="ContractMadeEvent"/> to current instance.
+        /// </summary>
+        /// <param name="event"></param>
+        internal void Apply(ContractMadeEvent @event)
+        {
+            CurrentPlayerNumber = @event.CurrentPlayerNumber;
+            _CurrentTurnTimeout = @event.EndOfTurn;
+
+            Contract.Apply(@event);
+        }
+
+        /// <summary>
+        /// Raise a <see cref="ContractFailedEvent"/> to reset the game cards and bets.
+        /// </summary>
         private void RaiseContractFailedEvent()
         {
             var cardsDistribution = DealCards(Teams.SelectMany(t => t.Players));
@@ -217,7 +257,7 @@ namespace Domain.GamesLogic.Coinche
         }
 
         /// <summary>
-        /// Apply contract failed event to current instance.
+        /// Apply <see cref="ContractFailedEvent"/> to current instance.
         /// </summary>
         /// <param name="event"></param>
         internal void Apply(ContractFailedEvent @event)
@@ -225,18 +265,6 @@ namespace Domain.GamesLogic.Coinche
             ApplyCards(@event.CardsDistribution);
 
             CurrentDealer = @event.CurrentDealer;
-            CurrentPlayerNumber = @event.CurrentPlayerNumber;
-            _CurrentTurnTimeout = @event.EndOfTurn;
-
-            Contract.Apply(@event);
-        }
-
-        /// <summary>
-        /// Apply contract made event to current instance.
-        /// </summary>
-        /// <param name="event"></param>
-        internal void Apply(ContractMadeEvent @event)
-        {
             CurrentPlayerNumber = @event.CurrentPlayerNumber;
             _CurrentTurnTimeout = @event.EndOfTurn;
 

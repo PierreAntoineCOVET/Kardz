@@ -9,6 +9,11 @@ namespace Domain.Entities.ReadEntities
     public class CoincheTeam
     {
         /// <summary>
+        /// Teams Id.
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
         /// Team number.
         /// </summary>
         public int Number { get; set; }

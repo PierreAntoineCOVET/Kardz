@@ -16,7 +16,7 @@ namespace Domain.GamesLogic.Coinche
     [InterfaceResolver(typeof(CoincheGame), typeof(GameCreatedEvent), typeof(CoincheTeamMappingConverter))]
     internal class CoincheTeam : ITeam
     {
-        public List<CoinchePlayer> Players = new List<CoinchePlayer>();
+        public List<CoinchePlayer> Players { get; set; } = new List<CoinchePlayer>();
         /// <summary>
         /// List of players in the team.
         /// </summary>
@@ -26,18 +26,6 @@ namespace Domain.GamesLogic.Coinche
         /// Team's number.
         /// </summary>
         public int Number { get; set; }
-
-        /// <summary>
-        /// Contructor used for Json deserialization.
-        /// </summary>
-        /// <param name="number">Team number.</param>
-        /// <param name="players">Team players.</param>
-        [JsonConstructor]
-        public CoincheTeam(int number, IEnumerable<IPlayer> players)
-        {
-            Number = number;
-            Players = players.Cast<CoinchePlayer>().ToList();
-        }
 
         /// <summary>
         /// Constructor.
@@ -78,7 +66,7 @@ namespace Domain.GamesLogic.Coinche
 
         public override void Write(Utf8JsonWriter writer, ITeam value, JsonSerializerOptions options)
         {
-            System.Text.Json.JsonSerializer.Serialize(writer, (CoincheTeam)value, options);
+            System.Text.Json.JsonSerializer.Serialize<CoincheTeam>(writer, (CoincheTeam)value, options);
         }
     }
 }

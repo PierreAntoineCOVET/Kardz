@@ -27,6 +27,8 @@ Update-Database -Context ReadDbContext -Project Repositories
 Remove-Migration -Context ReadDbContext -Project Repositories
 
 
+
+
 ######################
 # Downgrade database #
 ######################

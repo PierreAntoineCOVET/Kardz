@@ -38,8 +38,7 @@ namespace EventHandlers.Queries.GetPlayerCards
         /// TODO: delete and send all infos on search game command
         public async Task<GameInitDto> Handle(GetGameInformationsQuery request, CancellationToken cancellationToken)
         {
-            var games = await GenericRepository.Query(new GetFullCoincheGameByIdSpecification(request.GameId));
-            var game = games.SingleOrDefault();
+            var game = await GenericRepository.GetSingleOrDefault(new GetFullCoincheGameByIdSpecification(request.GameId));
 
             if (game == null)
             {
@@ -59,7 +58,7 @@ namespace EventHandlers.Queries.GetPlayerCards
             {
                 PlayerCards = cards,
                 Dealer = game.CurrentDealer,
-                PlayerPlaying = game.CurrentPayerTurn,
+                PlayerPlaying = game.CurrentPayerNumber,
                 PlayerNumber = player.Number,
                 TurnEndTime = game.CurrentTurnTimeout
             };

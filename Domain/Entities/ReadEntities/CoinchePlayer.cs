@@ -18,19 +18,19 @@ namespace Domain.Entities.ReadEntities
         public string Cards { get; set; }
 
         /// <summary>
+        /// Player playable cards in the current turn.
+        /// </summary>
+        public string PlayableCards { get; set; }
+
+        /// <summary>
         /// Player number.
         /// </summary>
         public int Number { get; set; }
 
         /// <summary>
-        /// Player's game id.
+        /// Team Id.
         /// </summary>
-        public Guid GameId { get; set; }
-
-        /// <summary>
-        /// Player team number.
-        /// </summary>
-        public int TeamNumber { get; set; }
+        public Guid TeamId { get; set; }
 
         /// <summary>
         /// Player's team.

@@ -1,7 +1,6 @@
 ﻿using Domain.Enums;
 using Domain.GamesLogic.Coinche;
 using Domain.Tools.Serialization;
-using MediatR;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,7 +11,7 @@ namespace Domain.Events
     /// Contract made event (bet or pass).
     /// </summary>
     [InterfaceResolver(typeof(CoincheGame), typeof(ContractMadeEvent), typeof(CoincheContractMadeMappingConverter))]
-    public class ContractMadeEvent : IDomainEvent, INotification, ITurnTimerBasedEvent
+    public class ContractMadeEvent : IDomainEvent, ITurnTimerBasedEvent
     {
         /// <summary>
         /// Event's id.

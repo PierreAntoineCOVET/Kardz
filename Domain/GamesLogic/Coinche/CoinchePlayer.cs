@@ -28,7 +28,8 @@ namespace Domain.GamesLogic.Coinche
         /// <remarks>Can be replaced with id ?</remarks>
         public int Number { get; set; }
 
-        public List<CoincheCard> Cards = new List<CoincheCard>();
+        [JsonIgnore]
+        public List<CoincheCard> Cards { get; set; } = new List<CoincheCard>();
         /// <summary>
         /// List of cards.
         /// </summary>

@@ -70,8 +70,10 @@ namespace EventHandlers.Notifications.Aggregate
             var uncommittedDbEvents = new List<Event>(notification.Aggregate.UncommittedEvents.Count);
             foreach (var @event in notification.Aggregate.UncommittedEvents)
             {
-                // update read model
-                await Mediator.Publish((dynamic)@event);
+                if(@event is INotification updateReadModelNotification)
+                {
+                    await Mediator.Publish(updateReadModelNotification);
+                }
 
                 var dbEvent = new Event
                 {

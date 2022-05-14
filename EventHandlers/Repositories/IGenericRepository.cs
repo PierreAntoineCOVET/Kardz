@@ -11,6 +11,8 @@ namespace EventHandlers.Repositories
 
         Task<List<T>> Query<T>(ISpecification<T> spec) where T : class;
 
+        Task<T> GetSingleOrDefault<T>(ISpecification<T> spec) where T : class;
+
         Task Delete<T>(T entity) where T : class;
 
         Task<int> SaveChanges();

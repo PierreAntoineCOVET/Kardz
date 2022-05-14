@@ -6,7 +6,7 @@ namespace EventHandlers.Specifications
     public class GetFullCoincheGameByIdSpecification : BaseSpecification<CoincheGame>
     {
         public GetFullCoincheGameByIdSpecification(Guid gameId)
-            : base(c => c.Id == gameId)
+            : base(g => g.Id == gameId)
         {
             AddInclude($"{nameof(CoincheGame.Teams)}.{nameof(CoincheTeam.Players)}");
         }
