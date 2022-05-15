@@ -47,6 +47,7 @@ namespace Domain.GamesLogic
                 Apply(@event);
 
                 Version++;
+                @event.AggregateVersion = Version;
 
                 UncommittedEvents.Add(@event);
             }
