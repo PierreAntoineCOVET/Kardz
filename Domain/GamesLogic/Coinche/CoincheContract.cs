@@ -13,7 +13,7 @@ namespace Domain.GamesLogic.Coinche
     /// <summary>
     /// Coinche game contract
     /// </summary>
-    public class CoincheContract : IContract
+    internal class CoincheContract : IContract
     {
         /// <summary>
         /// Number of times a contrac has been passed.
@@ -21,9 +21,9 @@ namespace Domain.GamesLogic.Coinche
         private int PassCounter = 0;
 
         /// <summary>
-        /// Player Id currently owning the contract.
+        /// Number of the team owning the contract.
         /// </summary>
-        private Guid? Owner;
+        private int? OwningTeamNumber;
 
         /// <summary>
         /// Special state of the contract regarding coinche.
@@ -46,15 +46,35 @@ namespace Domain.GamesLogic.Coinche
         public ContractStatesEnum CurrentState { get; private set; } = ContractStatesEnum.Valid;
 
         /// <summary>
-        /// Return the state of the contract if we apply the given values.
+        /// Check if the contract can be updated with the current parameters.
+        /// If it's ok, return the future state of the contract with the given values.
         /// </summary>
         /// <param name="color">Contract color.</param>
         /// <param name="value">Contract value.</param>
         /// <param name="coinched">Contract coinched state.</param>
+        /// <param name="bettingTeamNumber">Number of the team making the bet.</param>
         /// <returns></returns>
-        public ContractStatesEnum GetNextState(CoincheCardColorsEnum? color, int? value, bool coinched)
+        public ContractStatesEnum ValidateContract(CoincheCardColorsEnum? color, int? value, bool coinched, int bettingTeamNumber)
         {
-            if(!Color.HasValue && !Value.HasValue
+            if (value.HasValue
+                && (value < 80
+                    || value % 10 != 0
+                    || value > 170))
+            {
+                throw new GameException("Contract value must be a multiple of 10 and between 80 and 160 (or capot).");
+            }
+
+            if(coinched && !Color.HasValue && !Value.HasValue)
+            {
+                throw new GameException($"Cannot coinche empty contract");
+            }
+
+            if(coinched && bettingTeamNumber == OwningTeamNumber)
+            {
+                throw new GameException("Cannot coinche your teammate");
+            }
+
+            if (!Color.HasValue && !Value.HasValue
                 && !color.HasValue && !value.HasValue && PassCounter == 3)
             {
                 return ContractStatesEnum.Failed;
@@ -83,15 +103,15 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         /// <param name="color">Contract color</param>
         /// <param name="value">Contract value</param>
-        /// <param name="player">Current player id.</param>
+        /// <param name="owningTeam">Number of the team making the bet.</param>
         /// <param name="coinched">Contract value</param>
-        public ContractMadeEvent GetContractMadeEvent(CoincheCardColorsEnum? color, int? value, Guid player, bool coinched)
+        public ContractMadeEvent GetContractMadeEvent(CoincheCardColorsEnum? color, int? value, int? owningTeam, bool coinched)
         {
             if(!color.HasValue && !value.HasValue)
             {
                 if (coinched)
                 {
-                    return GetCoinchedEvent(player);
+                    return GetCoinchedEvent(owningTeam);
                 }
                 else
                 {
@@ -100,20 +120,18 @@ namespace Domain.GamesLogic.Coinche
             }
             else
             {
-                return GetNewContractEvent(color.Value, value.Value, player);
+                return GetNewContractEvent(color.Value, value.Value, owningTeam);
             }
         }
 
-        private ContractMadeEvent GetNewContractEvent(CoincheCardColorsEnum color, int value, Guid player)
+        private ContractMadeEvent GetNewContractEvent(CoincheCardColorsEnum color, int value, int? owningTeam)
         {
-            CheckContract(color, value, player);
-
             var contractMadeEvent = GetEmptyContract();
 
             contractMadeEvent.PassCounter = 0;
             contractMadeEvent.Color = color;
             contractMadeEvent.Value = value;
-            contractMadeEvent.Owner = player;
+            contractMadeEvent.OwningTeamNumber = owningTeam;
             contractMadeEvent.CoincheState = ContractCoincheStatesEnum.NotCoinched;
 
             return contractMadeEvent;
@@ -126,13 +144,13 @@ namespace Domain.GamesLogic.Coinche
             contractMadeEvent.PassCounter = PassCounter + 1;
             contractMadeEvent.Color = Color;
             contractMadeEvent.Value = Value;
-            contractMadeEvent.Owner = Owner;
+            contractMadeEvent.OwningTeamNumber = OwningTeamNumber;
             contractMadeEvent.CoincheState = CoincheState;
 
             return contractMadeEvent;
         }
 
-        private ContractMadeEvent GetCoinchedEvent(Guid player)
+        private ContractMadeEvent GetCoinchedEvent(int? owningTeam)
         {
             CheckCoinchableContract();
 
@@ -141,7 +159,7 @@ namespace Domain.GamesLogic.Coinche
             contractMadeEvent.PassCounter = 0;
             contractMadeEvent.Color = Color;
             contractMadeEvent.Value = Value;
-            contractMadeEvent.Owner = player;
+            contractMadeEvent.OwningTeamNumber = owningTeam;
             contractMadeEvent.CoincheState = CoincheState == ContractCoincheStatesEnum.NotCoinched
                 ? ContractCoincheStatesEnum.Coinched
                 : ContractCoincheStatesEnum.CounterCoinched;
@@ -166,32 +184,6 @@ namespace Domain.GamesLogic.Coinche
         }
 
         /// <summary>
-        /// Throw GameException if any rules concerning the player making a contract are brokens.
-        /// </summary>
-        /// <param name="color"></param>
-        /// <param name="value"></param>
-        /// <param name="player"></param>
-        /// <exception cref="GameException"></exception>
-        private void CheckContract(CoincheCardColorsEnum color, int value, Guid player)
-        {
-            if (value < 80
-                || value % 10 != 0
-                || value > 170)
-            {
-                throw new GameException("Contract value must be between 80 and 160 (or capot).");
-            }
-
-            if (Owner != null)
-            {
-                if (player == Owner
-                    && color == Color)
-                {
-                    throw new GameException("Player must change color to speak over himself.");
-                }
-            }
-        }
-
-        /// <summary>
         /// Apply the event contract information to current contract instance.
         /// </summary>
         /// <param name="event"></param>
@@ -201,7 +193,7 @@ namespace Domain.GamesLogic.Coinche
             PassCounter = @event.PassCounter;
             Color = @event.Color;
             Value = @event.Value;
-            Owner = @event.Owner;
+            OwningTeamNumber = @event.OwningTeamNumber;
             CoincheState = @event.CoincheState;
         }
 

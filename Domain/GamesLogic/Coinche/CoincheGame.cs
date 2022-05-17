@@ -52,7 +52,12 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Get current player.
         /// </summary>
-        private IPlayer CurrentPlayer => GetPlayerFromNumber(CurrentPlayerNumber);
+        private CoinchePlayer CurrentPlayer => GetPlayerFromNumber(CurrentPlayerNumber);
+
+        /// <summary>
+        /// Team of the current player.
+        /// </summary>
+        private CoincheTeam CurrentTeam => Teams.Single(t => t.Players.Any(p => p.Number == CurrentPlayerNumber));
 
         /// <summary>
         /// Current server configuration for the game.
@@ -148,7 +153,7 @@ namespace Domain.GamesLogic.Coinche
                 throw new GameException("Not your turn to bet.");
             }
 
-            var contractNextState = Contract.GetNextState(color, value, coinched);
+            var contractNextState = Contract.ValidateContract(color, value, coinched, CurrentTeam.Number);
 
             switch(contractNextState)
             {
@@ -208,7 +213,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="coinched"></param>
         private void RaiseContractValidEvent(CoincheCardColorsEnum? color, int? value, bool coinched)
         {
-            var contractMadeEvent = Contract.GetContractMadeEvent(color, value, CurrentPlayer.Id, coinched);
+            var contractMadeEvent = Contract.GetContractMadeEvent(color, value, CurrentTeam.Number, coinched);
 
             contractMadeEvent.GameId = Id;
 

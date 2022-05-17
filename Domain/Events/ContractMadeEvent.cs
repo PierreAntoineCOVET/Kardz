@@ -26,7 +26,7 @@ namespace Domain.Events
         /// <summary>
         /// Contract ower player's Id.
         /// </summary>
-        public Guid? Owner { get; set; }
+        public int? OwningTeamNumber { get; set; }
 
         /// <summary>
         /// Player who needs to play.

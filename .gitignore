@@ -29,3 +29,5 @@
 /Messages/obj
 /Messages/bin/Debug/net6.0
 /.vs/ProjectEvaluation
+/DomainTests/obj
+/DomainTests/bin/Debug/net6.0
