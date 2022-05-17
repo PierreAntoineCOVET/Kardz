@@ -59,6 +59,11 @@ namespace Domain.Events
         /// </summary>
         /// <returns></returns>
         public ContractCoincheStatesEnum CoincheState { get; set; }
+
+        /// <summary>
+        /// Version of the aggregate after the event was applyed.
+        /// </summary>
+        public int AggregateVersion { get; set; }
     }
 
     /// <summary>

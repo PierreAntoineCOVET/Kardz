@@ -51,6 +51,11 @@ namespace Domain.Events
         /// Used to synchronis the time for each game player.
         /// </summary>
         public DateTimeOffset EndOfTurn { get; set; }
+
+        /// <summary>
+        /// Version of the aggregate after the event was applyed.
+        /// </summary>
+        public int AggregateVersion { get; set; }
     }
 
     /// <summary>

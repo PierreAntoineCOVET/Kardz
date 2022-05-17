@@ -16,7 +16,7 @@ namespace DTOs.Shared
         /// <summary>
         /// Number of the requiting player.
         /// </summary>
-        public int PlayerNumber { get; set; }
+        public int LocalPlayerNumber { get; set; }
 
         /// <summary>
         /// Number of the player that is the current dealer.
@@ -24,9 +24,9 @@ namespace DTOs.Shared
         public int Dealer { get; set; }
 
         /// <summary>
-        /// Number of the player whose turn it is to play.
+        /// Number of the current player.
         /// </summary>
-        public int PlayerPlaying { get; set; }
+        public int CurrentPlayer { get; set; }
 
         /// <summary>
         /// Time at wich the current turn ends.

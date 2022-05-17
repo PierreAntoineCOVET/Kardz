@@ -9,9 +9,9 @@
 export interface IGameInitDto {
     
     playerCards: number[];
-    playerNumber: number;
+    localPlayerNumber: number;
     dealer: number;
-    playerPlaying: number;
+    currentPlayer: number;
     turnEndTime: Date;
 }
 

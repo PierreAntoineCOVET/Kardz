@@ -44,6 +44,11 @@ namespace Domain.Events
         /// Current turn expiration date
         /// </summary>
         public DateTimeOffset EndOfTurn { get; set; }
+
+        /// <summary>
+        /// Version of the aggregate after the event was applyed.
+        /// </summary>
+        public int AggregateVersion { get; set; }
     }
 
     /// <summary>

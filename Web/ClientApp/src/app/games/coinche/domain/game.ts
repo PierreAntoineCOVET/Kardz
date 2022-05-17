@@ -160,13 +160,11 @@ export class Game {
         }
 
         const localPlayer = this.players.find(p => p.id == this.playerId);
-
         if (!localPlayer) {
             throw new Error(`Cannot find designated player : ${this.playerId}`);
         }
 
         const lastPlayer = this.players.find(p => p.number == contractInfo.lastPlayerNumber);
-
         if (!lastPlayer) {
             throw new Error(`Cannot find designated player : n°${contractInfo.lastPlayerNumber}`);
         }
@@ -202,29 +200,27 @@ export class Game {
      * @param gameDatas
      */
     private initGame(gameDatas: IGameInitDto) {
-        let currentPlayer = this.players.find(p => p.number == gameDatas.playerPlaying);
-        if (!currentPlayer) {
-            throw new Error(`Cannot find designated player : ${gameDatas.playerPlaying}`);
-        }
-
         this.displayCards(gameDatas.playerCards);
-        this.setPlayersNumber(gameDatas.playerNumber);
+        this.setPlayersNumber(gameDatas.localPlayerNumber);
         this.setDealer(gameDatas.dealer);
+
+        const currentPlayer = this.players.find(p => p.number == gameDatas.currentPlayer);
         this.updateCurrentPlayer(currentPlayer);
 
-        if (!currentPlayer) {
-            throw new Error(`Cannot find designated player : ${this.playerId}`);
+        const localPlayer = this.players.find(p => p.number == gameDatas.localPlayerNumber);
+        if (!localPlayer) {
+            throw new Error(`Cannot find designated player : n°${gameDatas.localPlayerNumber}`);
         }
 
-        if (currentPlayer.isPlaying) {
+        if (localPlayer.isPlaying) {
             let contractEvent = {
-                currentPlayerNumber: currentPlayer.number
+                currentPlayerNumber: localPlayer.number
             } as ContractMadeEvent;
 
             this.onContractChanged.next(contractEvent);
         }
 
-        this.startTurnTimer(currentPlayer, gameDatas.turnEndTime);
+        this.startTurnTimer(localPlayer, gameDatas.turnEndTime);
     }
 
     /**
@@ -268,7 +264,7 @@ export class Game {
      * Indicate which player has to play for the current turn.
      * @param player the current player.
      */
-    private updateCurrentPlayer(player: Player) {
+    private updateCurrentPlayer(player: Player | undefined) {
         this.players.forEach(p => p.isPlaying = false);
         if (player) {
             player.isPlaying = true;

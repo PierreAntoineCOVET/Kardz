@@ -49,6 +49,11 @@ namespace Domain.Events
         /// Number of time the players passed the contract.
         /// </summary>
         public int ContractPassedCount { get; set; }
+
+        /// <summary>
+        /// Version of the aggregate after the event was applyed.
+        /// </summary>
+        public int AggregateVersion { get; set; }
     }
 
     /// <summary>
