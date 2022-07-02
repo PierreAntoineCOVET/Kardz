@@ -276,6 +276,10 @@ export class GameScene extends Phaser.Scene {
                 this.currentContract.selectedValue = selectedValue;
                 this.gameDomain.sendContract(this.currentContract);
             }
+            else {
+                const betColorWarning = this.contractFormElement.getChildByID('betColorWarning');
+                betColorWarning.classList.remove('hidden');
+            }
         }
         else if (event.target.name === 'pass') {
             this.gameDomain.sendContract(undefined);

@@ -37,7 +37,7 @@ namespace Domain.GamesLogic.Coinche
         }
 
         /// <summary>
-        /// Add a player to the team.
+        /// Add a player to the team and assign it's current number for the game.
         /// </summary>
         /// <param name="player">Player to add.</param>
         /// <remarks>Compute player's number based on the team's number and number of player in the team.</remarks>
@@ -49,7 +49,7 @@ namespace Domain.GamesLogic.Coinche
             if (!(player is CoinchePlayer))
                 throw new InvalidCastException($"{nameof(player)} shoud be of type 'CoinchePlayer'");
 
-            player.Number = Number * 2 + Players.Count;
+            player.Number = Number + (Players.Count * 2);
             Players.Add((CoinchePlayer)player);
         }
     }

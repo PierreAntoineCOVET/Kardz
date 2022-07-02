@@ -150,24 +150,15 @@ export class Game {
             return;
         }
 
-        let currentPlayer = this.players.find(p => p.number == contractInfo.currentPlayerNumber);
-        if (!currentPlayer) {
-            throw new Error(`Cannot find designated player : ${contractInfo.currentPlayerNumber}`);
-        }
+        let currentPlayer = this.getPlayer(p => p.number == contractInfo.currentPlayerNumber);
 
         if (contractInfo.isContractClosed) {
             contractInfo.currentPlayerNumber
         }
 
-        const localPlayer = this.players.find(p => p.id == this.playerId);
-        if (!localPlayer) {
-            throw new Error(`Cannot find designated player : ${this.playerId}`);
-        }
+        const localPlayer = this.getPlayer(p => p.id == this.playerId);
 
-        const lastPlayer = this.players.find(p => p.number == contractInfo.lastPlayerNumber);
-        if (!lastPlayer) {
-            throw new Error(`Cannot find designated player : n°${contractInfo.lastPlayerNumber}`);
-        }
+        const lastPlayer = this.getPlayer(p => p.number == contractInfo.lastPlayerNumber);
 
         this.updateCurrentPlayer(currentPlayer);
         this.onPlayerSays.next(lastPlayer.getContractSpeechBubble(contractInfo));
@@ -204,13 +195,11 @@ export class Game {
         this.setPlayersNumber(gameDatas.localPlayerNumber);
         this.setDealer(gameDatas.dealer);
 
-        const currentPlayer = this.players.find(p => p.number == gameDatas.currentPlayer);
+        const currentPlayer = this.getPlayer(p => p.number == gameDatas.currentPlayer);
+
         this.updateCurrentPlayer(currentPlayer);
 
-        const localPlayer = this.players.find(p => p.number == gameDatas.localPlayerNumber);
-        if (!localPlayer) {
-            throw new Error(`Cannot find designated player : n°${gameDatas.localPlayerNumber}`);
-        }
+        const localPlayer = this.getPlayer(p => p.number == gameDatas.localPlayerNumber);
 
         if (localPlayer.isPlaying) {
             let contractEvent = {
@@ -220,7 +209,7 @@ export class Game {
             this.onContractChanged.next(contractEvent);
         }
 
-        this.startTurnTimer(localPlayer, gameDatas.turnEndTime);
+        this.startTurnTimer(currentPlayer, gameDatas.turnEndTime);
     }
 
     /**
@@ -264,7 +253,7 @@ export class Game {
      * Indicate which player has to play for the current turn.
      * @param player the current player.
      */
-    private updateCurrentPlayer(player: Player | undefined) {
+    private updateCurrentPlayer(player: Player) {
         this.players.forEach(p => p.isPlaying = false);
         if (player) {
             player.isPlaying = true;
@@ -383,5 +372,16 @@ export class Game {
             value: contract?.selectedValue,
             coinched: contract?.coinched
         });
+    }
+
+    private getPlayer(predicate: (value: Player) => boolean): Player {
+
+        const player = this.players.find(predicate);
+
+        if (!player) {
+            throw new Error(`Unable to find player with ${predicate.toString()}`);
+        }
+
+        return player;
     }
 }

@@ -18,6 +18,13 @@
     .hidden {
         display: none;
     }
+
+    .warning {
+        background-color: #ffffb3;
+        color: red;
+        font-size: smaller;
+        padding: 2px 10px;
+    }
 </style>
 
 <div id="contractForm">
@@ -43,6 +50,7 @@
             <option value="160">160</option>
             <option value="capot">Capot</option>
         </select>
+        <span id="betColorWarning" class="warning hidden">Select a color before betting</span>
     </span>
 
     <span class="formPart" style="margin-top: 20px">

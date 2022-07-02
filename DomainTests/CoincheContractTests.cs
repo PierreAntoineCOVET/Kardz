@@ -102,9 +102,34 @@ namespace DomainTests
         {
             var coincheContract = new CoincheContract();
 
-            _ = coincheContract.ValidateContract(CoincheCardColorsEnum.Diamond, 80, false, 0);
-            _ = coincheContract.ValidateContract(null, null, false, 1);
+            coincheContract.Apply(new ContractMadeEvent
+            {
+                CoincheState = ContractCoincheStatesEnum.Coinched,
+                Color = CoincheCardColorsEnum.Diamond,
+                PassCounter = 0,
+                Value = 100,
+                OwningTeamNumber = 0
+            });
+
             _ = coincheContract.ValidateContract(null, null, true, 0);
+        }
+
+        [TestMethod]
+        public void ValidateContract_Coinche_IsValid()
+        {
+            var coincheContract = new CoincheContract();
+            coincheContract.Apply(new ContractMadeEvent
+            {
+                CoincheState = ContractCoincheStatesEnum.NotCoinched,
+                Color = CoincheCardColorsEnum.Diamond,
+                PassCounter = 0,
+                Value = 100,
+                OwningTeamNumber = 1
+            });
+
+            var finalState = coincheContract.ValidateContract(null, null, true, 0);
+
+            Assert.AreEqual(ContractStatesEnum.Valid, finalState);
         }
 
         [TestMethod]
@@ -116,7 +141,8 @@ namespace DomainTests
                 CoincheState = ContractCoincheStatesEnum.Coinched,
                 Color = CoincheCardColorsEnum.Diamond,
                 PassCounter = 0,
-                Value = 100
+                Value = 100,
+                OwningTeamNumber = 1
             });
 
             var finalState = coincheContract.ValidateContract(null, null, true, 0);
