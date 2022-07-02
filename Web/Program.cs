@@ -1,29 +1,12 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Builder;
+using Web;
 
-namespace Web
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+var builder = WebApplication.CreateBuilder(args);
 
-        public static IHostBuilder CreateHostBuilder(string[] args)
-        {
-            //return new HostBuilder()
-            //    .UseContentRoot(Directory.GetCurrentDirectory())
-            //    .
-            return Host.CreateDefaultBuilder(args)
-                .ConfigureLogging(config => config.ClearProviders())
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+var startup = new Startup(builder.Configuration);
+startup.ConfigureServices(builder.Services);
 
+var app = builder.Build();
+startup.Configure(app, app.Environment);
 
-        }
-    }
-}
+app.Run();
