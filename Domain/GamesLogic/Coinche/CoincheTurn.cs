@@ -14,6 +14,11 @@ namespace Domain.GamesLogic.Coinche
     internal class CoincheTurn
     {
         /// <summary>
+        /// Return true if the turn is started.
+        /// </summary>
+        public bool IsStarted => Cards.Any();
+
+        /// <summary>
         /// List of card played this turn.
         /// </summary>
         private IList<CoincheCard> Cards = new List<CoincheCard>();
@@ -32,9 +37,31 @@ namespace Domain.GamesLogic.Coinche
 
             var askedColor = Cards.First().Color;
             var sameColorCards = possibleCards.Where(c => c.Color == askedColor).ToList();
+            var trumps = possibleCards
+                        .Where(c => c.Color == trumColor)
+                        .ToList();
+
             if (sameColorCards.Any())
             {
-                return sameColorCards;
+                if(askedColor == trumColor)
+                {
+                    var trumpToBeat = Cards
+                        .Where(c => c.Color == trumColor)
+                        .OrderByDescending(c => c.Value)
+                        .First();
+
+                    var betterTrumps = trumps
+                        .Where(c => c.Value > trumpToBeat.Value)
+                        .ToList();
+
+                    return betterTrumps.Any()
+                        ? betterTrumps
+                        : trumps;
+                }
+                else
+                {
+                    return sameColorCards;
+                }
             }
 
             if (IsCurrentPlayerTeamWinning(askedColor, trumColor))
@@ -42,10 +69,9 @@ namespace Domain.GamesLogic.Coinche
                 return possibleCards.ToList();
             }
 
-            var trumpCards = possibleCards.Where(c => c.Color == trumColor).ToList();
-            if (trumpCards.Any())
+            if (trumps.Any())
             {
-                return trumpCards;
+                return trumps;
             }
 
             return possibleCards.ToList();

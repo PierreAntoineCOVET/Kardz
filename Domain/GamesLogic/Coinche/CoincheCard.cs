@@ -127,35 +127,42 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="askedColor">Ascked color at the start of the turn.</param>
         /// <param name="trumpColor">Trump color for the turn.</param>
         /// <returns></returns>
-        public bool IsStrongerThan(IEnumerable<CoincheCard> opponentsCards, CoincheCardColorsEnum askedColor, CoincheCardColorsEnum trumpColor)
+        public bool IsStrongerThan(IEnumerable<CoincheCard> opponentsCards, CoincheCardColorsEnum askedColor,
+            CoincheCardColorsEnum trumpColor)
         {
             var cardIsTrump = Color == trumpColor;
-            var opponentIsTurm = opponentsCards.Any(c => c.Color == trumpColor);
+            var opponentTrumps = opponentsCards.Where(c => c.Color == trumpColor).ToList();
 
-            if (cardIsTrump && !opponentIsTurm)
+            if (cardIsTrump && !opponentTrumps.Any())
             {
                 return true;
             }
 
-            if (!cardIsTrump && opponentIsTurm)
+            if (!cardIsTrump && opponentTrumps.Any())
             {
                 return false;
+            }
+
+            if(cardIsTrump && opponentTrumps.Any())
+            {
+                return opponentTrumps
+                    .Any(o => o.Value > Value);
             }
 
             var cardIsAskedColor = Color == askedColor;
-            var opponentIsAskedColor = opponentsCards.Any(c => c.Color == askedColor);
+            var opponentAskedColor = opponentsCards.Where(c => c.Color == askedColor).ToList();
 
-            if (cardIsAskedColor && !opponentIsAskedColor)
+            if (cardIsAskedColor && !opponentAskedColor.Any())
             {
                 return true;
             }
 
-            if (!cardIsAskedColor && opponentIsAskedColor)
+            if (!cardIsAskedColor && opponentAskedColor.Any())
             {
                 return false;
             }
 
-            return opponentsCards.Any(o => o.Value > Value);
+            return opponentAskedColor.Any(o => o.Value > Value);
         }
 
         /// <summary>

@@ -67,7 +67,7 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Game current turn.
         /// </summary>
-        private CoincheTurn CurrentTurn { get; init; } = new CoincheTurn();
+        private CoincheTurn Turn { get; init; } = new CoincheTurn();
 
         /// <summary>
         /// Reflexion construction for deserialization.
@@ -153,6 +153,11 @@ namespace Domain.GamesLogic.Coinche
                 throw new GameException("Not your turn to bet.");
             }
 
+            if (Turn.IsStarted)
+            {
+                throw new GameException("Cannot bet while playing a turn.");
+            }
+
             var contractNextState = Contract.ValidateContract(color, value, coinched, CurrentTeam.Number);
 
             switch(contractNextState)
@@ -166,8 +171,15 @@ namespace Domain.GamesLogic.Coinche
                     break;
 
                 case ContractStatesEnum.Closed:
-                    RaiseContractValidEvent(color, value, coinched);
-                    RaiseTurnUpdatedEvent(CurrentDealer);
+                    RaiseCloseContractEvent(color, value, coinched);
+                    // Unit test for Turn.GetPlayableCards 
+                    // RaiseTurnUpdatedEvent ?
+                    // RaiseTurnStartedEvent ?
+                    // Modify the read schema / delete read schema for now ?
+                    // - query can go on write schema : even though it's a read, it's in the game player context, not viewer context
+                    // Turn should have the list of playable card for next move (if possible to not bind the cards to any player,
+                    // just the expected cards for the turn). Computation with player is done before sending event.
+
                     break;
 
                 default:
@@ -175,35 +187,53 @@ namespace Domain.GamesLogic.Coinche
             }
         }
 
+        private void RaiseCloseContractEvent(CoincheCardColorsEnum? color, int? value, bool coinched)
+        {
+            var currentPlayerNumber = GetPlayerRelative(CurrentDealer, 1);
+            var currentPlayer = GetPlayerFromNumber(currentPlayerNumber);
+
+            var contractClosedEvent = Contract.GetContractClosedEvent(color, value, CurrentTeam.Number, coinched);
+            contractClosedEvent.GameId = Id;
+            contractClosedEvent.CurrentPlayerNumber = currentPlayer.Number;
+
+            RaiseEvent(contractClosedEvent);
+        }
+
+        internal void Apply(ContractClosedEvent @event)
+        {
+            CurrentPlayerNumber = @event.CurrentPlayerNumber;
+            Contract.Apply(@event);
+        }
+
         /// <summary>
         /// Raise a <see cref="TurnUpdatedEvent"/> to list the current player and the playable cards for this player.
         /// </summary>
-        private void RaiseTurnUpdatedEvent(int lastPLayerNumber)
-        {
-            var currentPlayerNumber = GetPlayerRelative(lastPLayerNumber, 1);
-            var currentPlayer = GetPlayerFromNumber(currentPlayerNumber);
-            
-            var turnUpdatedEvent = new TurnUpdatedEvent
-            {
-                Id = Guid.NewGuid(),
-                CurrentPlayerId = currentPlayer.Id,
-                CurrentPlayerNumber = currentPlayer.Number,
-                GameId = Id,
-                PlayableCards = CurrentTurn.GetPlayableCards(currentPlayer.Cards, Contract.Color.Value)
-            };
+        //private void RaiseTurnUpdatedEvent(int lastPLayerNumber)
+        //{
+        //    var currentPlayerNumber = GetPlayerRelative(lastPLayerNumber, 1);
+        //    var currentPlayer = GetPlayerFromNumber(currentPlayerNumber);
 
-            RaiseEvent(turnUpdatedEvent);
-        }
+        //    var turnUpdatedEvent = new TurnUpdatedEvent
+        //    {
+        //        Id = Guid.NewGuid(),
+        //        CurrentPlayerId = currentPlayer.Id,
+        //        CurrentPlayerNumber = currentPlayer.Number,
+        //        GameId = Id,
+        //        PlayableCards = Turn.GetPlayableCards(currentPlayer.Cards, Contract.Color.Value)
+        //    };
+
+        //    RaiseEvent(turnUpdatedEvent);
+        //}
 
         /// <summary>
         /// Apply the <see cref="TurnUpdatedEvent"/> on the current instance.
         /// </summary>
         /// <param name="event"></param>
-        internal void Apply(TurnUpdatedEvent @event)
-        {
-            CurrentPlayerNumber = @event.CurrentPlayerNumber;
-            _CurrentTurnTimeout = @event.EndOfTurn;
-        }
+        //internal void Apply(TurnUpdatedEvent @event)
+        //{
+        //    CurrentPlayerNumber = @event.CurrentPlayerNumber;
+        //    _CurrentTurnTimeout = @event.EndOfTurn;
+        //}
 
         /// <summary>
         /// Raise a <see cref="ContractMadeEvent"/> to advange the game to the next stage of bets.
@@ -249,15 +279,12 @@ namespace Domain.GamesLogic.Coinche
             var cardsDistribution = DealCards(Teams.SelectMany(t => t.Players));
             var nextDealer = GetPlayerRelative(CurrentDealer, 1);
 
-            var contractFailedEvent = new ContractFailedEvent
-            {
-                Id = Guid.NewGuid(),
-                GameId = Id,
-                CardsDistribution = cardsDistribution.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Cast<ICards>()),
-                CurrentDealer = nextDealer,
-                CurrentPlayerNumber = GetPlayerRelative(nextDealer, 1),
-                ContractPassedCount = 0,
-            };
+            var contractFailedEvent = Contract.GetContractFailedEvent();
+
+            contractFailedEvent.GameId = Id;
+            contractFailedEvent.CardsDistribution = cardsDistribution.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Cast<ICards>());
+            contractFailedEvent.CurrentDealer = nextDealer;
+            contractFailedEvent.CurrentPlayerNumber = GetPlayerRelative(nextDealer, 1);
 
             RaiseEvent(contractFailedEvent);
         }

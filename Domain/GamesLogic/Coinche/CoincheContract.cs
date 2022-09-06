@@ -98,6 +98,42 @@ namespace Domain.GamesLogic.Coinche
             return ContractStatesEnum.Valid;
         }
 
+        public ContractClosedEvent GetContractClosedEvent(CoincheCardColorsEnum? color, int? value, int? owningTeam, bool coinched)
+        {
+            var contractClosedEvent = new ContractClosedEvent
+            {
+                PassCounter = 0,
+                Color = color,
+                Value = value,
+                OwningTeamNumber = owningTeam,
+            };
+
+            if (coinched && CoincheState == ContractCoincheStatesEnum.Coinched)
+            {
+                contractClosedEvent.CoincheState = ContractCoincheStatesEnum.Coinched;
+            }
+            else
+            {
+                contractClosedEvent.CoincheState = CoincheState;
+            }
+
+            return contractClosedEvent;
+        }
+
+        /// <summary>
+        /// Apply the event contract information to current contract instance.
+        /// </summary>
+        /// <param name="event"></param>
+        public void Apply(ContractClosedEvent @event)
+        {
+            CurrentState = ContractStatesEnum.Closed;
+            PassCounter = @event.PassCounter;
+            Color = @event.Color;
+            Value = @event.Value;
+            OwningTeamNumber = @event.OwningTeamNumber;
+            CoincheState = @event.CoincheState;
+        }
+
         /// <summary>
         /// Set color and value to the contract.
         /// </summary>
@@ -152,8 +188,6 @@ namespace Domain.GamesLogic.Coinche
 
         private ContractMadeEvent GetCoinchedEvent(int? owningTeam)
         {
-            CheckCoinchableContract();
-
             var contractMadeEvent = GetEmptyContract();
 
             contractMadeEvent.PassCounter = 0;
@@ -175,14 +209,6 @@ namespace Domain.GamesLogic.Coinche
             };
         }
 
-        private void CheckCoinchableContract()
-        {
-            if(!Value.HasValue || !Color.HasValue)
-            {
-                throw new GameException("Cannnot coinche contract without color and value.");
-            }
-        }
-
         /// <summary>
         /// Apply the event contract information to current contract instance.
         /// </summary>
@@ -197,6 +223,20 @@ namespace Domain.GamesLogic.Coinche
             CoincheState = @event.CoincheState;
         }
 
+        public ContractFailedEvent GetContractFailedEvent()
+        {
+            return new ContractFailedEvent
+            {
+                Id = Guid.NewGuid(),
+                Color = null,
+                Value = null,
+                OwningTeamNumber = null,
+                CoincheState = ContractCoincheStatesEnum.NotCoinched,
+                PassCounter = 0,
+                
+            };
+        }
+
         /// <summary>
         /// Apply the event contract information to current contract instance.
         /// </summary>
@@ -204,7 +244,11 @@ namespace Domain.GamesLogic.Coinche
         public void Apply(ContractFailedEvent @event)
         {
             CurrentState = ContractStatesEnum.Failed;
-            PassCounter = @event.ContractPassedCount;
+            Color = @event.Color;
+            Value = @event.Value;
+            OwningTeamNumber = @event.OwningTeamNumber;
+            CoincheState = @event.CoincheState;
+            PassCounter = @event.PassCounter;
         }
 
         /// <summary>
