@@ -14,12 +14,13 @@ using System.Threading.Tasks;
 namespace Domain.GamesLogic.Coinche
 {
     [InterfaceResolver(typeof(CoincheGame), typeof(GameCreatedEvent), typeof(CoincheCardMappingConverter))]
-    [InterfaceResolver(typeof(CoincheGame), typeof(ContractFailedEvent), typeof(CoincheCardMappingConverter))]
-    internal class CoincheCard : ICards
+    internal record CoincheCard : ICards
     {
         public CoincheCardColorsEnum Color { get; init; }
 
         public CoincheCardValuesEnum Value { get; init; }
+
+        private CardsEnum Card;
 
         public CoincheCard() { }
 
@@ -27,6 +28,7 @@ namespace Domain.GamesLogic.Coinche
         {
             Value = GetCardValue(card);
             Color = GetCardColor(card);
+            Card = card;
         }
 
         /// <summary>
@@ -162,7 +164,7 @@ namespace Domain.GamesLogic.Coinche
                 return false;
             }
 
-            return opponentAskedColor.Any(o => o.Value > Value);
+            return !opponentAskedColor.Any(o => o.Value > Value);
         }
 
         /// <summary>
@@ -171,31 +173,7 @@ namespace Domain.GamesLogic.Coinche
         /// <returns></returns>
         public CardsEnum ToCardEnum()
         {
-            var colorSize = 13;
-
-            var colorMultiplier = Color switch
-            {
-                CoincheCardColorsEnum.Spade => 0,
-                CoincheCardColorsEnum.Club => 1,
-                CoincheCardColorsEnum.Diamond => 2,
-                CoincheCardColorsEnum.Heart => 3,
-                _ => throw new GameException($"Invalid card color {Color}")
-            };
-
-            var value = Value switch
-            {
-                CoincheCardValuesEnum.As => 0,
-                CoincheCardValuesEnum.Seven => 6,
-                CoincheCardValuesEnum.Eight => 7,
-                CoincheCardValuesEnum.Nine => 8,
-                CoincheCardValuesEnum.Ten => 9,
-                CoincheCardValuesEnum.Jack => 10,
-                CoincheCardValuesEnum.Queen => 11,
-                CoincheCardValuesEnum.King => 12,
-                _ => throw new GameException($"Invalid card value {Value}")
-            };
-
-            return (CardsEnum)(colorSize * colorMultiplier) + value;
+            return Card;
         }
     }
 

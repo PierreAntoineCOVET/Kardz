@@ -3,10 +3,6 @@ using Domain.Events;
 using Domain.Exceptions;
 using Domain.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.GamesLogic.Coinche
 {
@@ -46,15 +42,14 @@ namespace Domain.GamesLogic.Coinche
         public ContractStatesEnum CurrentState { get; private set; } = ContractStatesEnum.Valid;
 
         /// <summary>
-        /// Check if the contract can be updated with the current parameters.
-        /// If it's ok, return the future state of the contract with the given values.
+        /// Update the contract with the given parameters.
         /// </summary>
         /// <param name="color">Contract color.</param>
         /// <param name="value">Contract value.</param>
         /// <param name="coinched">Contract coinched state.</param>
         /// <param name="bettingTeamNumber">Number of the team making the bet.</param>
         /// <returns></returns>
-        public ContractStatesEnum ValidateContract(CoincheCardColorsEnum? color, int? value, bool coinched, int bettingTeamNumber)
+        public ContractChangedEvent Update(CoincheCardColorsEnum? color, int? value, bool coinched, int bettingTeamNumber)
         {
             if (value.HasValue
                 && (value < 80
@@ -77,7 +72,7 @@ namespace Domain.GamesLogic.Coinche
             if (!Color.HasValue && !Value.HasValue
                 && !color.HasValue && !value.HasValue && PassCounter == 3)
             {
-                return ContractStatesEnum.Failed;
+                return GetContractFailedEvent();
             }
 
             var normalClose = Color.HasValue && Value.HasValue 
@@ -92,118 +87,127 @@ namespace Domain.GamesLogic.Coinche
 
             if (normalClose || coinchedClose || counterCoinchedClose)
             {
-                return ContractStatesEnum.Closed;
+                return GetContractClosedEvent(color, value, bettingTeamNumber, coinched);
             }
 
-            return ContractStatesEnum.Valid;
+            return GetContractUpdatedEvent(color, value, bettingTeamNumber, coinched);
         }
 
-        public ContractClosedEvent GetContractClosedEvent(CoincheCardColorsEnum? color, int? value, int? owningTeam, bool coinched)
+        private ContractChangedEvent GetContractClosedEvent(CoincheCardColorsEnum? color, int? value, int owningTeam, bool coinched)
         {
-            var contractClosedEvent = new ContractClosedEvent
-            {
-                PassCounter = 0,
-                Color = color,
-                Value = value,
-                OwningTeamNumber = owningTeam,
-            };
+            var contractChangedEvent = GetEmptyContract();
+            contractChangedEvent.PassCounter = 0;
+            contractChangedEvent.OwningTeamNumber = owningTeam;
+            contractChangedEvent.ContractState = ContractStatesEnum.Closed;
 
-            if (coinched && CoincheState == ContractCoincheStatesEnum.Coinched)
+            if (coinched)
             {
-                contractClosedEvent.CoincheState = ContractCoincheStatesEnum.Coinched;
+                contractChangedEvent.CoincheState = CoincheState == ContractCoincheStatesEnum.NotCoinched
+                    ? ContractCoincheStatesEnum.Coinched
+                    : ContractCoincheStatesEnum.CounterCoinched;
             }
             else
             {
-                contractClosedEvent.CoincheState = CoincheState;
+                contractChangedEvent.CoincheState = CoincheState;
+            }
+            if(value.HasValue && color.HasValue)
+            {
+                contractChangedEvent.Color = color;
+                contractChangedEvent.Value = value;
+            }
+            else
+            {
+                contractChangedEvent.Color = Color;
+                contractChangedEvent.Value = Value;
             }
 
-            return contractClosedEvent;
+            return contractChangedEvent;
         }
 
-        /// <summary>
-        /// Apply the event contract information to current contract instance.
-        /// </summary>
-        /// <param name="event"></param>
-        public void Apply(ContractClosedEvent @event)
+        private ContractChangedEvent GetContractFailedEvent()
         {
-            CurrentState = ContractStatesEnum.Closed;
-            PassCounter = @event.PassCounter;
-            Color = @event.Color;
-            Value = @event.Value;
-            OwningTeamNumber = @event.OwningTeamNumber;
-            CoincheState = @event.CoincheState;
+            var contractChangedEvent = GetEmptyContract();
+
+            contractChangedEvent.Id = Guid.NewGuid();
+            contractChangedEvent.Color = null;
+            contractChangedEvent.Value = null;
+            contractChangedEvent.OwningTeamNumber = null;
+            contractChangedEvent.CoincheState = ContractCoincheStatesEnum.NotCoinched;
+            contractChangedEvent.PassCounter = 0;
+            contractChangedEvent.ContractState = ContractStatesEnum.Failed;
+
+            return contractChangedEvent;
         }
 
-        /// <summary>
-        /// Set color and value to the contract.
-        /// </summary>
-        /// <param name="color">Contract color</param>
-        /// <param name="value">Contract value</param>
-        /// <param name="owningTeam">Number of the team making the bet.</param>
-        /// <param name="coinched">Contract value</param>
-        public ContractMadeEvent GetContractMadeEvent(CoincheCardColorsEnum? color, int? value, int? owningTeam, bool coinched)
+        private ContractChangedEvent GetContractUpdatedEvent(CoincheCardColorsEnum? color, int? value, int owningTeam, bool coinched)
         {
-            if(!color.HasValue && !value.HasValue)
+            ContractChangedEvent contractChangedEvent = null;
+
+            if (!color.HasValue && !value.HasValue)
             {
                 if (coinched)
                 {
-                    return GetCoinchedEvent(owningTeam);
+                    contractChangedEvent = GetCoinchedEvent(owningTeam);
                 }
                 else
                 {
-                    return GetPassedEvent();
+                    contractChangedEvent = GetPassedEvent();
                 }
             }
             else
             {
-                return GetNewContractEvent(color.Value, value.Value, owningTeam);
+                contractChangedEvent = GetNewContractEvent(color.Value, value.Value, owningTeam);
             }
+
+            contractChangedEvent.ContractState = ContractStatesEnum.Valid;
+
+            return contractChangedEvent;
         }
 
-        private ContractMadeEvent GetNewContractEvent(CoincheCardColorsEnum color, int value, int? owningTeam)
+        private ContractChangedEvent GetNewContractEvent(CoincheCardColorsEnum color, int value, int? owningTeam)
         {
-            var contractMadeEvent = GetEmptyContract();
+            var contractChangedEvent = GetEmptyContract();
 
-            contractMadeEvent.PassCounter = 0;
-            contractMadeEvent.Color = color;
-            contractMadeEvent.Value = value;
-            contractMadeEvent.OwningTeamNumber = owningTeam;
-            contractMadeEvent.CoincheState = ContractCoincheStatesEnum.NotCoinched;
+            contractChangedEvent.PassCounter = 0;
+            contractChangedEvent.Color = color;
+            contractChangedEvent.Value = value;
+            contractChangedEvent.OwningTeamNumber = owningTeam;
+            contractChangedEvent.CoincheState = ContractCoincheStatesEnum.NotCoinched;
 
-            return contractMadeEvent;
+            return contractChangedEvent;
         }
 
-        private ContractMadeEvent GetPassedEvent()
+        private ContractChangedEvent GetPassedEvent()
         {
-            var contractMadeEvent = GetEmptyContract();
+            var contractChangedEvent = GetEmptyContract();
 
-            contractMadeEvent.PassCounter = PassCounter + 1;
-            contractMadeEvent.Color = Color;
-            contractMadeEvent.Value = Value;
-            contractMadeEvent.OwningTeamNumber = OwningTeamNumber;
-            contractMadeEvent.CoincheState = CoincheState;
+            contractChangedEvent.PassCounter = PassCounter + 1;
+            contractChangedEvent.Color = Color;
+            contractChangedEvent.Value = Value;
+            contractChangedEvent.OwningTeamNumber = OwningTeamNumber;
+            contractChangedEvent.CoincheState = CoincheState;
 
-            return contractMadeEvent;
+            return contractChangedEvent;
         }
 
-        private ContractMadeEvent GetCoinchedEvent(int? owningTeam)
+        private ContractChangedEvent GetCoinchedEvent(int? owningTeam)
         {
-            var contractMadeEvent = GetEmptyContract();
+            var contractChangedEvent = GetEmptyContract();
 
-            contractMadeEvent.PassCounter = 0;
-            contractMadeEvent.Color = Color;
-            contractMadeEvent.Value = Value;
-            contractMadeEvent.OwningTeamNumber = owningTeam;
-            contractMadeEvent.CoincheState = CoincheState == ContractCoincheStatesEnum.NotCoinched
+            contractChangedEvent.PassCounter = 0;
+            contractChangedEvent.Color = Color;
+            contractChangedEvent.Value = Value;
+            contractChangedEvent.OwningTeamNumber = owningTeam;
+            contractChangedEvent.CoincheState = CoincheState == ContractCoincheStatesEnum.NotCoinched
                 ? ContractCoincheStatesEnum.Coinched
                 : ContractCoincheStatesEnum.CounterCoinched;
 
-            return contractMadeEvent;
+            return contractChangedEvent;
         }
 
-        private ContractMadeEvent GetEmptyContract()
+        private ContractChangedEvent GetEmptyContract()
         {
-            return new ContractMadeEvent
+            return new ContractChangedEvent
             {
                 Id = Guid.NewGuid()
             };
@@ -213,7 +217,7 @@ namespace Domain.GamesLogic.Coinche
         /// Apply the event contract information to current contract instance.
         /// </summary>
         /// <param name="event"></param>
-        public void Apply(ContractMadeEvent @event)
+        public void Apply(ContractChangedEvent @event)
         {
             CurrentState = ContractStatesEnum.Valid;
             PassCounter = @event.PassCounter;
@@ -223,40 +227,12 @@ namespace Domain.GamesLogic.Coinche
             CoincheState = @event.CoincheState;
         }
 
-        public ContractFailedEvent GetContractFailedEvent()
-        {
-            return new ContractFailedEvent
-            {
-                Id = Guid.NewGuid(),
-                Color = null,
-                Value = null,
-                OwningTeamNumber = null,
-                CoincheState = ContractCoincheStatesEnum.NotCoinched,
-                PassCounter = 0,
-                
-            };
-        }
-
-        /// <summary>
-        /// Apply the event contract information to current contract instance.
-        /// </summary>
-        /// <param name="event"></param>
-        public void Apply(ContractFailedEvent @event)
-        {
-            CurrentState = ContractStatesEnum.Failed;
-            Color = @event.Color;
-            Value = @event.Value;
-            OwningTeamNumber = @event.OwningTeamNumber;
-            CoincheState = @event.CoincheState;
-            PassCounter = @event.PassCounter;
-        }
-
         /// <summary>
         /// Return true if the the next player in line should be skipped (his part just coinched).
         /// </summary>
         /// <param name="@event"></param>
         /// <returns></returns>
-        public bool ShouldSkipNextPlayer(ContractMadeEvent @event)
+        public bool ShouldSkipNextPlayer(ContractChangedEvent @event)
         {
             return @event.CoincheState == ContractCoincheStatesEnum.Coinched && @event.PassCounter == 1;
         }
