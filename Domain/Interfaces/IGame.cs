@@ -54,5 +54,10 @@ namespace Domain.Interfaces
         /// <param name="coinched">Coinched or counter coinched.</param>
         /// <returns>True if the contract applyed correctly, false if it failed.</returns>
         void SetGameContract(CoincheCardColorsEnum? color, int? value, Guid player, bool coinched);
+
+        /// <summary>
+        /// Start a new take.
+        /// </summary>
+        void StartNewTake();
     }
 }

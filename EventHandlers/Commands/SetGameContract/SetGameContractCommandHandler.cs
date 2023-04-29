@@ -62,6 +62,11 @@ namespace EventHandlers.Commands.SetGameContract
 
             game.SetGameContract(request.Color, request.Value, request.PlayerId, request.Coinched ?? false);
 
+            if(game.GetContract().CurrentState == ContractStatesEnum.Closed)
+            {
+                game.StartNewTake();
+            }
+
             await Mediator.Publish(new AggregateSaveNotification
             {
                 Aggregate = game

@@ -172,14 +172,6 @@ namespace Domain.GamesLogic.Coinche
 
                 case ContractStatesEnum.Closed:
                     RaiseCloseContractEvent(contractChangeEvent);
-                    // Unit test for Turn.GetPlayableCards 
-                    // RaiseTurnUpdatedEvent ?
-                    // RaiseTurnStartedEvent ?
-                    // Modify the read schema / delete read schema for now ?
-                    // - query can go on write schema : even though it's a read, it's in the game player context, not viewer context
-                    // Turn should have the list of playable card for next move (if possible to not bind the cards to any player,
-                    // just the expected cards for the turn). Computation with player is done before sending event.
-
                     break;
 
                 default:
@@ -187,14 +179,31 @@ namespace Domain.GamesLogic.Coinche
             }
         }
 
+        /// <summary>
+        /// Start a new take.
+        /// </summary>
+        public void StartNewTake()
+        {
+            if(Contract.CurrentState != ContractStatesEnum.Closed)
+            {
+                throw new GameException($"Cannot start new take with contract state {Contract.CurrentState}");
+            }
+
+            var newTakeEvent = Take.StartNewTake(CurrentPlayer.Cards, Contract.Color.Value);
+        }
+
+        /// <summary>
+        /// Raise a <see cref="ContractChangedEvent"/> to advance the game to the playing phase.
+        /// </summary>
+        /// <param name="contractClosedEvent"></param>
         private void RaiseCloseContractEvent(ContractChangedEvent contractClosedEvent)
         {
-            var currentPlayerNumber = GetPlayerRelative(CurrentDealer, 1);
-            var currentPlayer = GetPlayerFromNumber(currentPlayerNumber);
+            var firstPlayerNumber = GetPlayerNumberRelative(CurrentDealer, 1);
+            var firstPlayer = GetPlayerFromNumber(firstPlayerNumber);
 
             contractClosedEvent.CurrentDealer = CurrentDealer;
             contractClosedEvent.GameId = Id;
-            contractClosedEvent.CurrentPlayerNumber = currentPlayer.Number;
+            contractClosedEvent.CurrentPlayerNumber = firstPlayer.Number;
 
             RaiseEvent(contractClosedEvent);
         }
@@ -211,11 +220,11 @@ namespace Domain.GamesLogic.Coinche
 
             if (Contract.ShouldSkipNextPlayer(contractMadeEvent))
             {
-                contractMadeEvent.CurrentPlayerNumber = GetPlayerRelative(CurrentPlayerNumber, 2);
+                contractMadeEvent.CurrentPlayerNumber = GetPlayerNumberRelative(CurrentPlayerNumber, 2);
             }
             else
             {
-                contractMadeEvent.CurrentPlayerNumber = GetPlayerRelative(CurrentPlayerNumber, 1);
+                contractMadeEvent.CurrentPlayerNumber = GetPlayerNumberRelative(CurrentPlayerNumber, 1);
             }
 
             contractMadeEvent.CurrentDealer = CurrentDealer;
@@ -242,12 +251,12 @@ namespace Domain.GamesLogic.Coinche
         private void RaiseContractFailedEvent(ContractChangedEvent contractFailedEvent)
         {
             var cardsDistribution = DealCards(Teams.SelectMany(t => t.Players));
-            var nextDealer = GetPlayerRelative(CurrentDealer, 1);
+            var nextDealer = GetPlayerNumberRelative(CurrentDealer, 1);
 
             contractFailedEvent.GameId = Id;
             contractFailedEvent.CardsDistribution = cardsDistribution.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Cast<ICards>());
             contractFailedEvent.CurrentDealer = nextDealer;
-            contractFailedEvent.CurrentPlayerNumber = GetPlayerRelative(nextDealer, 1);
+            contractFailedEvent.CurrentPlayerNumber = GetPlayerNumberRelative(nextDealer, 1);
 
             RaiseEvent(contractFailedEvent);
         }
@@ -258,7 +267,7 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="current">Current player number.</param>
         /// <param name="offset">Offset that is looked for.</param>
         /// <returns></returns>
-        private int GetPlayerRelative(int current, int offset)
+        private int GetPlayerNumberRelative(int current, int offset)
         {
             return (current + offset) % Consts.NUMBER_OF_PLAYERS_FOR_A_GAME;
         }

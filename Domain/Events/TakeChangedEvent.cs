@@ -18,6 +18,6 @@ namespace Domain.Events
 
         public IEnumerable<ICards> PreviousFold { get; set; }
 
-        public IEnumerable<ICards> PlayableCards { get; set; }
+        public IEnumerable<ICards> NextPlayerAvailableCards { get; set; }
     }
 }

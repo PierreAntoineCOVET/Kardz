@@ -192,4 +192,36 @@ namespace Domain.GamesLogic.Coinche
             System.Text.Json.JsonSerializer.Serialize(writer, (CoincheCard)value, options);
         }
     }
+
+    public class CoincheCardTrumpOrderValueComparer : IComparer<CoincheCardValuesEnum>
+    {
+        public int Compare(CoincheCardValuesEnum x, CoincheCardValuesEnum y)
+        {
+            if(x == CoincheCardValuesEnum.Jack)
+            {
+                return 1;
+            }
+
+            if (y == CoincheCardValuesEnum.Jack)
+            {
+                return -1;
+            }
+
+            if (x == CoincheCardValuesEnum.Nine)
+            {
+                return y == CoincheCardValuesEnum.Jack
+                    ? -1
+                    : 1;
+            }
+
+            if (y == CoincheCardValuesEnum.Nine)
+            {
+                return x == CoincheCardValuesEnum.Jack
+                    ? 1
+                    : -1;
+            }
+
+            return x.CompareTo(y);
+        }
+    }
 }
