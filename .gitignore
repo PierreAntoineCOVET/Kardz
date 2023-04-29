@@ -31,3 +31,6 @@
 /.vs/ProjectEvaluation
 /DomainTests/obj
 /DomainTests/bin/Debug/net6.0
+/DomainTests/bin/Debug/net7.0
+/Messages/bin/Debug/net7.0
+/TimedEventWorker/bin/Debug/net7.0
