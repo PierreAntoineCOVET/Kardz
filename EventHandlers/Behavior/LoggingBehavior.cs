@@ -34,7 +34,7 @@ namespace EventHandlers.Behavior
         /// <param name="cancellationToken">Cancellation token.</param>
         /// <param name="next">Next handler for the request.</param>
         /// <returns>Response.</returns>
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             Logger.LogInformation($"{request.GetType().Name} : {JsonSerializer.Serialize(request)}");
             var response = await next();

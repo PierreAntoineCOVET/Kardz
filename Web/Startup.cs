@@ -32,7 +32,7 @@ namespace Web
             services.AddControllers();
 
             var eventHandlerAssembly = Assembly.Load("EventHandlers");
-            services.AddMediatR(eventHandlerAssembly)
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(eventHandlerAssembly))
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(EventHandlers.Behavior.ValidationBehavior<,>))
                 .AddFluentValidation(new List<Assembly> { eventHandlerAssembly });

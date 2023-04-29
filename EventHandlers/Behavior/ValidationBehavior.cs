@@ -32,7 +32,7 @@ namespace EventHandlers.Behavior
         /// <param name="cancellationToken">Cancelation token.</param>
         /// <param name="next">Next handler for the request.</param>
         /// <returns><see cref="TResponse"/></returns>
-        public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             var context = new ValidationContext<TRequest>(request);
 
