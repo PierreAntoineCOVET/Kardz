@@ -15,9 +15,6 @@ import { GamesModule } from '../games/games.module';
     ],
     exports: [
         HomeComponent
-    ],
-    entryComponents: [
-        CoincheComponent
     ]
 })
 export class PagesModule { }

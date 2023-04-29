@@ -235,6 +235,11 @@ export class GameScene extends Phaser.Scene {
 
             if (event.selectedValue) {
                 const valueDropDown = this.contractFormElement.getChildByID("contractValue");
+
+                if (!valueDropDown) {
+                    throw new Error("valueDropDown is null");
+                }
+
                 for (let i = 80; i < event.selectedValue; i += 10) {
                     const optionToRemove = valueDropDown.children.item(0);
                     if (optionToRemove) {
@@ -243,7 +248,11 @@ export class GameScene extends Phaser.Scene {
                 }
             }
             else {
-                this.contractFormElement.getChildByID("coinche").setAttribute("disabled", "disabled");
+                const coincheButton = this.contractFormElement.getChildByID("coinche");
+                if (!coincheButton) {
+                    throw new Error("valueDropDown is null");
+                }
+                coincheButton.setAttribute("disabled", "disabled");
             }
 
             this.contractFormElement.addListener('click');
@@ -268,7 +277,10 @@ export class GameScene extends Phaser.Scene {
     private contractFormClickEventHandler(event: any) {
         if (event.target.name === 'bet') {
             if (this.currentContract.selectedColor !== undefined) {
-                const valueDropDown = <any>this.contractFormElement.getChildByID('contractValue');
+                const valueDropDown = this.contractFormElement.getChildByID('contractValue') as  any;
+                if (!valueDropDown) {
+                    throw new Error("valueDropDown is null");
+                }
                 const selectedValue: number =
                     valueDropDown.value === 'capot'
                         ? 170
@@ -278,6 +290,9 @@ export class GameScene extends Phaser.Scene {
             }
             else {
                 const betColorWarning = this.contractFormElement.getChildByID('betColorWarning');
+                if (!betColorWarning) {
+                    throw new Error("valueDropDown is null");
+                }
                 betColorWarning.classList.remove('hidden');
             }
         }
@@ -291,13 +306,20 @@ export class GameScene extends Phaser.Scene {
         else if (event.target.name !== undefined && event.target.name !== 'value') {
             if (this.currentContract && this.currentContract.selectedColor !== undefined) {
                 const previousColor = this.contractFormElement.getChildByID(ColorEnum[this.currentContract.selectedColor]);
+                if (!previousColor) {
+                    throw new Error("valueDropDown is null");
+                }
                 previousColor.classList.remove('selected');
             }
 
             const selectedColorButton = this.contractFormElement.getChildByID(event.target.value);
+            if (!selectedColorButton) {
+                throw new Error("valueDropDown is null");
+            }
             selectedColorButton.classList.add('selected');
 
             let color: string = event.target.value;
+            // @ts-ignore
             this.currentContract.selectedColor = ColorEnum[color];
         }
     }
