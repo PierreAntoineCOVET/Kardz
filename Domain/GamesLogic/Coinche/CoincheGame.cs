@@ -180,7 +180,7 @@ namespace Domain.GamesLogic.Coinche
         }
 
         /// <summary>
-        /// Start a new take.
+        /// Raise a <see cref="TakeChangedEvent"/> to advance the game to the new player turn.
         /// </summary>
         public void StartNewTake()
         {
@@ -190,6 +190,22 @@ namespace Domain.GamesLogic.Coinche
             }
 
             var newTakeEvent = Take.StartNewTake(CurrentPlayer.Cards, Contract.Color.Value);
+
+            newTakeEvent.CurrentPlayer = CurrentPlayer;
+            newTakeEvent.GameId = Id;
+
+            RaiseEvent(newTakeEvent);
+        }
+
+        /// <summary>
+        /// Apply the <see cref="TakeChangedEvent"/> to the current instance.
+        /// </summary>
+        /// <param name="event">Event to apply.</param>
+        internal void Apply(TakeChangedEvent @event)
+        {
+            CurrentPlayerNumber = @event.CurrentPlayer.Number;
+
+            Take.Apply(@event);
         }
 
         /// <summary>

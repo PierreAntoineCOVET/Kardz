@@ -63,7 +63,7 @@ namespace Domain.Tests
 
             var takeChangedEvent = take.StartNewTake(CardsSetOne, trumpColor);
 
-            CollectionAssert.AreEqual(CardsSetOne.ToList(), takeChangedEvent.NextPlayerAvailableCards.ToList());
+            CollectionAssert.AreEqual(CardsSetOne.ToList(), takeChangedEvent.CurrentPlayerPlayableCards.ToList());
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace Domain.Tests
             {
                 CurrentFold = new List<CoincheCard>(),
                 PreviousFold = new List<CoincheCard>(),
-                NextPlayerAvailableCards = CardsSetTwo
+                CurrentPlayerPlayableCards = CardsSetTwo
             });
             var expectedCards = new List<CoincheCard>
             {
@@ -86,7 +86,7 @@ namespace Domain.Tests
 
             var takeChangedEvent = take.Play(new CoincheCard(Enums.CardsEnum.EightClub), CardsSetOne, trumpColor);
 
-            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.NextPlayerAvailableCards.ToList());
+            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.CurrentPlayerPlayableCards.ToList());
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace Domain.Tests
             {
                 CurrentFold = new List<CoincheCard>(),
                 PreviousFold = new List<CoincheCard>(),
-                NextPlayerAvailableCards = CardsSetTwo
+                CurrentPlayerPlayableCards = CardsSetTwo
             });
 
             var trumpColor = Enums.CoincheCardColorsEnum.Diamond;
@@ -120,7 +120,7 @@ namespace Domain.Tests
             {
                 CurrentFold = new List<CoincheCard>(),
                 PreviousFold = new List<CoincheCard>(),
-                NextPlayerAvailableCards = CardsSetTwo
+                CurrentPlayerPlayableCards = CardsSetTwo
             });
 
             var trumpColor = Enums.CoincheCardColorsEnum.Diamond;
@@ -133,7 +133,7 @@ namespace Domain.Tests
 
             var takeChangedEvent = take.Play(new CoincheCard(Enums.CardsEnum.SevenHeart), CardsSetOne, trumpColor);
 
-            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.NextPlayerAvailableCards.ToList());
+            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.CurrentPlayerPlayableCards.ToList());
         }
 
         [TestMethod]
@@ -146,7 +146,7 @@ namespace Domain.Tests
             {
                 CurrentFold = currentFold,
                 PreviousFold = new List<CoincheCard>(),
-                NextPlayerAvailableCards = CardsSetTwo
+                CurrentPlayerPlayableCards = CardsSetTwo
             });
             var trumpColor = Enums.CoincheCardColorsEnum.Diamond;
             var expectedCards = new List<CoincheCard>
@@ -157,7 +157,7 @@ namespace Domain.Tests
 
             var takeChangedEvent = take.Play(new CoincheCard(Enums.CardsEnum.TenDiamond), CardsSetOne, trumpColor);
 
-            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.NextPlayerAvailableCards.ToList());
+            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.CurrentPlayerPlayableCards.ToList());
         }
 
         [TestMethod]
@@ -170,7 +170,7 @@ namespace Domain.Tests
             {
                 CurrentFold = currentFold,
                 PreviousFold = new List<CoincheCard>(),
-                NextPlayerAvailableCards = CardsSetThree
+                CurrentPlayerPlayableCards = CardsSetThree
             });
             var trumpColor = Enums.CoincheCardColorsEnum.Diamond;
             var expectedCards = new List<CoincheCard>
@@ -182,7 +182,7 @@ namespace Domain.Tests
 
             var takeChangedEvent = take.Play(new CoincheCard(Enums.CardsEnum.JackDiamond), CardsSetOne, trumpColor);
 
-            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.NextPlayerAvailableCards.ToList());
+            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.CurrentPlayerPlayableCards.ToList());
         }
 
         [TestMethod]
@@ -195,13 +195,13 @@ namespace Domain.Tests
             {
                 CurrentFold = currentFold,
                 PreviousFold = new List<CoincheCard>(),
-                NextPlayerAvailableCards = CardsSetTwo
+                CurrentPlayerPlayableCards = CardsSetTwo
             });
             var trumpColor = Enums.CoincheCardColorsEnum.Diamond;
 
             var takeChangedEvent = take.Play(new CoincheCard(Enums.CardsEnum.EightHeart), CardsSetOne, trumpColor);
 
-            CollectionAssert.AreEqual(CardsSetOne.ToList(), takeChangedEvent.NextPlayerAvailableCards.ToList());
+            CollectionAssert.AreEqual(CardsSetOne.ToList(), takeChangedEvent.CurrentPlayerPlayableCards.ToList());
         }
 
         [TestMethod]
@@ -212,7 +212,7 @@ namespace Domain.Tests
             {
                 CurrentFold = new List<CoincheCard>(),
                 PreviousFold = new List<CoincheCard>(),
-                NextPlayerAvailableCards = CardsSetTwo
+                CurrentPlayerPlayableCards = CardsSetTwo
             });
 
             var trumpColor = Enums.CoincheCardColorsEnum.Diamond;
@@ -225,7 +225,7 @@ namespace Domain.Tests
 
             var takeChangedEvent = take.Play(new CoincheCard(Enums.CardsEnum.SevenDiamond), CardsSetOne, trumpColor);
 
-            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.NextPlayerAvailableCards.ToList());
+            CollectionAssert.AreEqual(expectedCards.ToList(), takeChangedEvent.CurrentPlayerPlayableCards.ToList());
         }
     }
 }

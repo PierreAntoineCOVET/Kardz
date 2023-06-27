@@ -31,6 +31,11 @@ namespace Repositories.DbContexts
         public DbSet<CoinchePlayer> CoinchePlayers { get; set; }
 
         /// <summary>
+        /// Teams's players.
+        /// </summary>
+        public DbSet<CoincheTake> CoincheTakes { get; set; }
+
+        /// <summary>
         /// Fluent API configuration.
         /// </summary>
         /// <param name="modelBuilder"></param>
@@ -68,6 +73,31 @@ namespace Repositories.DbContexts
                 .Property(g => g.LastTurnCards)
                 .IsUnicode(false)
                 .HasMaxLength(8);
+
+            modelBuilder.Entity<CoincheTake>()
+                .HasKey (t => t.Id);
+            modelBuilder.Entity<CoincheTake>()
+                .HasOne(t => t.Game)
+                .WithMany(g => g.Takes)
+                .HasForeignKey (t => t.GameId)
+                .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CoincheTake>()
+                .HasOne(t => t.CurrentPlayer)
+                .WithMany(p => p.Takes)
+                .HasForeignKey(t => t.CurrentPlayerId)
+                .OnDelete(DeleteBehavior.NoAction);
+            modelBuilder.Entity<CoincheTake>()
+                .Property(p => p.CurrentFold)
+                .IsUnicode(false)
+                .HasMaxLength(23);
+            modelBuilder.Entity<CoincheTake>()
+                .Property(p => p.CurrentPlayerPlayableCards)
+                .IsUnicode(false)
+                .HasMaxLength(23);
+            modelBuilder.Entity<CoincheTake>()
+                .Property(p => p.PreviousFold)
+                .IsUnicode(false)
+                .HasMaxLength(23);
         }
     }
 }

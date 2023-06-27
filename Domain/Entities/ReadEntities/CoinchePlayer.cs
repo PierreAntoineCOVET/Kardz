@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Domain.Entities.ReadEntities
 {
@@ -36,5 +37,10 @@ namespace Domain.Entities.ReadEntities
         /// Player's team.
         /// </summary>
         public CoincheTeam Team { get; set; }
+
+        /// <summary>
+        /// List of all takes of the player.
+        /// </summary>
+        public ICollection<CoincheTake> Takes { get; set; }
     }
 }

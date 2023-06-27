@@ -18,7 +18,8 @@ namespace EventHandlers.Notifications.Game
     /// </summary>
     public class GameEventsHandler :
         INotificationHandler<GameCreatedEvent>,
-        INotificationHandler<TurnUpdatedEvent>
+        INotificationHandler<TurnUpdatedEvent>,
+        INotificationHandler<TakeChangedEvent>
     {
         /// <summary>
         /// Read modele repository.
@@ -44,19 +45,20 @@ namespace EventHandlers.Notifications.Game
         {
             var coincheGame = new CoincheGame
             {
-                Id = notification.GameId,
-                CurrentDealer = notification.CurrentDealer,
+                Id                 = notification.GameId,
+                CurrentDealer      = notification.CurrentDealer,
                 CurrentPayerNumber = notification.CurrentPlayerNumber,
                 CurrentTurnTimeout = notification.EndOfTurn,
-                Teams = notification.Teams.Select(t => new CoincheTeam
+                Teams              = notification.Teams.Select(t => new CoincheTeam
                 {
-                    GameId = notification.GameId,
-                    Number = t.Number,
-                    Score = 0,
+                    Id      = Guid.NewGuid(),
+                    GameId  = notification.GameId,
+                    Number  = t.Number,
+                    Score   = 0,
                     Players = t.GetPlayers().Select(p => new CoinchePlayer
                     {
-                        Id = p.Id,
-                        Cards = CardsSerialize(p.GetCards()),
+                        Id     = p.Id,
+                        Cards  = CardsSerialize(p.GetCards()),
                         Number = p.Number
 
                     }).ToList()
@@ -79,6 +81,23 @@ namespace EventHandlers.Notifications.Game
             currentPlayer.PlayableCards = CardsSerialize(notification.PlayableCards);
 
             await GenericRepository.Update(currentGame);
+            await GenericRepository.SaveChanges();
+        }
+
+        public async Task Handle(TakeChangedEvent notification, CancellationToken cancellationToken)
+        {
+            var coincheTake = new CoincheTake
+            {
+                Id                         = Guid.NewGuid(),
+                CurrentFold                = CardsSerialize(notification.CurrentFold),
+                CurrentPlayerId            = notification.CurrentPlayer.Id,
+                CurrentPlayerPlayableCards = CardsSerialize(notification.CurrentPlayerPlayableCards),
+                GameId                     = notification.GameId,
+                PreviousFold               = CardsSerialize(notification.PreviousFold)
+            };
+
+            await GenericRepository.Add(coincheTake);
+
             await GenericRepository.SaveChanges();
         }
 

@@ -42,5 +42,10 @@ namespace Domain.Entities.ReadEntities
         /// Teams of the game.
         /// </summary>
         public ICollection<CoincheTeam> Teams { get; set; }
+
+        /// <summary>
+        /// List of all takes of the game.
+        /// </summary>
+        public ICollection<CoincheTake> Takes { get; set; }
     }
 }

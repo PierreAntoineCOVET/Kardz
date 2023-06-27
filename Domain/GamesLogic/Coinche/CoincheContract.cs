@@ -59,7 +59,18 @@ namespace Domain.GamesLogic.Coinche
                 throw new GameException("Contract value must be a multiple of 10 and between 80 and 160 (or capot).");
             }
 
-            if(coinched && !Color.HasValue && !Value.HasValue)
+            if (value.HasValue && Value.HasValue
+                && value.Value < Value.Value)
+            {
+                throw new GameException("Contract value must always have higher values.");
+            }
+
+            if (value.HasValue && color.HasValue && PassCounter == 3 && color.Value == Color.Value)
+            {
+                throw new GameException("Speak on oneself only with different colors.");
+            }
+
+            if (coinched && !Color.HasValue && !Value.HasValue)
             {
                 throw new GameException($"Cannot coinche empty contract");
             }
@@ -219,7 +230,9 @@ namespace Domain.GamesLogic.Coinche
         /// <param name="event"></param>
         public void Apply(ContractChangedEvent @event)
         {
-            CurrentState = ContractStatesEnum.Valid;
+            CurrentState = @event.ContractState == ContractStatesEnum.Failed
+                ? ContractStatesEnum.Valid
+                : @event.ContractState;
             PassCounter = @event.PassCounter;
             Color = @event.Color;
             Value = @event.Value;

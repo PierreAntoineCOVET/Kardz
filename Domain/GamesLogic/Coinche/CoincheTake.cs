@@ -42,9 +42,10 @@ namespace Domain.GamesLogic.Coinche
 
             return new TakeChangedEvent
             {
+                Id = Guid.NewGuid(),
                 CurrentFold = currentFold,
                 PreviousFold = new List<CoincheCard>(),
-                NextPlayerAvailableCards = GetPlayableCards(possibleCards, trumColor, currentFold)
+                CurrentPlayerPlayableCards = GetPlayableCards(possibleCards, trumColor, currentFold)
             };
         }
 
@@ -160,16 +161,19 @@ namespace Domain.GamesLogic.Coinche
 
             if (CurrentFold.Count < 3)
             {
-                var newCurrentFold = new List<CoincheCard>(CurrentFold);
-                newCurrentFold.Add(playedCard);
+                var newCurrentFold = new List<CoincheCard>(CurrentFold)
+                {
+                    playedCard
+                };
 
-                takeChangedEvent.NextPlayerAvailableCards = GetPlayableCards(nextPlayerCandidate, trumColor, newCurrentFold);
+                takeChangedEvent.Id = Guid.NewGuid();
+                takeChangedEvent.CurrentPlayerPlayableCards = GetPlayableCards(nextPlayerCandidate, trumColor, newCurrentFold);
                 takeChangedEvent.CurrentFold = newCurrentFold;
                 takeChangedEvent.PreviousFold = PreviousFold;
             }
             else
             {
-                // close the take, score points , ext.
+                // TODO: close the take, score points , ext.
             }
 
             return takeChangedEvent;
@@ -188,7 +192,7 @@ namespace Domain.GamesLogic.Coinche
         {
             CurrentFold = @event.CurrentFold.Cast<CoincheCard>().ToList();
             PreviousFold = @event.PreviousFold.Cast<CoincheCard>().ToList();
-            PlayableCards = @event.NextPlayerAvailableCards.Cast<CoincheCard>().ToList();
+            PlayableCards = @event.CurrentPlayerPlayableCards.Cast<CoincheCard>().ToList();
         }
     }
 }

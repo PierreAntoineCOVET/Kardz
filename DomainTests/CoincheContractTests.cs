@@ -168,5 +168,39 @@ namespace Domain.Tests
             Assert.AreEqual(100, contractChangedEvent.Value);
             Assert.AreEqual(CoincheCardColorsEnum.Diamond, contractChangedEvent.Color);
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(GameException))]
+        public void ValidateContract_SendLowerValueThanCurrent_CountAsPassed()
+        {
+            var coincheContract = new CoincheContract();
+            coincheContract.Apply(new ContractChangedEvent
+            {
+                CoincheState = ContractCoincheStatesEnum.NotCoinched,
+                Color = CoincheCardColorsEnum.Diamond,
+                PassCounter = 0,
+                Value = 100,
+                OwningTeamNumber = 1
+            });
+
+            _ = coincheContract.Update(CoincheCardColorsEnum.Heart, 80, false, 0);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(GameException))]
+        public void ValidateContract_SpeakOnOneSelfWithSameColor_CountAsPassed()
+        {
+            var coincheContract = new CoincheContract();
+            coincheContract.Apply(new ContractChangedEvent
+            {
+                CoincheState = ContractCoincheStatesEnum.NotCoinched,
+                Color = CoincheCardColorsEnum.Diamond,
+                PassCounter = 3,
+                Value = 100,
+                OwningTeamNumber = 1
+            });
+
+            _ = coincheContract.Update(CoincheCardColorsEnum.Diamond, 100, true, 1);
+        }
     }
 }

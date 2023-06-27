@@ -18,7 +18,7 @@ namespace EventHandlers.Commands.SetGameContract
     public class SetGameContractCommandHandler : IRequestHandler<SetGameContractCommand, GameContractDto>
     {
         /// <summary>
-        /// Read model generic repository.
+        /// DB event store repository.
         /// </summary>
         private readonly IEventStoreRepository EventStoreRepository;
 
@@ -28,7 +28,7 @@ namespace EventHandlers.Commands.SetGameContract
         private readonly IMediator Mediator;
 
         /// <summary>
-        /// 
+        /// Construct game object from DB agregate.
         /// </summary>
         private readonly GameFactory GameFactory;
 
