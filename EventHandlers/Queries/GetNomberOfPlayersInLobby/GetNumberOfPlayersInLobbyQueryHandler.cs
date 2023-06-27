@@ -33,9 +33,6 @@ namespace EventHandlers.Queries.GetNomberOfPlayersInLobby
         /// <returns>Number of idle players in lobby.</returns>
         public Task<int> Handle(GetNumberOfPlayersInLobbyQuery request, CancellationToken cancellationToken)
         {
-            // TODO: 
-            // Modify the read schema / delete read schema for now ?
-            // - query can go on write schema : even though it's a read, it's in the game player context, not viewer context
             var lobby = LobbiesService.GetLobby(request.GameType);
 
             return Task.FromResult(lobby.NumberOfPlayers);

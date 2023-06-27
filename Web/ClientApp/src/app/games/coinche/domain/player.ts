@@ -82,7 +82,6 @@ export class Player {
      * Display the deal chip for the player who delt cards.
      */
     public getTurnTimerPosition(): StartTurnTimerEvent {
-        // TODO : ca marche ca ? ne pas commit
         const timerRectangle = {} as StartTurnTimerEvent;
 
         if (this.position == ScreenCoordinate.top) {
