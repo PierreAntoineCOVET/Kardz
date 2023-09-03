@@ -1,7 +1,7 @@
 import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
 
 /**
- * Raised when the current player need to vote on the game's contract.
+ * Raised when the game contract has changed.
  */
 export interface ContractMadeEvent {
     /**
@@ -23,4 +23,9 @@ export interface ContractMadeEvent {
      * Number of the player currently playing.
      */
     currentPlayerNumber: number;
+
+    /**
+     * True if the contract is closed.
+     */
+    isClosed: boolean;
 }

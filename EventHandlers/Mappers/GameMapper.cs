@@ -48,7 +48,8 @@ namespace EventHandlers.Mappers
                 IsContractCounterCoinched = gameContract.CoincheState == ContractCoincheStatesEnum.CounterCoinched,
                 TurnEndTime = game.CurrentTurnTimeout,
                 LastColor = (int?)color,
-                LastValue = value
+                LastValue = value,
+                OwningTeam = gameContract.OwningTeamNumber
             };
         }
     }

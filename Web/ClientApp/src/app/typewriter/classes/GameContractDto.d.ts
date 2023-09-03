@@ -19,5 +19,6 @@ export interface IGameContractDto {
     isContractCoinched: boolean;
     isContractCounterCoinched: boolean;
     isContractClosed: boolean;
+    owningTeam: number;
 }
 

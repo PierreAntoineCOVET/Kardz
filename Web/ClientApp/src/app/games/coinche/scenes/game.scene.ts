@@ -8,6 +8,7 @@ import { DealerSelectedEvent } from 'src/app/games/coinche/domain/events/dealer-
 import { AddCardEvent } from 'src/app/games/coinche/domain/events/add-card.event';
 import { Game } from 'src/app/games/coinche/domain/game';
 import { BubbleQueuePosition, PlayerSaidEvent } from '../domain/events/player-said.event';
+import { FOREVER } from 'phaser';
 
 /**
  * Core Coinche game loading and orchestrator.
@@ -125,13 +126,10 @@ export class GameScene extends Phaser.Scene {
      */
     private playerSays(playerSaidEvent: PlayerSaidEvent | undefined) {
         if (playerSaidEvent) {
-            this.createSpeechBubble(
-                playerSaidEvent.x, playerSaidEvent.y,
-                playerSaidEvent.width, playerSaidEvent.height,
-                playerSaidEvent.text,
-                playerSaidEvent.bubbleQueuePosition,
-                playerSaidEvent.playerNumber
-            );
+            this.createSpeechBubble(playerSaidEvent);
+        }
+        else {
+            this.clearAllSpeachBubble();
         }
     }
 
@@ -358,19 +356,18 @@ export class GameScene extends Phaser.Scene {
         this.subscriptions.unsubscribe();
     }
 
-    private createSpeechBubble(x: number, y: number, width: number, height: number,
-        quote: string, bubbleQueuePosition: BubbleQueuePosition, playerNumber: number) {
-        var bubbleWidth = width;
-        var bubbleHeight = height;
+    private createSpeechBubble(playerSaidEvent: PlayerSaidEvent) {
+        var bubbleWidth = playerSaidEvent.width;
+        var bubbleHeight = playerSaidEvent.height;
         var bubblePadding = 10;
         var arrowHeight = bubbleHeight / 4;
 
-        var bubble = this.add.graphics({ x: x, y: y });
-        var content = this.add.text(0, 0, quote, { fontFamily: 'Arial', fontSize: '2em', color: '#000000', align: 'center', wordWrap: { width: bubbleWidth - (bubblePadding * 2) } });
+        var bubble = this.add.graphics({ x: playerSaidEvent.x, y: playerSaidEvent.y });
+        var content = this.add.text(0, 0, playerSaidEvent.text, { fontFamily: 'Arial', fontSize: '2em', color: '#000000', align: 'center', wordWrap: { width: bubbleWidth - (bubblePadding * 2) } });
 
-        this.cleanBubble(playerNumber);
+        this.cleanBubble(playerSaidEvent.playerNumber);
 
-        this.speechBubbles.push({ playerNumber: playerNumber, bubble: bubble, text: content });
+        this.speechBubbles.push({ playerNumber: playerSaidEvent.playerNumber, bubble: bubble, text: content });
 
         //  Bubble shadow
         bubble.fillStyle(0x222222, 0.5);
@@ -387,11 +384,11 @@ export class GameScene extends Phaser.Scene {
         bubble.fillRoundedRect(0, 0, bubbleWidth, bubbleHeight, 16);
 
         //  Calculate arrow coordinates
-        const queuePosition = this.getQueuePosition(bubbleWidth, bubbleHeight, arrowHeight, bubbleQueuePosition);
+        const queuePosition = this.getQueuePosition(bubbleWidth, bubbleHeight, arrowHeight, playerSaidEvent.bubbleQueuePosition);
 
         //  Bubble arrow shadow
         bubble.lineStyle(4, 0x222222, 0.5);
-        if (bubbleQueuePosition == BubbleQueuePosition.topRight) {
+        if (playerSaidEvent.bubbleQueuePosition == BubbleQueuePosition.topRight) {
             bubble.lineBetween(queuePosition.point2X - 1, queuePosition.point2Y - 6, queuePosition.point3X + 2, queuePosition.point3Y);
         }
         else {
@@ -410,6 +407,15 @@ export class GameScene extends Phaser.Scene {
         var b = content.getBounds();
 
         content.setPosition(bubble.x + (bubbleWidth / 2) - (b.width / 2), bubble.y + (bubbleHeight / 2) - (b.height / 2));
+    }
+
+    /**
+     * Clear all displayed player's speach bubble.
+     */
+    private clearAllSpeachBubble() {
+        for (const speechBubble of this.speechBubbles) {
+            this.cleanBubble(speechBubble.playerNumber);
+        }
     }
 
     /**

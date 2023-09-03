@@ -57,7 +57,7 @@ namespace EventHandlers.Queries.GetPlayerCards
             {
                 PlayerCards = cards,
                 Dealer = game.CurrentDealer,
-                CurrentPlayer = game.CurrentPayerNumber,
+                CurrentPlayerNumber = game.CurrentPayerNumber,
                 LocalPlayerNumber = player.Number,
                 TurnEndTime = game.CurrentTurnTimeout
             };

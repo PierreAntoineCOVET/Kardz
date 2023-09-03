@@ -81,6 +81,11 @@ export class Game {
             console.error(evt);
         };
 
+        this.gameWorkerService.onmessageerror = (evt) => {
+            console.error('Worker message error :');
+            console.error(evt);
+        };
+
         this.gameWorkerService.onmessage = (message) => {
             if (!message || !message.data) {
                 return;
@@ -140,7 +145,7 @@ export class Game {
     }
 
     /**
-     * Invoke when a player change the game contract.
+     * Invoke by message service when server send new contract change notification.
      * @param contractInfo
      */
     private onGameContractChanged(contractInfo: IGameContractDto) {
@@ -150,17 +155,51 @@ export class Game {
             return;
         }
 
-        let currentPlayer = this.getPlayer(p => p.number == contractInfo.currentPlayerNumber);
-
-        if (contractInfo.isContractClosed) {
-            contractInfo.currentPlayerNumber
-        }
+        const currentPlayer = this.getPlayer(p => p.number == contractInfo.currentPlayerNumber);
 
         const localPlayer = this.getPlayer(p => p.id == this.playerId);
 
         const lastPlayer = this.getPlayer(p => p.number == contractInfo.lastPlayerNumber);
 
         this.updateCurrentPlayer(currentPlayer);
+
+        if (contractInfo.isContractClosed) {
+            // wether it's the player's turn or not
+            // -- clear all spech bubbles --
+            // display current contract info somewhere
+            // highlight cards if local player is current player
+            this.handleContractClose();
+        }
+        else {
+            this.handleContractUpdate(lastPlayer, localPlayer, contractInfo);
+        }
+
+        this.onTurnTimerCleared.next();
+        this.startTurnTimer(currentPlayer, contractInfo.turnEndTime);
+    }
+
+    /**
+     * Clear all speach bubbles, display contract info and highlight cards if local player is current player.
+     */
+    private handleContractClose() {
+        this.onPlayerSays.next(undefined);
+
+        // All JS players has their team number
+        // Contract has a owning team
+        // Need to display finalised contract info near turn timer (same style -h or v-, for both player of the team.)
+
+        //let contractEvent = {
+        //    currentPlayerNumber: localPlayer.number
+        //} as ContractMadeEvent;
+    }
+
+    /**
+     * Display contract's value via last player speach bubble and the form for the contract update.
+     * @param lastPlayer Last player who updated the contract (or pass).
+     * @param localPlayer Local player.
+     * @param contractInfo Contract infos.
+     */
+    private handleContractUpdate(lastPlayer: Player, localPlayer: Player, contractInfo: IGameContractDto) {
         this.onPlayerSays.next(lastPlayer.getContractSpeechBubble(contractInfo));
 
         if (localPlayer.isPlaying) {
@@ -177,9 +216,6 @@ export class Game {
         else {
             this.onContractChanged.next(undefined);
         }
-
-        this.onTurnTimerCleared.next();
-        this.startTurnTimer(currentPlayer, contractInfo.turnEndTime);
     }
 
     /**
@@ -192,10 +228,10 @@ export class Game {
      */
     private initGame(gameDatas: IGameInitDto) {
         this.displayCards(gameDatas.playerCards);
-        this.setPlayersNumber(gameDatas.localPlayerNumber);
+        this.setPlayersNumberAndTeam(gameDatas.localPlayerNumber, gameDatas.currentPlayerTeamNumber);
         this.setDealer(gameDatas.dealer);
 
-        const currentPlayer = this.getPlayer(p => p.number == gameDatas.currentPlayer);
+        const currentPlayer = this.getPlayer(p => p.number == gameDatas.currentPlayerNumber);
 
         this.updateCurrentPlayer(currentPlayer);
 
@@ -277,30 +313,36 @@ export class Game {
     }
 
     /**
-     * Set players number.
+     * Set players number and teams.
      * Current player take the number returned in GameInfo and the others are
      * set counter-clockwise (ex: bottom=1, right = 2, top = 3, left = 0).
+     * Current player take team number returned by GameInfo and others are
+     * computed (ex: bottom=1, right = 0, top = 1, left = 0).
      * @param playerNumber number of the current real player.
      */
-    private setPlayersNumber(playerNumber: number) {
+    private setPlayersNumberAndTeam(playerNumber: number, teamNumber: number) {
         let bottomPlayer = this.players.find(p => p.position == ScreenCoordinate.bottom);
         if (bottomPlayer) {
             bottomPlayer.number = playerNumber;
+            bottomPlayer.teamNumber = teamNumber;
         }
 
         let rightPlayer = this.players.find(p => p.position == ScreenCoordinate.right);
         if (rightPlayer) {
-            rightPlayer.number = (playerNumber + 1) % 4;;
+            rightPlayer.number = (playerNumber + 1) % 4;
+            rightPlayer.teamNumber = (teamNumber + 1) % 2;
         }
 
         let topPlayer = this.players.find(p => p.position == ScreenCoordinate.top);
         if (topPlayer) {
             topPlayer.number = (playerNumber + 2) % 4;
+            topPlayer.teamNumber = teamNumber;
         }
 
         let leftPlayer = this.players.find(p => p.position == ScreenCoordinate.left);
         if (leftPlayer) {
             leftPlayer.number = (playerNumber + 3) % 4;
+            leftPlayer.teamNumber = (teamNumber + 1) % 2;
         }
     }
 

@@ -61,5 +61,10 @@ namespace DTOs.Shared
         /// True if the contract is closed and the game should start.
         /// </summary>
         public bool IsContractClosed { get; set; }
+
+        /// <summary>
+        /// Team currently owning the contract (team that need to fullfill it).
+        /// </summary>
+        public int? OwningTeam { get; set; }
     }
 }

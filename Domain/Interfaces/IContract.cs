@@ -27,5 +27,10 @@ namespace Domain.Interfaces
         /// Get the coinche state.
         /// </summary>
         ContractCoincheStatesEnum CoincheState { get; }
+
+        /// <summary>
+        /// Get contract owning team.
+        /// </summary>
+        int? OwningTeamNumber { get; }
     }
 }

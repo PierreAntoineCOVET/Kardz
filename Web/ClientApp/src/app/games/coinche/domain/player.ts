@@ -9,6 +9,7 @@ import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
  */
 export class Player {
     public number!: number;
+    public teamNumber!: number;
     public isDealer!: boolean;
     public isPlaying!: boolean;
 

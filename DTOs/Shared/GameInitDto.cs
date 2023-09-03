@@ -26,11 +26,16 @@ namespace DTOs.Shared
         /// <summary>
         /// Number of the current player.
         /// </summary>
-        public int CurrentPlayer { get; set; }
+        public int CurrentPlayerNumber { get; set; }
 
         /// <summary>
         /// Time at wich the current turn ends.
         /// </summary>
         public DateTimeOffset TurnEndTime { get; set; }
+
+        /// <summary>
+        /// Current player team number.
+        /// </summary>
+        public int CurrentPlayerTeamNumber { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace Domain.GamesLogic.Coinche
         /// <summary>
         /// Number of the team owning the contract.
         /// </summary>
-        private int? OwningTeamNumber;
+        public int? OwningTeamNumber { get; private set; }
 
         /// <summary>
         /// Special state of the contract regarding coinche.
