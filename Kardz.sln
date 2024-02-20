@@ -38,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messages", "Messages\Messag
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{41E691A8-6CC3-4388-BA6A-A08937336739}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Tests", "DomainTests\Domain.Tests.csproj", "{1C264D07-D349-42B3-A96B-181BFA3ABC4B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain.Tests", "DomainTests\Domain.Tests.csproj", "{1C264D07-D349-42B3-A96B-181BFA3ABC4B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F} = {EDA88906-05F5-4B6D-87FD-62EBF2B3CE0F}
 	EndProjectSection
