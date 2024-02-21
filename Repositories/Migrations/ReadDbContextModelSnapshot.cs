@@ -2,52 +2,45 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repositories.DbContexts;
 
 #nullable disable
 
-namespace Repositories.Migrations.ReadDb
+namespace Repositories.Migrations
 {
     [DbContext(typeof(ReadDbContext))]
-    [Migration("20220514000458_TurnManagementImplementation")]
-    partial class TurnManagementImplementation
+    partial class ReadDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.5");
 
             modelBuilder.Entity("Domain.Entities.ReadEntities.CoincheGame", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("CurrentDealer")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("CurrentPayerNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("CurrentTurnCards")
                         .HasMaxLength(8)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(8)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTimeOffset>("CurrentTurnTimeout")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("LastTurnCards")
                         .HasMaxLength(8)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(8)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -58,23 +51,23 @@ namespace Repositories.Migrations.ReadDb
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Cards")
                         .HasMaxLength(23)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(23)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Number")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("PlayableCards")
                         .HasMaxLength(23)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(23)");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("TeamId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -83,20 +76,56 @@ namespace Repositories.Migrations.ReadDb
                     b.ToTable("CoinchePlayers");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ReadEntities.CoincheTake", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CurrentFold")
+                        .HasMaxLength(23)
+                        .IsUnicode(false)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CurrentPlayerId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CurrentPlayerPlayableCards")
+                        .HasMaxLength(23)
+                        .IsUnicode(false)
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PreviousFold")
+                        .HasMaxLength(23)
+                        .IsUnicode(false)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrentPlayerId");
+
+                    b.HasIndex("GameId");
+
+                    b.ToTable("CoincheTakes");
+                });
+
             modelBuilder.Entity("Domain.Entities.ReadEntities.CoincheTeam", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<Guid>("GameId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Number")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Score")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -116,6 +145,25 @@ namespace Repositories.Migrations.ReadDb
                     b.Navigation("Team");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ReadEntities.CoincheTake", b =>
+                {
+                    b.HasOne("Domain.Entities.ReadEntities.CoinchePlayer", "CurrentPlayer")
+                        .WithMany("Takes")
+                        .HasForeignKey("CurrentPlayerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ReadEntities.CoincheGame", "Game")
+                        .WithMany("Takes")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("CurrentPlayer");
+
+                    b.Navigation("Game");
+                });
+
             modelBuilder.Entity("Domain.Entities.ReadEntities.CoincheTeam", b =>
                 {
                     b.HasOne("Domain.Entities.ReadEntities.CoincheGame", "Game")
@@ -129,7 +177,14 @@ namespace Repositories.Migrations.ReadDb
 
             modelBuilder.Entity("Domain.Entities.ReadEntities.CoincheGame", b =>
                 {
+                    b.Navigation("Takes");
+
                     b.Navigation("Teams");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ReadEntities.CoinchePlayer", b =>
+                {
+                    b.Navigation("Takes");
                 });
 
             modelBuilder.Entity("Domain.Entities.ReadEntities.CoincheTeam", b =>

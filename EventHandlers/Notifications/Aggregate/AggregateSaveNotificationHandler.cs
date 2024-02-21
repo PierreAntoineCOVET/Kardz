@@ -70,7 +70,7 @@ namespace EventHandlers.Notifications.Aggregate
             var uncommittedDbEvents = new List<Event>(notification.Aggregate.UncommittedEvents.Count);
             foreach (var @event in notification.Aggregate.UncommittedEvents)
             {
-                if(@event is INotification updateReadModelNotification)
+                if (@event is INotification updateReadModelNotification)
                 {
                     await Mediator.Publish(updateReadModelNotification);
                 }

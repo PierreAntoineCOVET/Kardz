@@ -50,12 +50,14 @@ namespace Registration
         {
             services.AddDbContext<EventStoreDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("EventStoreDb"));
+                options.UseSqlite(configuration.GetConnectionString("EventStoreDbSqLite"));
+                //options.UseSqlServer(configuration.GetConnectionString("EventStoreDb"));
             });
 
             services.AddDbContext<ReadDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("ReadDb"));
+                options.UseSqlite(configuration.GetConnectionString("ReadDbSqLite"));
+                //options.UseSqlServer(configuration.GetConnectionString("ReadDb"));
             });
         }
 
