@@ -44,3 +44,4 @@
 /Web/EventStoreDbSqLite.db-wal
 /Web/ReadDbSqLite.db-wal
 /Web/ReadDbSqLite.db
+/Web/ReadDbSqLite.db-shm
