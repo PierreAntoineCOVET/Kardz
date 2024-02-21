@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using DTOs.Enums;
 using EventHandlers.Commands.SetGameContract;
 using EventHandlers.Queries.GetPlayerCards;
 using MediatR;
@@ -62,7 +63,7 @@ namespace Web.Hubs
             {
                 GameId = gameId,
                 PlayerId = playerId,
-                Color = (CoincheCardColorsEnum?)color,
+                Color = (DTOs.Enums.CoincheCardColorsEnum?)color,
                 Value = value,
                 Coinched = coinched
             });

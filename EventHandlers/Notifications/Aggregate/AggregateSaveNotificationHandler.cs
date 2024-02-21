@@ -70,10 +70,13 @@ namespace EventHandlers.Notifications.Aggregate
             var uncommittedDbEvents = new List<Event>(notification.Aggregate.UncommittedEvents.Count);
             foreach (var @event in notification.Aggregate.UncommittedEvents)
             {
-                if (@event is INotification updateReadModelNotification)
-                {
-                    await Mediator.Publish(updateReadModelNotification);
-                }
+                // Temporary suspention. Store only the finished games for website.
+                // Events where handled in EventHandlers.Notifications.Game.GameEventsHandler
+
+                //if (@event is INotification updateReadModelNotification)
+                //{
+                //    await Mediator.Publish(updateReadModelNotification);
+                //}
 
                 var dbEvent = new Event
                 {

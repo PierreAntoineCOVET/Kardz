@@ -1,5 +1,4 @@
 import { Subscription, ReplaySubject, Subject, BehaviorSubject } from 'rxjs';
-import { CardsEnum } from 'src/app/typewriter/enums/CardsEnum.enum';
 import { IGameInitDto } from 'src/app/typewriter/classes/GameInitDto';
 import { ContractMadeEvent } from 'src/app/games/coinche/domain/events/contract.event';
 import { DealerSelectedEvent } from 'src/app/games/coinche/domain/events/dealer-selected.event';
@@ -9,6 +8,8 @@ import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche
 import { Player } from 'src/app/games/coinche/domain/player';
 import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
 import { PlayerSaidEvent } from './events/player-said.event';
+import { ContractStatesEnum } from 'src/app/typewriter/enums/ContractEnums.enum';
+import { CardsEnum } from 'src/app/typewriter/enums/CardEnum.enum';
 
 export class Game {
     public gameId!: string;
@@ -141,7 +142,7 @@ export class Game {
      * @param obj Object to check.
      */
     private isICoincheContractDto(obj: any): obj is IGameContractDto {
-        return (obj as IGameContractDto).isContractFailed !== undefined;
+        return (obj as IGameContractDto).currentPlayerNumber !== undefined;
     }
 
     /**
@@ -149,7 +150,7 @@ export class Game {
      * @param contractInfo
      */
     private onGameContractChanged(contractInfo: IGameContractDto) {
-        if (contractInfo.isContractFailed) {
+        if (contractInfo.contractState == ContractStatesEnum.Failed) {
             this.onContractChanged.next(undefined);
             this.RequestGameInfos();
             return;
@@ -163,7 +164,7 @@ export class Game {
 
         this.updateCurrentPlayer(currentPlayer);
 
-        if (contractInfo.isContractClosed) {
+        if (contractInfo.contractState == ContractStatesEnum.Closed) {
             // wether it's the player's turn or not
             // -- clear all spech bubbles --
             // display current contract info somewhere
@@ -258,9 +259,6 @@ export class Game {
         startEvent.playerNumber = currentPlayer.number;
         this.onTurnTimeStarted.next(startEvent);
 
-        //const numberOfTicks = (timerEndTime.getTime() - (new Date()).getTime()) / 1000;
-        //let currentTick = 0;
-
         if (this.turnTimer) {
             clearInterval(this.turnTimer);
         }
@@ -284,7 +282,6 @@ export class Game {
                 this.onTurnTimerTicked.next(event);
 
                 if (completion === 1) {
-                    // force a random play
                     clearInterval(this.turnTimer);
                 }
             },

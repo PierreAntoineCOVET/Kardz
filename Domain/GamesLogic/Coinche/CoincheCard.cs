@@ -20,7 +20,7 @@ namespace Domain.GamesLogic.Coinche
 
         public CoincheCardValuesEnum Value { get; init; }
 
-        private CardsEnum Card;
+        public CardsEnum Card { get; init; }
 
         public CoincheCard() { }
 
@@ -165,15 +165,6 @@ namespace Domain.GamesLogic.Coinche
             }
 
             return !opponentAskedColor.Any(o => o.Value > Value);
-        }
-
-        /// <summary>
-        /// Transormf to a unique <see cref="CardsEnum"/> value.
-        /// </summary>
-        /// <returns></returns>
-        public CardsEnum ToCardEnum()
-        {
-            return Card;
         }
     }
 

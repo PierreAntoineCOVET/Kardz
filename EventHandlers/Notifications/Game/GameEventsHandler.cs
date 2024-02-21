@@ -47,7 +47,7 @@ namespace EventHandlers.Notifications.Game
             {
                 Id                 = notification.GameId,
                 CurrentDealer      = notification.CurrentDealer,
-                CurrentPayerNumber = notification.CurrentPlayerNumber,
+                CurrentPlayerNumber = notification.CurrentPlayerNumber,
                 CurrentTurnTimeout = notification.EndOfTurn,
                 Teams              = notification.Teams.Select(t => new CoincheTeam
                 {
@@ -74,7 +74,7 @@ namespace EventHandlers.Notifications.Game
         public async Task Handle(TurnUpdatedEvent notification, CancellationToken cancellationToken)
         {
             var currentGame = await GenericRepository.GetSingleOrDefault(new GetFullCoincheGameByIdSpecification(notification.GameId));
-            currentGame.CurrentPayerNumber = notification.CurrentPlayerNumber;
+            currentGame.CurrentPlayerNumber = notification.CurrentPlayerNumber;
             currentGame.CurrentTurnTimeout = notification.EndOfTurn;
 
             var currentPlayer = currentGame.Teams.SelectMany(t => t.Players).Single(p => p.Id == notification.CurrentPlayerId);
@@ -103,7 +103,7 @@ namespace EventHandlers.Notifications.Game
 
         private string CardsSerialize(IEnumerable<ICards> cards)
         {
-            return string.Join(";", cards.Select(c => (int)c.ToCardEnum()));
+            return string.Join(";", cards.Select(c => (int)c.Card));
         }
     }
 }

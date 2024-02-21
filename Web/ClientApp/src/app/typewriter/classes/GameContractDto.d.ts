@@ -1,24 +1,21 @@
-﻿
-
-/*************************/
+﻿/*************************/
 /* Auto generated script */
 /*************************/
 
-
+import { ContractStatesEnum } from '../enums/ContractEnums.enum';
 
 export interface IGameContractDto {
     
-    value: number;
-    color: number;
+    value: number | null;
+    color: number | null;
     lastPlayerNumber: number;
-    isContractFailed: boolean;
     currentPlayerNumber: number;
     turnEndTime: Date;
-    lastColor: number;
-    lastValue: number;
+    lastColor: number | null;
+    lastValue: number | null;
     isContractCoinched: boolean;
     isContractCounterCoinched: boolean;
-    isContractClosed: boolean;
-    owningTeam: number;
+    owningTeam: number | null;
+    contractState: ContractStatesEnum;
 }
 

@@ -31,7 +31,7 @@ namespace Domain.Entities.ReadEntities
         /// <summary>
         /// Number of the current player.
         /// </summary>
-        public int CurrentPayerNumber { get; set; }
+        public int CurrentPlayerNumber { get; set; }
 
         /// <summary>
         /// Current turn timeout limit.

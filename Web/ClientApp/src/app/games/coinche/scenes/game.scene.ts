@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
 import { ContractMadeEvent } from 'src/app/games/coinche/domain/events/contract.event';
 import { ScreenCoordinate } from 'src/app/games/coinche/domain/PlayerPosition';
 import { StartTurnTimerEvent, TurnTimerTickedEvent } from 'src/app/games/coinche/domain/events/turn-timer.event';
@@ -9,6 +8,7 @@ import { AddCardEvent } from 'src/app/games/coinche/domain/events/add-card.event
 import { Game } from 'src/app/games/coinche/domain/game';
 import { BubbleQueuePosition, PlayerSaidEvent } from '../domain/events/player-said.event';
 import { FOREVER } from 'phaser';
+import { CoincheCardColorsEnum } from 'src/app/typewriter/enums/CardEnum.enum';
 
 /**
  * Core Coinche game loading and orchestrator.
@@ -303,7 +303,7 @@ export class GameScene extends Phaser.Scene {
         }
         else if (event.target.name !== undefined && event.target.name !== 'value') {
             if (this.currentContract && this.currentContract.selectedColor !== undefined) {
-                const previousColor = this.contractFormElement.getChildByID(ColorEnum[this.currentContract.selectedColor]);
+                const previousColor = this.contractFormElement.getChildByID(CoincheCardColorsEnum[this.currentContract.selectedColor]);
                 if (!previousColor) {
                     throw new Error("valueDropDown is null");
                 }

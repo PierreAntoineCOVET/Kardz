@@ -29,11 +29,10 @@ ${
 
     static IDictionary<string, (string tsTypeName, string tsTypeImport)> TypeMapper = new Dictionary<string, (string tsTypeName, string tsTypeImport)>
     {
-        { "System.Guid", ("uuidv4", "import { v4 as uuidv4 } from 'uuid';") }
+        { "System.Guid", ("uuidv4", "import { v4 as uuidv4 } from 'uuid';") },
+        { "DTOs.Enums.ContractStatesEnum", ("ContractStatesEnum", "import { ContractStatesEnum } from '../enums/ContractEnums.enum';") }
     };
-}
-
-/*************************/
+}/*************************/
 /* Auto generated script */
 /*************************/
 $Classes(*Shared*Dto)[

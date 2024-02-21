@@ -1,8 +1,8 @@
 ﻿using Domain.Enums;
 using Domain.Interfaces;
 using DTOs;
+using DTOs.Enums;
 using DTOs.Shared;
-using System;
 using System.Linq;
 
 namespace EventHandlers.Mappers
@@ -33,7 +33,7 @@ namespace EventHandlers.Mappers
         /// </summary>
         /// <param name="game"></param>
         /// <returns></returns>
-        public static GameContractDto ToContractDto(this IGame game, CoincheCardColorsEnum? color, int? value)
+        public static GameContractDto ToContractDto(this IGame game, DTOs.Enums.CoincheCardColorsEnum? color, int? value)
         {
             var gameContract = game.GetContract();
             return new GameContractDto
@@ -42,10 +42,9 @@ namespace EventHandlers.Mappers
                 Value = gameContract.Value,
                 LastPlayerNumber = game.LastPlayerNumber,
                 CurrentPlayerNumber = game.CurrentPlayerNumber,
-                IsContractFailed = gameContract.CurrentState == ContractStatesEnum.Failed,
-                IsContractClosed = gameContract.CurrentState == ContractStatesEnum.Closed,
-                IsContractCoinched = gameContract.CoincheState == ContractCoincheStatesEnum.Coinched,
-                IsContractCounterCoinched = gameContract.CoincheState == ContractCoincheStatesEnum.CounterCoinched,
+                ContractState = gameContract.CurrentState.ToDtoEnum(),
+                IsContractCoinched = gameContract.CoincheState == Domain.Enums.ContractCoincheStatesEnum.Coinched,
+                IsContractCounterCoinched = gameContract.CoincheState == Domain.Enums.ContractCoincheStatesEnum.CounterCoinched,
                 TurnEndTime = game.CurrentTurnTimeout,
                 LastColor = (int?)color,
                 LastValue = value,

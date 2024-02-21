@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DTOs.Enums;
+using System;
 
 namespace DTOs.Shared
 {
@@ -21,11 +22,6 @@ namespace DTOs.Shared
         /// Id of the player that last made the contract.
         /// </summary>
         public int LastPlayerNumber { get; set; }
-
-        /// <summary>
-        /// True if the last player did not bet
-        /// </summary>
-        public bool IsContractFailed { get; set; }
 
         /// <summary>
         /// Id of the player that will update the contract.
@@ -58,13 +54,13 @@ namespace DTOs.Shared
         public bool IsContractCounterCoinched { get; set; }
 
         /// <summary>
-        /// True if the contract is closed and the game should start.
-        /// </summary>
-        public bool IsContractClosed { get; set; }
-
-        /// <summary>
         /// Team currently owning the contract (team that need to fullfill it).
         /// </summary>
         public int? OwningTeam { get; set; }
+
+        /// <summary>
+        /// Current contract state.
+        /// </summary>
+        public ContractStatesEnum ContractState { get; set; }
     }
 }

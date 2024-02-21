@@ -10,9 +10,9 @@ namespace Domain.Interfaces
     public interface ICards
     {
         /// <summary>
-        /// Transormf to a unique <see cref="CardsEnum"/> value.
+        /// Get a card color and value <see cref="CardsEnum"/>.
         /// </summary>
         /// <returns></returns>
-        CardsEnum ToCardEnum();
+        CardsEnum Card { get; }
     }
 }

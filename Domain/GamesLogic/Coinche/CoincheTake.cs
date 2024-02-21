@@ -154,7 +154,7 @@ namespace Domain.GamesLogic.Coinche
         {
             if (!IsCardPlayable(playedCard))
             {
-                throw new GameException($"Cannot play card {playedCard.ToCardEnum()}");
+                throw new GameException($"Cannot play card {playedCard.Card}");
             }
 
             var takeChangedEvent = new TakeChangedEvent();

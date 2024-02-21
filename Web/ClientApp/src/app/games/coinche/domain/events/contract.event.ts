@@ -1,4 +1,4 @@
-import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
+import { CoincheCardColorsEnum } from "src/app/typewriter/enums/CardEnum.enum";
 
 /**
  * Raised when the game contract has changed.
@@ -7,7 +7,7 @@ export interface ContractMadeEvent {
     /**
      * Selected color for trumps.
      */
-    selectedColor: ColorEnum;
+    selectedColor: CoincheCardColorsEnum;
 
     /**
      * Selected trumps value (170 = capot).

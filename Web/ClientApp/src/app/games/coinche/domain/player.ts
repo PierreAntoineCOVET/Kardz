@@ -2,7 +2,7 @@ import { ScreenCoordinate } from '../domain/PlayerPosition';
 import { StartTurnTimerEvent } from './events/turn-timer.event';
 import { BubbleQueuePosition, PlayerSaidEvent } from './events/player-said.event';
 import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
-import { ColorEnum } from 'src/app/typewriter/enums/ColorEnum.enum';
+import { CoincheCardColorsEnum } from 'src/app/typewriter/enums/CardEnum.enum';
 
 /**
  * Player VM responsible to compute it's UI (position and width).
@@ -166,7 +166,7 @@ export class Player {
 
     private getBubbleText(contractInfo: IGameContractDto): string {
         if (contractInfo.lastValue) {
-            return `${contractInfo.lastValue} ${ColorEnum[contractInfo.lastColor]}`;
+            return `${contractInfo.lastValue} ${CoincheCardColorsEnum[contractInfo.lastColor as number]}`;
         }
         else {
             if (contractInfo.isContractCoinched) {

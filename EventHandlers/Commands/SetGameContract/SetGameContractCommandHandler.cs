@@ -1,15 +1,12 @@
-﻿using Domain.Configuration;
-using Domain.Enums;
+﻿using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Factories;
 using Domain.Interfaces;
-using DTOs;
 using DTOs.Shared;
 using EventHandlers.Mappers;
 using EventHandlers.Notifications.Aggregate;
 using EventHandlers.Repositories;
 using MediatR;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -60,9 +57,9 @@ namespace EventHandlers.Commands.SetGameContract
                 throw new GameException($"Game id {request.GameId} not found.");
             }
 
-            game.SetGameContract(request.Color, request.Value, request.PlayerId, request.Coinched ?? false);
+            game.SetGameContract(request.Color.ToDomainEnum(), request.Value, request.PlayerId, request.Coinched ?? false);
 
-            if(game.GetContract().CurrentState == ContractStatesEnum.Closed)
+            if(game.GetContract().CurrentState == Domain.Enums.ContractStatesEnum.Closed)
             {
                 game.StartNewTake();
             }

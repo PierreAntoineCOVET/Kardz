@@ -1,4 +1,4 @@
-﻿namespace Domain.Enums
+﻿namespace DTOs.Enums
 {
     /// <summary>
     /// Represente the coinched state of the contract.

@@ -1,7 +1,7 @@
 ${
     Template(Settings settings)
     {
-        settings.IncludeProject("Domain");
+        settings.IncludeProject("DTOs");
         settings.OutputExtension = ".enum.ts";
     }
 }/*************************/
