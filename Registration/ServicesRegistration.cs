@@ -1,13 +1,17 @@
 ﻿using Domain.Factories;
 using Domain.Services;
 using Domain.Tools.Serialization;
+using EventHandlers.Behavior;
 using EventHandlers.Repositories;
+using MediatR;
+using MediatR.Extensions.FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Repositories.DbContexts;
 using Repositories.EventStoreRepositories;
 using Repositories.ReadRepositories;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -73,6 +77,16 @@ namespace Registration
             }
 
             services.AddTransient<JsonSerializer>();
+        }
+
+        public static void AddMediatR(this IServiceCollection services)
+        {
+
+            var eventHandlerAssembly = Assembly.Load("EventHandlers");
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(eventHandlerAssembly))
+                .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
+                .AddTransient(typeof(IPipelineBehavior<,>), typeof(EventHandlers.Behavior.ValidationBehavior<,>))
+                .AddFluentValidation(new List<Assembly> { eventHandlerAssembly });
         }
     }
 }

@@ -1,13 +1,7 @@
-using System.Collections.Generic;
-using System.Reflection;
-using EventHandlers.Behavior;
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using MediatR.Extensions.FluentValidation.AspNetCore;
 using Web.Hubs;
 using Microsoft.Extensions.Configuration;
 using Registration;
@@ -31,11 +25,7 @@ namespace Web
         {
             services.AddControllers();
 
-            var eventHandlerAssembly = Assembly.Load("EventHandlers");
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(eventHandlerAssembly))
-                .AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>))
-                .AddTransient(typeof(IPipelineBehavior<,>), typeof(EventHandlers.Behavior.ValidationBehavior<,>))
-                .AddFluentValidation(new List<Assembly> { eventHandlerAssembly });
+            services.AddMediatR();
 
             // cross site request from localhost:4200 to localhost:xxxx.
             services.AddCors(option =>

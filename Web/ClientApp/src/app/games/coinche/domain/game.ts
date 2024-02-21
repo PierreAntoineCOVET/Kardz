@@ -258,26 +258,32 @@ export class Game {
         startEvent.playerNumber = currentPlayer.number;
         this.onTurnTimeStarted.next(startEvent);
 
-        const numberOfTicks = (timerEndTime.getTime() - (new Date()).getTime()) / 1000;
-        let currentTick = 0;
+        //const numberOfTicks = (timerEndTime.getTime() - (new Date()).getTime()) / 1000;
+        //let currentTick = 0;
 
         if (this.turnTimer) {
             clearInterval(this.turnTimer);
         }
 
+        const initialTime = (new Date()).getTime() / 1000;
+        const finalTime = timerEndTime.getTime() / 1000;
+        const maxDuration = finalTime - initialTime;
+
         this.turnTimer = setInterval(
             () => {
+                const timeDiff = finalTime - ((new Date()).getTime() / 1000);
                 
-                const completion = Math.round(currentTick * 100 / numberOfTicks);
-                currentTick++;
+                const completion = timeDiff > 0
+                    ? 1 - (timeDiff / maxDuration)
+                    : 1;
 
                 const event = {
-                    percentage: completion
+                    percentage: completion * 100
                 } as TurnTimerTickedEvent;
 
                 this.onTurnTimerTicked.next(event);
 
-                if (completion >= 100) {
+                if (completion === 1) {
                     // force a random play
                     clearInterval(this.turnTimer);
                 }
