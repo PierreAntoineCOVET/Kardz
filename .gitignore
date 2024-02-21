@@ -34,3 +34,12 @@
 /DomainTests/bin/Debug/net7.0
 /Messages/bin/Debug/net7.0
 /TimedEventWorker/bin/Debug/net7.0
+/DomainTests/bin/Debug/net8.0
+/Messages/bin/Debug/net8.0
+/TimedEventWorker/bin/Debug/net8.0
+/Web/EventStoreDbSqLite.db-shm
+/Web/EventStoreDbSqLite.db-wal
+/Web/ReadDbSqLite.db-wal
+/Web/EventStoreDbSqLite.db-shm
+/Web/EventStoreDbSqLite.db-wal
+/Web/ReadDbSqLite.db-wal
