@@ -248,7 +248,7 @@ export class GameScene extends Phaser.Scene {
             else {
                 const coincheButton = this.contractFormElement.getChildByID("coinche");
                 if (!coincheButton) {
-                    throw new Error("valueDropDown is null");
+                    throw new Error("Child ID coinche is null");
                 }
                 coincheButton.setAttribute("disabled", "disabled");
             }
@@ -277,7 +277,7 @@ export class GameScene extends Phaser.Scene {
             if (this.currentContract.selectedColor !== undefined) {
                 const valueDropDown = this.contractFormElement.getChildByID('contractValue') as  any;
                 if (!valueDropDown) {
-                    throw new Error("valueDropDown is null");
+                    throw new Error("Child ID contractValue is null");
                 }
                 const selectedValue: number =
                     valueDropDown.value === 'capot'
@@ -289,7 +289,7 @@ export class GameScene extends Phaser.Scene {
             else {
                 const betColorWarning = this.contractFormElement.getChildByID('betColorWarning');
                 if (!betColorWarning) {
-                    throw new Error("valueDropDown is null");
+                    throw new Error("Child ID betColorWarning is null");
                 }
                 betColorWarning.classList.remove('hidden');
             }
@@ -305,20 +305,19 @@ export class GameScene extends Phaser.Scene {
             if (this.currentContract && this.currentContract.selectedColor !== undefined) {
                 const previousColor = this.contractFormElement.getChildByID(CoincheCardColorsEnum[this.currentContract.selectedColor]);
                 if (!previousColor) {
-                    throw new Error("valueDropDown is null");
+                    throw new Error("Child ID for previous color is null");
                 }
                 previousColor.classList.remove('selected');
             }
 
             const selectedColorButton = this.contractFormElement.getChildByID(event.target.value);
             if (!selectedColorButton) {
-                throw new Error("valueDropDown is null");
+                throw new Error("Child ID for current color is null");
             }
             selectedColorButton.classList.add('selected');
 
             let color: string = event.target.value;
-            // @ts-ignore
-            this.currentContract.selectedColor = ColorEnum[color];
+            this.currentContract.selectedColor = CoincheCardColorsEnum[color as keyof typeof CoincheCardColorsEnum];
         }
     }
 
@@ -413,8 +412,8 @@ export class GameScene extends Phaser.Scene {
      * Clear all displayed player's speach bubble.
      */
     private clearAllSpeachBubble() {
-        for (const speechBubble of this.speechBubbles) {
-            this.cleanBubble(speechBubble.playerNumber);
+        for (const player of this.gameDomain.players) {
+            this.cleanBubble(player.number);
         }
     }
 
@@ -423,9 +422,10 @@ export class GameScene extends Phaser.Scene {
      * @param playerNumber
      */
     private cleanBubble(playerNumber: number) {
-        var existingBubble = this.speechBubbles.find(b => b.playerNumber == playerNumber);
+        const existingBubbleIndex = this.speechBubbles.findIndex(b => b.playerNumber == playerNumber)
 
-        if (existingBubble) {
+        if (existingBubbleIndex > -1) {
+            const existingBubble = this.speechBubbles[existingBubbleIndex];
             existingBubble.bubble.destroy();
             existingBubble.text.destroy();
             this.speechBubbles.splice(this.speechBubbles.indexOf(existingBubble), 1);
@@ -476,5 +476,12 @@ export class GameScene extends Phaser.Scene {
                 point3Y: -arrowHeight,
             };
         }
+    }
+
+    /**
+     * Display sealed contract info
+     */
+    private afterContractSealed() {
+
     }
 }

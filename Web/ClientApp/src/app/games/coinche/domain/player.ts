@@ -165,8 +165,8 @@ export class Player {
     }
 
     private getBubbleText(contractInfo: IGameContractDto): string {
-        if (contractInfo.lastValue) {
-            return `${contractInfo.lastValue} ${CoincheCardColorsEnum[contractInfo.lastColor as number]}`;
+        if (contractInfo.lastValue && contractInfo.lastColor) {
+            return `${contractInfo.lastValue} ${CoincheCardColorsEnum[contractInfo.lastColor]}`;
         }
         else {
             if (contractInfo.isContractCoinched) {

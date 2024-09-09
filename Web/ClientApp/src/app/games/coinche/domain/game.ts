@@ -50,6 +50,12 @@ export class Game {
         = new BehaviorSubject<PlayerSaidEvent | undefined>(undefined);
 
     /**
+    * Emit when all players agreed on a contract.
+    */
+    //public onContractSealed: BehaviorSubject<ContractSealedEvent | undefined>
+    //    = new BehaviorSubject<ContractSealedEvent | undefined>(undefined);
+
+    /**
      * Emit each seconds of a player's turn.
      */
     public onTurnTimerTicked: Subject<TurnTimerTickedEvent> = new Subject<TurnTimerTickedEvent>();
@@ -66,7 +72,7 @@ export class Game {
     private cardWidth = 105;
 
     /** List of players in the game. */
-    private players: Player[] = []
+    public players: Player[] = []
 
     /** Timer reference for turn countdown. */
     private turnTimer!: NodeJS.Timeout;
@@ -165,11 +171,7 @@ export class Game {
         this.updateCurrentPlayer(currentPlayer);
 
         if (contractInfo.contractState == ContractStatesEnum.Closed) {
-            // wether it's the player's turn or not
-            // -- clear all spech bubbles --
-            // display current contract info somewhere
-            // highlight cards if local player is current player
-            this.handleContractClose();
+            this.handleContractClose(contractInfo);
         }
         else {
             this.handleContractUpdate(lastPlayer, localPlayer, contractInfo);
@@ -182,8 +184,20 @@ export class Game {
     /**
      * Clear all speach bubbles, display contract info and highlight cards if local player is current player.
      */
-    private handleContractClose() {
+    private handleContractClose(contractInfo: IGameContractDto) {
         this.onPlayerSays.next(undefined);
+        this.onContractChanged.next(undefined);
+
+        if (contractInfo.owningTeam == null) {
+            throw new Error("Contract.owningTeam is null");
+        }
+
+        const contractOwningTeam = this.players.filter(p => p.teamNumber == contractInfo.owningTeam);
+        contractOwningTeam.forEach(player => {
+            this.onPlayerSays.next(player.getContractSpeechBubble(contractInfo));
+        });
+
+        //this.onContractSealed.next(contractInfo.owningTeam);
 
         // All JS players has their team number
         // Contract has a owning team
@@ -229,6 +243,8 @@ export class Game {
      */
     private initGame(gameDatas: IGameInitDto) {
         this.displayCards(gameDatas.playerCards);
+        console.log(gameDatas.localPlayerNumber);
+        console.log(gameDatas.currentPlayerTeamNumber);
         this.setPlayersNumberAndTeam(gameDatas.localPlayerNumber, gameDatas.currentPlayerTeamNumber);
         this.setDealer(gameDatas.dealer);
 

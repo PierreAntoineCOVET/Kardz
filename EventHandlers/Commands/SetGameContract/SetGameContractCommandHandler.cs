@@ -59,7 +59,7 @@ namespace EventHandlers.Commands.SetGameContract
 
             game.SetGameContract(request.Color.ToDomainEnum(), request.Value, request.PlayerId, request.Coinched ?? false);
 
-            if(game.GetContract().CurrentState == Domain.Enums.ContractStatesEnum.Closed)
+            if(game.GetContract().CurrentState == Domain.Enums.ContractStatesEnum.Failed)
             {
                 game.StartNewTake();
             }

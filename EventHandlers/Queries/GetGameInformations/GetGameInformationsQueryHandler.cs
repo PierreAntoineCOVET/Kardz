@@ -68,7 +68,8 @@ namespace EventHandlers.Queries.GetPlayerCards
                 Dealer = game.CurrentDealer,
                 CurrentPlayerNumber = game.CurrentPlayerNumber,
                 LocalPlayerNumber = player.Number,
-                TurnEndTime = game.CurrentTurnTimeout
+                TurnEndTime = game.CurrentTurnTimeout,
+                CurrentPlayerTeamNumber = player.TeamNumber
             };
         }
     }

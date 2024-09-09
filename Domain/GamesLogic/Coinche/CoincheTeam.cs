@@ -50,6 +50,7 @@ namespace Domain.GamesLogic.Coinche
                 throw new InvalidCastException($"{nameof(player)} shoud be of type 'CoinchePlayer'");
 
             player.Number = Number + (Players.Count * 2);
+            player.TeamNumber = Number;
             Players.Add((CoinchePlayer)player);
         }
     }
