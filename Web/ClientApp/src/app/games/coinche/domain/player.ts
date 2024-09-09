@@ -3,6 +3,7 @@ import { StartTurnTimerEvent } from './events/turn-timer.event';
 import { BubbleQueuePosition, PlayerSaidEvent } from './events/player-said.event';
 import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
 import { CoincheCardColorsEnum } from 'src/app/typewriter/enums/CardEnum.enum';
+import { ContractSealedEvent } from 'src/app/games/coinche/domain/events/contract-sealed.event';
 
 /**
  * Player VM responsible to compute it's UI (position and width).
@@ -102,14 +103,14 @@ export class Player {
         }
         else if (this.position == ScreenCoordinate.right) {
             timerRectangle.x = 1390;
-            timerRectangle.y = 650;
+            timerRectangle.y = 545;
             timerRectangle.width = this.turnTimerSmallSide;
             timerRectangle.height = this.turnTimerBigSide;
             timerRectangle.direction = ScreenCoordinate.top;
         }
         else if (this.position == ScreenCoordinate.left) {
             timerRectangle.x = 210;
-            timerRectangle.y = 230;
+            timerRectangle.y = 245;
             timerRectangle.width = this.turnTimerSmallSide;
             timerRectangle.height = this.turnTimerBigSide;
             timerRectangle.direction = ScreenCoordinate.bottom;
@@ -122,8 +123,26 @@ export class Player {
      * Get the position, size and content of the speech bubble
      * annoncing the last player contract choice.
      */
+    public getActiveContractBubble(contractInfo: IGameContractDto): ContractSealedEvent {
+        let text = this.getContractValueText(contractInfo);
+        let position = this.getContractValuePosition();
+
+        return {
+            height: this.contractSpeechBubbleHeight,
+            width: this.contractSpeechBubbleWidth,
+            playerNumber: this.number,
+            text: text,
+            x: position.x,
+            y: position.y
+        } as ContractSealedEvent;
+    }
+
+    /**
+     * Get the position, size and content of the speech bubble
+     * annoncing the last player contract choice.
+     */
     public getContractSpeechBubble(contractInfo: IGameContractDto): PlayerSaidEvent {
-        let text = this.getBubbleText(contractInfo);
+        let text = this.getContractLastBetText(contractInfo);
         let position = this.getBubblePosition();
 
         return {
@@ -135,6 +154,33 @@ export class Player {
             y: position.y,
             bubbleQueuePosition: position.queue
         } as PlayerSaidEvent;
+    }
+
+    private getContractValuePosition(): { x: number, y: number, queue: BubbleQueuePosition } {
+        const position = {} as { x: number, y: number, queue: BubbleQueuePosition };
+
+        if (this.position == ScreenCoordinate.top) {
+            position.x = 1015;
+            position.y = 190;
+            position.queue = BubbleQueuePosition.topRight;
+        }
+        else if (this.position == ScreenCoordinate.bottom) {
+            position.x = 380;
+            position.y = 620;
+            position.queue = BubbleQueuePosition.bottomLeft;
+        }
+        else if (this.position == ScreenCoordinate.right) {
+            position.x = 1230;
+            position.y = 620;
+            position.queue = BubbleQueuePosition.bottomRight;
+        }
+        else if (this.position == ScreenCoordinate.left) {
+            position.x = 170;
+            position.y = 80;
+            position.queue = BubbleQueuePosition.bottomLeft;
+        }
+
+        return position;
     }
 
     private getBubblePosition(): { x: number, y: number, queue: BubbleQueuePosition } {
@@ -164,8 +210,16 @@ export class Player {
         return position;
     }
 
-    private getBubbleText(contractInfo: IGameContractDto): string {
-        if (contractInfo.lastValue && contractInfo.lastColor) {
+    private getContractValueText(contractInfo: IGameContractDto): string {
+        if (contractInfo.value == null || contractInfo.color == null) {
+            throw new Error("Invalid contract state !");
+        }
+
+        return `${contractInfo.value} ${CoincheCardColorsEnum[contractInfo.color]}`;
+    }
+
+    private getContractLastBetText(contractInfo: IGameContractDto): string {
+        if (contractInfo.lastValue != null && contractInfo.lastColor != null) {
             return `${contractInfo.lastValue} ${CoincheCardColorsEnum[contractInfo.lastColor]}`;
         }
         else {

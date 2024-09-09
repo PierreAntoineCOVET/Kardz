@@ -35,7 +35,7 @@ export interface PlayerSaidEvent {
     /**
      * Define the bubble queue (arrow) position relative to the bubble.
      */
-    bubbleQueuePosition: BubbleQueuePosition;
+    bubbleQueuePosition: BubbleQueuePosition | null;
 }
 
 /**

@@ -10,6 +10,7 @@ import { IGameContractDto } from 'src/app/typewriter/classes/GameContractDto';
 import { PlayerSaidEvent } from './events/player-said.event';
 import { ContractStatesEnum } from 'src/app/typewriter/enums/ContractEnums.enum';
 import { CardsEnum } from 'src/app/typewriter/enums/CardEnum.enum';
+import { ContractSealedEvent } from 'src/app/games/coinche/domain/events/contract-sealed.event';
 
 export class Game {
     public gameId!: string;
@@ -52,8 +53,8 @@ export class Game {
     /**
     * Emit when all players agreed on a contract.
     */
-    //public onContractSealed: BehaviorSubject<ContractSealedEvent | undefined>
-    //    = new BehaviorSubject<ContractSealedEvent | undefined>(undefined);
+    public onContractSealed: BehaviorSubject<ContractSealedEvent | undefined>
+        = new BehaviorSubject<ContractSealedEvent | undefined>(undefined);
 
     /**
      * Emit each seconds of a player's turn.
@@ -192,16 +193,12 @@ export class Game {
             throw new Error("Contract.owningTeam is null");
         }
 
+        // Display contract info
+        // Need to update the scene createSpeechBubble so that contract bubble are not erased by turn timer.
         const contractOwningTeam = this.players.filter(p => p.teamNumber == contractInfo.owningTeam);
         contractOwningTeam.forEach(player => {
-            this.onPlayerSays.next(player.getContractSpeechBubble(contractInfo));
+            this.onContractSealed.next(player.getActiveContractBubble(contractInfo));
         });
-
-        //this.onContractSealed.next(contractInfo.owningTeam);
-
-        // All JS players has their team number
-        // Contract has a owning team
-        // Need to display finalised contract info near turn timer (same style -h or v-, for both player of the team.)
 
         //let contractEvent = {
         //    currentPlayerNumber: localPlayer.number

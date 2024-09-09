@@ -9,6 +9,7 @@ import { Game } from 'src/app/games/coinche/domain/game';
 import { BubbleQueuePosition, PlayerSaidEvent } from '../domain/events/player-said.event';
 import { FOREVER } from 'phaser';
 import { CoincheCardColorsEnum } from 'src/app/typewriter/enums/CardEnum.enum';
+import { ContractSealedEvent } from 'src/app/games/coinche/domain/events/contract-sealed.event';
 
 /**
  * Core Coinche game loading and orchestrator.
@@ -104,6 +105,10 @@ export class GameScene extends Phaser.Scene {
         this.subscriptions.add(this.gameDomain.onPlayerSays.subscribe({
             next: (event) => this.playerSays(event)
         }));
+
+        this.subscriptions.add(this.gameDomain.onContractSealed.subscribe({
+            next: (event) => this.showActiveContract(event)
+        }));
     }
 
     override update() {
@@ -126,6 +131,28 @@ export class GameScene extends Phaser.Scene {
      */
     private playerSays(playerSaidEvent: PlayerSaidEvent | undefined) {
         if (playerSaidEvent) {
+            this.createSpeechBubble(playerSaidEvent);
+        }
+        else {
+            this.clearAllSpeachBubble();
+        }
+    }
+
+    /**
+     * Display a buble as a player speech.
+     * @param contractSealedEvent What to say and where to display it.
+     */
+    private showActiveContract(contractSealedEvent: ContractSealedEvent | undefined) {
+        if (contractSealedEvent) {
+            const playerSaidEvent = {
+                x: contractSealedEvent.x,
+                y: contractSealedEvent.y,
+                width: contractSealedEvent.width,
+                height: contractSealedEvent.height,
+                text: contractSealedEvent.text,
+                playerNumber: contractSealedEvent.playerNumber,
+                bubbleQueuePosition: null
+            } as PlayerSaidEvent;
             this.createSpeechBubble(playerSaidEvent);
         }
         else {
@@ -382,26 +409,28 @@ export class GameScene extends Phaser.Scene {
         bubble.strokeRoundedRect(0, 0, bubbleWidth, bubbleHeight, 16);
         bubble.fillRoundedRect(0, 0, bubbleWidth, bubbleHeight, 16);
 
-        //  Calculate arrow coordinates
-        const queuePosition = this.getQueuePosition(bubbleWidth, bubbleHeight, arrowHeight, playerSaidEvent.bubbleQueuePosition);
+        if (playerSaidEvent.bubbleQueuePosition != null) {
+            //  Calculate arrow coordinates
+            const queuePosition = this.getQueuePosition(bubbleWidth, bubbleHeight, arrowHeight, playerSaidEvent.bubbleQueuePosition);
 
-        //  Bubble arrow shadow
-        bubble.lineStyle(4, 0x222222, 0.5);
-        if (playerSaidEvent.bubbleQueuePosition == BubbleQueuePosition.topRight) {
-            bubble.lineBetween(queuePosition.point2X - 1, queuePosition.point2Y - 6, queuePosition.point3X + 2, queuePosition.point3Y);
-        }
-        else {
-            bubble.lineBetween(queuePosition.point2X - 1, queuePosition.point2Y + 6, queuePosition.point3X + 2, queuePosition.point3Y);
-        }
+            //  Bubble arrow shadow
+            bubble.lineStyle(4, 0x222222, 0.5);
+            if (playerSaidEvent.bubbleQueuePosition == BubbleQueuePosition.topRight) {
+                bubble.lineBetween(queuePosition.point2X - 1, queuePosition.point2Y - 6, queuePosition.point3X + 2, queuePosition.point3Y);
+            }
+            else {
+                bubble.lineBetween(queuePosition.point2X - 1, queuePosition.point2Y + 6, queuePosition.point3X + 2, queuePosition.point3Y);
+            }
 
-        //  Bubble arrow fill
-        bubble.fillTriangle(
-            queuePosition.point1X, queuePosition.point1Y,
-            queuePosition.point2X, queuePosition.point2Y,
-            queuePosition.point3X, queuePosition.point3Y);
-        bubble.lineStyle(2, 0x565656, 1);
-        bubble.lineBetween(queuePosition.point2X, queuePosition.point2Y, queuePosition.point3X, queuePosition.point3Y);
-        bubble.lineBetween(queuePosition.point1X, queuePosition.point1Y, queuePosition.point3X, queuePosition.point3Y);
+            //  Bubble arrow fill
+            bubble.fillTriangle(
+                queuePosition.point1X, queuePosition.point1Y,
+                queuePosition.point2X, queuePosition.point2Y,
+                queuePosition.point3X, queuePosition.point3Y);
+            bubble.lineStyle(2, 0x565656, 1);
+            bubble.lineBetween(queuePosition.point2X, queuePosition.point2Y, queuePosition.point3X, queuePosition.point3Y);
+            bubble.lineBetween(queuePosition.point1X, queuePosition.point1Y, queuePosition.point3X, queuePosition.point3Y);
+        }
 
         var b = content.getBounds();
 
