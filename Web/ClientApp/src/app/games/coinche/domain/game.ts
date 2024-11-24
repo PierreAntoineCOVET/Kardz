@@ -15,6 +15,7 @@ import { ContractSealedEvent } from 'src/app/games/coinche/domain/events/contrac
 export class Game {
     public gameId!: string;
     public playerId!: string;
+    private playerCard!: CardsEnum[];
 
     /**
      * Emit when a new sprite need to be added (current player has a new card).
@@ -105,6 +106,9 @@ export class Game {
             else if (this.isICoincheContractDto(message.data)) {
                 this.onGameContractChanged(message.data);
             }
+            else if (this.isICoincheContractDto(message.data)) {
+                this.onGameContractChanged(message.data);
+            }
         };
     }
 
@@ -137,11 +141,30 @@ export class Game {
     }
 
     /**
+     * Request current game infos such as player cards and current dealer / player.
+     */
+    private RequestPlayableCards() {
+        this.gameWorkerService.postMessage({
+            playerId: this.playerId,
+            gameId: this.gameId,
+            fName: 'GetPlayableCards'
+        });
+    }
+
+    /**
      * Return true if obj is assignable from IGameInitDto.
      * @param obj Object to check.
      */
     private isGameInitDto(obj: any): obj is IGameInitDto {
         return (obj as IGameInitDto).dealer !== undefined;
+    }
+
+    /**
+     * Return true if obj is assignable from ICoincheContractDto.
+     * @param obj Object to check.
+     */
+    private isICoincheContractDto(obj: any): obj is IGameContractDto {
+        return (obj as IGameContractDto).currentPlayerNumber !== undefined;
     }
 
     /**
@@ -159,6 +182,7 @@ export class Game {
     private onGameContractChanged(contractInfo: IGameContractDto) {
         if (contractInfo.contractState == ContractStatesEnum.Failed) {
             this.onContractChanged.next(undefined);
+            this.onContractSealed.next(undefined);
             this.RequestGameInfos();
             return;
         }
@@ -193,16 +217,12 @@ export class Game {
             throw new Error("Contract.owningTeam is null");
         }
 
-        // Display contract info
-        // Need to update the scene createSpeechBubble so that contract bubble are not erased by turn timer.
         const contractOwningTeam = this.players.filter(p => p.teamNumber == contractInfo.owningTeam);
         contractOwningTeam.forEach(player => {
             this.onContractSealed.next(player.getActiveContractBubble(contractInfo));
         });
 
-        //let contractEvent = {
-        //    currentPlayerNumber: localPlayer.number
-        //} as ContractMadeEvent;
+        this.RequestPlayableCards();
     }
 
     /**
@@ -239,9 +259,8 @@ export class Game {
      * @param gameDatas
      */
     private initGame(gameDatas: IGameInitDto) {
-        this.displayCards(gameDatas.playerCards);
-        console.log(gameDatas.localPlayerNumber);
-        console.log(gameDatas.currentPlayerTeamNumber);
+        this.playerCard = gameDatas.playerCards;
+        this.displayCards();
         this.setPlayersNumberAndTeam(gameDatas.localPlayerNumber, gameDatas.currentPlayerTeamNumber);
         this.setDealer(gameDatas.dealer);
 
@@ -366,10 +385,10 @@ export class Game {
      * Compute card (sprite or image) location based on player position.
      * @param cards List of cards for the current player, other players all have 'back' image.
      */
-    private displayCards(cards: CardsEnum[]) {
+    private displayCards() {
         for (const player of this.players) {
             if (player.id == this.playerId) {
-                cards.sort((a, b) => a - b).forEach((spriteNumber, index) => {
+                this.playerCard.forEach((spriteNumber, index) => {
                     const spritePosition = player.getSpritePosition(index, this.cardWidth);
 
                     const cardEvent = {

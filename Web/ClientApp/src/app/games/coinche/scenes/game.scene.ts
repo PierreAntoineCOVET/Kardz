@@ -36,10 +36,13 @@ export class GameScene extends Phaser.Scene {
 
     private speechBubbles: { playerNumber: number, bubble: Phaser.GameObjects.Graphics, text: Phaser.GameObjects.Text }[];
 
+    private contractBubbles: { playerNumber: number, bubble: Phaser.GameObjects.Graphics, text: Phaser.GameObjects.Text }[];
+
     constructor() {
         super({ key: 'game' });
         this.subscriptions = new Subscription();
         this.speechBubbles = [];
+        this.contractBubbles = [];
     }
 
     init() {
@@ -131,7 +134,8 @@ export class GameScene extends Phaser.Scene {
      */
     private playerSays(playerSaidEvent: PlayerSaidEvent | undefined) {
         if (playerSaidEvent) {
-            this.createSpeechBubble(playerSaidEvent);
+            const bubbleData = this.createSpeechBubble(playerSaidEvent);
+            this.speechBubbles.push(bubbleData);
         }
         else {
             this.clearAllSpeachBubble();
@@ -153,10 +157,11 @@ export class GameScene extends Phaser.Scene {
                 playerNumber: contractSealedEvent.playerNumber,
                 bubbleQueuePosition: null
             } as PlayerSaidEvent;
-            this.createSpeechBubble(playerSaidEvent);
+            const bubbleData = this.createSpeechBubble(playerSaidEvent);
+            this.contractBubbles.push(bubbleData)
         }
         else {
-            this.clearAllSpeachBubble();
+            this.clearAllContractBubble();
         }
     }
 
@@ -165,7 +170,7 @@ export class GameScene extends Phaser.Scene {
      * @param event
      */
     private displayTurnTimer(event: StartTurnTimerEvent) {
-        this.cleanBubble(event.playerNumber);
+        this.cleanSpeachBubble(event.playerNumber);
         this.turnTimerRectangle = {
             x: event.x,
             y: event.y,
@@ -252,7 +257,7 @@ export class GameScene extends Phaser.Scene {
      */
     private displayContractForm(event: ContractMadeEvent | undefined) {
         if (event) {
-            this.cleanBubble(event.currentPlayerNumber);
+            this.cleanSpeachBubble(event.currentPlayerNumber);
 
             this.currentContract = {} as ContractMadeEvent;
 
@@ -382,7 +387,7 @@ export class GameScene extends Phaser.Scene {
         this.subscriptions.unsubscribe();
     }
 
-    private createSpeechBubble(playerSaidEvent: PlayerSaidEvent) {
+    private createSpeechBubble(playerSaidEvent: PlayerSaidEvent): { playerNumber: number, bubble: Phaser.GameObjects.Graphics, text: Phaser.GameObjects.Text } {
         var bubbleWidth = playerSaidEvent.width;
         var bubbleHeight = playerSaidEvent.height;
         var bubblePadding = 10;
@@ -391,9 +396,7 @@ export class GameScene extends Phaser.Scene {
         var bubble = this.add.graphics({ x: playerSaidEvent.x, y: playerSaidEvent.y });
         var content = this.add.text(0, 0, playerSaidEvent.text, { fontFamily: 'Arial', fontSize: '2em', color: '#000000', align: 'center', wordWrap: { width: bubbleWidth - (bubblePadding * 2) } });
 
-        this.cleanBubble(playerSaidEvent.playerNumber);
-
-        this.speechBubbles.push({ playerNumber: playerSaidEvent.playerNumber, bubble: bubble, text: content });
+        this.cleanSpeachBubble(playerSaidEvent.playerNumber);
 
         //  Bubble shadow
         bubble.fillStyle(0x222222, 0.5);
@@ -435,6 +438,8 @@ export class GameScene extends Phaser.Scene {
         var b = content.getBounds();
 
         content.setPosition(bubble.x + (bubbleWidth / 2) - (b.width / 2), bubble.y + (bubbleHeight / 2) - (b.height / 2));
+
+        return { playerNumber: playerSaidEvent.playerNumber, bubble: bubble, text: content };
     }
 
     /**
@@ -442,7 +447,7 @@ export class GameScene extends Phaser.Scene {
      */
     private clearAllSpeachBubble() {
         for (const player of this.gameDomain.players) {
-            this.cleanBubble(player.number);
+            this.cleanSpeachBubble(player.number);
         }
     }
 
@@ -450,7 +455,7 @@ export class GameScene extends Phaser.Scene {
      * Delete every graphic elements related to a player speach bubble.
      * @param playerNumber
      */
-    private cleanBubble(playerNumber: number) {
+    private cleanSpeachBubble(playerNumber: number) {
         const existingBubbleIndex = this.speechBubbles.findIndex(b => b.playerNumber == playerNumber)
 
         if (existingBubbleIndex > -1) {
@@ -458,6 +463,30 @@ export class GameScene extends Phaser.Scene {
             existingBubble.bubble.destroy();
             existingBubble.text.destroy();
             this.speechBubbles.splice(this.speechBubbles.indexOf(existingBubble), 1);
+        }
+    }
+
+    /**
+     * Clear all displayed player's speach bubble.
+     */
+    private clearAllContractBubble() {
+        for (const player of this.gameDomain.players) {
+            this.cleanContractBubble(player.number);
+        }
+    }
+
+    /**
+     * Delete every graphic elements related to a player speach bubble.
+     * @param playerNumber
+     */
+    private cleanContractBubble(playerNumber: number) {
+        const existingBubbleIndex = this.contractBubbles.findIndex(b => b.playerNumber == playerNumber)
+
+        if (existingBubbleIndex > -1) {
+            const existingBubble = this.contractBubbles[existingBubbleIndex];
+            existingBubble.bubble.destroy();
+            existingBubble.text.destroy();
+            this.contractBubbles.splice(this.contractBubbles.indexOf(existingBubble), 1);
         }
     }
 

@@ -59,5 +59,14 @@ namespace Domain.Interfaces
         /// Start a new take.
         /// </summary>
         void StartNewTake();
+
+        /// <summary>
+        /// Get the list of playable cards from the current list.
+        /// Validate that the given list is what was expected.
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="possibleCards"></param>
+        /// <returns></returns>
+        IEnumerable<ICards> GetPlayableCards(Guid playerId, IEnumerable<ICards> possibleCards);
     }
 }

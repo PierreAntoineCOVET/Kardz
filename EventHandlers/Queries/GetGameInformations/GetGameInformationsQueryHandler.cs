@@ -30,7 +30,8 @@ namespace EventHandlers.Queries.GetPlayerCards
         /// <summary>
         /// Constructor.
         /// </summary>
-        /// <param name="gameRepository"></param>
+        /// <param name="eventStoreRepository"></param>
+        /// <param name="gameFactory"></param>
         public GetGameInformationsQueryHandler(IEventStoreRepository eventStoreRepository, GameFactory gameFactory)
         {
             EventStoreRepository = eventStoreRepository;

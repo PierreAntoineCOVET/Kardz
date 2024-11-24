@@ -1,11 +1,14 @@
 ﻿using Domain.Enums;
 using DTOs.Enums;
 using EventHandlers.Commands.SetGameContract;
+using EventHandlers.Queries.GetPlayableCards;
 using EventHandlers.Queries.GetPlayerCards;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Web.Hubs
@@ -43,6 +46,25 @@ namespace Web.Hubs
             {
                 GameId = gameId,
                 PlayerId = playerId
+            });
+
+            await Clients.Client(Context.ConnectionId).SendAsync("gameInformationsReceived", gameInit);
+        }
+
+        /// <summary>
+        /// Get a player playable cards based on the current hand.
+        /// </summary>
+        /// <param name="gameId">Guid of the game played.</param>
+        /// <param name="playerId">Id of the player to serve.</param>
+        /// <param name="possibleCards">Id of the player to serve.</param>
+        /// <returns></returns>
+        public async Task GetPlayableCards(Guid gameId, Guid playerId, IEnumerable<DTOs.Enums.CardsEnum> possibleCards)
+        {
+            var gameInit = await Mediator.Send(new GetPlayableCardsQuery
+            {
+                GameId = gameId,
+                PlayerId = playerId,
+                PossibleCards = possibleCards
             });
 
             await Clients.Client(Context.ConnectionId).SendAsync("gameInformationsReceived", gameInit);

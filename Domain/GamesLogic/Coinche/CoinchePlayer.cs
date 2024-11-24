@@ -13,6 +13,7 @@ namespace Domain.GamesLogic.Coinche
     /// <summary>
     /// Coinche player.
     /// </summary>
+    /// TODO: Check to split logic between class person (user in the game) and player (the current person who is playing the turn).
     [InterfaceResolver(typeof(CoincheGame), typeof(GameCreatedEvent), typeof(CoinchePlayerMappingConverter))]
     internal class CoinchePlayer : IPlayer
     {

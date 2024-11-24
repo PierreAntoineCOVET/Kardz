@@ -180,6 +180,31 @@ namespace Domain.GamesLogic.Coinche
         }
 
         /// <summary>
+        /// TODO: First thing to do for real !!!
+        /// This method used to be in the take class. Was moved (not sure why but probably good).
+        /// Commit done before finishing to reconnect everything here.
+        /// Need to get back to a building / working version of the game !!!
+        /// </summary>
+        /// <param name="playerId"></param>
+        /// <param name="possibleCards"></param>
+        /// <returns></returns>
+        /// <exception cref="GameException"></exception>
+        public IEnumerable<ICards> GetPlayableCards(Guid playerId, IEnumerable<ICards> possibleCards)
+        {
+            if (playerId != CurrentPlayer.Id)
+            {
+                throw new GameException("Not your turn to bet.");
+            }
+
+            if(!Enumerable.SequenceEqual(possibleCards, CurrentPlayer.GetCards(), new CoincheCardEqualityComparer()))
+            {
+                throw new GameException("Wrong card sequence.");
+            }
+
+            return Take.GetPlayableCards(possibleCards.Cast<CoincheCard>(), Contract.Color.Value);
+        }
+
+        /// <summary>
         /// Raise a <see cref="TakeChangedEvent"/> to advance the game to the new player turn.
         /// </summary>
         public void StartNewTake()

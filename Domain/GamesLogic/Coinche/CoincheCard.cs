@@ -166,6 +166,11 @@ namespace Domain.GamesLogic.Coinche
 
             return !opponentAskedColor.Any(o => o.Value > Value);
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Value.GetHashCode(), Color.GetHashCode());
+        }
     }
 
     /// <summary>
@@ -200,19 +205,28 @@ namespace Domain.GamesLogic.Coinche
 
             if (x == CoincheCardValuesEnum.Nine)
             {
-                return y == CoincheCardValuesEnum.Jack
-                    ? -1
-                    : 1;
+                return 1;
             }
 
             if (y == CoincheCardValuesEnum.Nine)
             {
-                return x == CoincheCardValuesEnum.Jack
-                    ? 1
-                    : -1;
+                return -1;
             }
 
             return x.CompareTo(y);
+        }
+    }
+
+    public class CoincheCardEqualityComparer : IEqualityComparer<ICards>
+    {
+        public bool Equals(ICards x, ICards y)
+        {
+            return x.Card == y.Card;
+        }
+
+        public int GetHashCode(ICards obj)
+        {
+            return obj.GetHashCode();
         }
     }
 }

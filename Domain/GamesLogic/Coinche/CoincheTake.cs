@@ -31,11 +31,6 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         private List<CoincheCard> PreviousFold = new List<CoincheCard>();
 
-        /// <summary>
-        /// List of possible cards for the next turn.
-        /// </summary>
-        private List<CoincheCard> PlayableCards = new List<CoincheCard>();
-
         public TakeChangedEvent StartNewTake(IEnumerable<CoincheCard> possibleCards, CoincheCardColorsEnum trumColor)
         {
             var currentFold = new List<CoincheCard>();
@@ -44,8 +39,7 @@ namespace Domain.GamesLogic.Coinche
             {
                 Id = Guid.NewGuid(),
                 CurrentFold = currentFold,
-                PreviousFold = new List<CoincheCard>(),
-                CurrentPlayerPlayableCards = GetPlayableCards(possibleCards, trumColor, currentFold)
+                PreviousFold = new List<CoincheCard>()
             };
         }
 
@@ -54,22 +48,21 @@ namespace Domain.GamesLogic.Coinche
         /// </summary>
         /// <param name="possibleCards">List of possible cards.</param>
         /// <returns>List of playable cards.</returns>
-        private static IEnumerable<CoincheCard> GetPlayableCards(IEnumerable<CoincheCard> possibleCards, CoincheCardColorsEnum trumpColor, 
-            List<CoincheCard> currentFold)
+        public IEnumerable<CoincheCard> GetPlayableCards(IEnumerable<CoincheCard> possibleCards, CoincheCardColorsEnum trumpColor)
         {
-            if (!currentFold.Any())
+            if (!CurrentFold.Any())
             {
                 return possibleCards.ToList();
             }
 
-            var askedColor = currentFold.First().Color;
+            var askedColor = CurrentFold.First().Color;
             var sameColorCards = possibleCards.Where(c => c.Color == askedColor).ToList();
 
             if (sameColorCards.Any())
             {
                 if(askedColor == trumpColor)
                 {
-                    return GetBetterOrAll(possibleCards, currentFold, askedColor);
+                    return GetBetterOrAll(possibleCards, CurrentFold, askedColor);
                 }
                 else
                 {
@@ -77,7 +70,7 @@ namespace Domain.GamesLogic.Coinche
                 }
             }
 
-            if (IsCurrentPlayerTeamWinning(askedColor, trumpColor, currentFold))
+            if (IsCurrentPlayerTeamWinning(askedColor, trumpColor, CurrentFold))
             {
                 return possibleCards.ToList();
             }
@@ -85,14 +78,14 @@ namespace Domain.GamesLogic.Coinche
             var hasTrumps = possibleCards.Any(c => c.Color == trumpColor);
             if (hasTrumps)
             {
-                return GetBetterOrAll(possibleCards, currentFold, trumpColor);
+                return GetBetterOrAll(possibleCards, CurrentFold, trumpColor);
             }
 
             return possibleCards.ToList();
         }
 
         /// <summary>
-        /// Get the cards of color <paramref name="color"/> from <paramref name="candidates"/> that can beat the beast card of color <paramref name="color"/>
+        /// Get the cards of color <paramref name="color"/> from <paramref name="candidates"/> that can beat the best card of color <paramref name="color"/>
         /// from <paramref name="currentFold"/>.
         /// Return all <paramref name="candidates"/> if no higher values are found.
         /// </summary>
@@ -150,9 +143,9 @@ namespace Domain.GamesLogic.Coinche
             return currentFold[1].IsStrongerThan(new List<CoincheCard> { currentFold[0], currentFold[2] }, askedColor, trumColor);
         }
 
-        public TakeChangedEvent Play(CoincheCard playedCard, IEnumerable<CoincheCard> nextPlayerCandidate, CoincheCardColorsEnum trumColor)
+        public TakeChangedEvent Play(CoincheCard playedCard, IEnumerable<CoincheCard> possibleCards)
         {
-            if (!IsCardPlayable(playedCard))
+            if (!IsCardPlayable(playedCard, possibleCards))
             {
                 throw new GameException($"Cannot play card {playedCard.Card}");
             }
@@ -167,7 +160,6 @@ namespace Domain.GamesLogic.Coinche
                 };
 
                 takeChangedEvent.Id = Guid.NewGuid();
-                takeChangedEvent.CurrentPlayerPlayableCards = GetPlayableCards(nextPlayerCandidate, trumColor, newCurrentFold);
                 takeChangedEvent.CurrentFold = newCurrentFold;
                 takeChangedEvent.PreviousFold = PreviousFold;
             }
@@ -179,9 +171,9 @@ namespace Domain.GamesLogic.Coinche
             return takeChangedEvent;
         }
 
-        private bool IsCardPlayable(CoincheCard candidate)
+        private bool IsCardPlayable(CoincheCard candidate, IEnumerable<CoincheCard> possibleCards)
         {
-            var cardIsValid = PlayableCards.Any(c => c == candidate);
+            var cardIsValid = possibleCards.Any(c => c == candidate);
 
             var cardHasNotBeenPlayed = !PreviousFold.Any(c => c == candidate);
 
@@ -192,7 +184,6 @@ namespace Domain.GamesLogic.Coinche
         {
             CurrentFold = @event.CurrentFold.Cast<CoincheCard>().ToList();
             PreviousFold = @event.PreviousFold.Cast<CoincheCard>().ToList();
-            PlayableCards = @event.CurrentPlayerPlayableCards.Cast<CoincheCard>().ToList();
         }
     }
 }
